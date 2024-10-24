@@ -32,4 +32,4 @@ Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDe
 Route::post('/checkin/store', [AbsenController::class, 'store'])->name('checkin.store');
 
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
-Route::get('/front-office/inputkode', [InputKodeController::class, 'match']);
+//Route::get('/front-office/inputkode', [InputKodeController::class, 'match']);

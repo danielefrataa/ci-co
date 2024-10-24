@@ -21,7 +21,7 @@ class InputKodeController extends Controller
 
         $booking = Absen::where('kode_booking', $request->kode_booking)->first();
 
-        return redirect()->route('booking.details', ['kode_booking' => $booking->kode_booking]) // Use kode_booking instead of id
-            ->with('success', 'Silahkan lengkapi data Anda.');
+        /*return redirect()->route('booking.details', ['kode_booking' => $booking->kode_booking]) // Use kode_booking instead of id
+            ->with('success', 'Silahkan lengkapi data Anda.');*/
     }
 }
