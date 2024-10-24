@@ -11,7 +11,7 @@ class FrontOfficeLoginController extends Controller
     // Show login form
     public function showLoginForm()
     {
-        return view('auth.front_office_login');
+        return view('auth.fo_login');
     }
 
     // Handle login
