@@ -10,6 +10,7 @@ class booking extends Model
     use HasFactory;
     protected $table = 'booking'; // Tambahkan ini jika nama tabel kamu tanpa 's'
 
-    protected $guarded = ['id'];
-
+    protected $fillable = [
+        'id',
+    ];
 }
