@@ -10,11 +10,9 @@ class booking extends Model
     use HasFactory;
     protected $table = 'booking'; // Tambahkan ini jika nama tabel kamu tanpa 's'
 
-<<<<<<< Updated upstream
     protected $fillable = [
         'id',
     ];
-=======
     protected $guarded = ['id'];
     public function peminjamanBarang()
     {
@@ -22,5 +20,4 @@ class booking extends Model
     }
     
     
->>>>>>> Stashed changes
 }
