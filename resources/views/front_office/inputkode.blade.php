@@ -43,12 +43,12 @@
     <div class="container">
         <div class="card w-50 justify-content-center mx-auto shadow" style="border-color: #091F5B; border-radius:10px;">
             <div class="card-body">
-                <p class="card-text text-center py-5 mt-3">Masukkan Kode Booking</p>
+                <p style="font-size: 21px;" class="card-text text-center py-5 mt-3">Masukkan Kode Booking</p>
                 <div class="mb-3 text-center px-5">
-                    <input type="text" class="form-control" id="bookingCode" placeholder="Masukkan Kode Booking" style="background-color: #E1E9FF; font-style: italic; text-align:center; border-radius:15px;">
+                    <input type="text" class="form-control py-2" id="bookingCode" placeholder="Masukkan Kode Booking" style="background-color: #E1E9FF; font-style: italic; text-align:center; border-radius:13px; border-color:#091F5B;">
                 </div>
                 <div class="text-center p-5">
-                    <button type="button" class="btn" style="background-color: #091F5B; color:white; border-radius:30px; padding:16px 50px; font-weight:bold;">Check - In</button>
+                    <button type="submit" class="btn" action="" method="GET" style="background-color: #091F5B; color:white; border-radius:30px; padding:16px 50px; font-weight:bold;">Check - In</button>
                 </div>
 
             </div>
