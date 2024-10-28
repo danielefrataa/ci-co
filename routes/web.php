@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AbsenController;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Auth\FrontOfficeLoginController;
 use App\Http\Controllers\InputKodeController;
+use App\Http\Controllers\Auth\RegistrationController;
 
 use App\Models\Absen;
 
@@ -24,6 +24,10 @@ Route::post('/front-office/login', [FrontOfficeLoginController::class, 'login'])
 
 // Logout
 Route::post('/front-office/logout', [FrontOfficeLoginController::class, 'logout'])->name('front_office.logout');
+
+// register
+Route::get('/front-office/register', [RegistrationController::class, 'showRegistrationForm'])->name('front_office.register');
+Route::post('/front-office/register', [RegistrationController::class, 'register'])->name('front_office.register.post');
 
 
 Route::post('/store', [AbsenController::class, 'store'])->name('store');
