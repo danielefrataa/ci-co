@@ -30,22 +30,22 @@
 <body>
 
     <div class="container col-lg-5 py-5">
-        <div class="d-flex justify-content-center align-items-center " style="height: ;">
+        <div class="d-flex justify-content-center align-items-center " style="">
             <h4 class="text-center mt-4 " style="font-size: 32px; color: #091F5B;">Silahkan tunjukkan barcode Anda ke
                 Kamera</h4>
         </div>
         <div class="card bg-white shadow rounded-3 p-3 border-0 mt-4">
             @if (session()->has('gagal'))
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    {{ session()->get('gagal') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ session()->get('gagal') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             @endif
             @if (session()->has('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session()->get('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session()->get('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             @endif
             <video id="preview"></video>
             <form action="{{ route('store') }}" method="POST" id="form">

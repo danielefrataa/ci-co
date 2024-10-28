@@ -36,7 +36,7 @@
             {{ session('success') }}
         </div>
     @endif
-    <h1 style="style= color: #091F5B;">Login</h1>
+    <h1 style="color: #091F5B;">Login</h1>
     <form action="{{ route('front_office.login.post') }}" method="POST" style="border-radius: 10px" class="card p-5 w-75 shadow-lg p-3">
         @csrf
         <div class="form-group justify-content-between my-1">
