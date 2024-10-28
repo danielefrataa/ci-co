@@ -13,7 +13,7 @@ return new class extends Migration
     {
         //
         Schema::create('front_office', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->increments('id')->primary();
             $table->string('username');
             $table->string('email');
             $table->string('password');
