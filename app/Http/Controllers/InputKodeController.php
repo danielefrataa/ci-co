@@ -11,7 +11,7 @@ class InputKodeController extends Controller
     {
         return view('front_office.inputkode');
     }
-    //
+    
     public function match(Request $request)
     {
         $request->validate([

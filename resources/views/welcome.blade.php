@@ -29,13 +29,6 @@
 
 <body>
 
-<<<<<<< Updated upstream
-=======
-    </head>
-    <body>
-    @include('layouts.app') <!-- Include your navbar here -->
-
->>>>>>> Stashed changes
     <div class="container col-lg-5 py-5">
         <div class="d-flex justify-content-center align-items-center " style="height: ;">
             <h4 class="text-center mt-4 " style="font-size: 32px; color: #091F5B;">Silahkan tunjukkan barcode Anda ke

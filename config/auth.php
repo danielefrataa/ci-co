@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'front_office' => [
+            'driver' => 'session',
+            'provider' => 'front_office', // This should match your provider below
+        ],
     ],
 
     /*
@@ -65,10 +70,10 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'front_office' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\FrontOffice::class, // Use your actual FrontOffice model here
+        ],
     ],
 
     /*

@@ -37,7 +37,7 @@
         </div>
     @endif
     <h1 style="style= color: #091F5B;">Login</h1>
-    <form style="border-radius: 10px" class="card p-5 w-75 shadow-lg p-3" method="POST">
+    <form action="{{ route('front_office.login.post') }}" method="POST" style="border-radius: 10px" class="card p-5 w-75 shadow-lg p-3">
         @csrf
         <div class="form-group justify-content-between my-1">
             <label class="py-1 fw-bold fs-5" for="email">Email</label>
@@ -57,6 +57,19 @@
         </div>
     </form>
 </body>
+
+@if (session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+@endif
+
+@if ($errors->any())
+    <div class="alert alert-danger">
+        @foreach ($errors->all() as $error)
+            <p>{{ $error }}</p>
+        @endforeach
+    </div>
+@endif
+
 
 
 </html>
