@@ -38,12 +38,16 @@ Route::post('/front-office/register', [RegistrationController::class, 'register'
 
 
 Route::post('/store', [AbsenController::class, 'store'])->name('store');
-Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
+//Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'store'])->name('checkin.store');
 
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
+<<<<<<< HEAD
 //Route::get('/front-office/inputkode', [InputKodeController::class, 'match']);
 
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
 
+=======
+Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
+>>>>>>> 3005451487f8e9541fcde636ae60b0ea7f7639b8
