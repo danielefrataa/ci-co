@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('peminjaman_barang', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('booking_id'); // Foreign key to booking
+            $table->string('kode_booking', 11); // Menggunakan kode_booking sebagai foreign key
             $table->string('nama_item');
-            $table->integer('jumlah');
+            $table->unsignedInteger('jumlah'); // Gunakan unsignedInteger untuk jumlah
             $table->string('lokasi');
-            $table->string('marketing');
-            $table->string('FO');
+            $table->string('marketing')->nullable(); // Mengizinkan nilai NULL
+            $table->string('FO')->nullable(); // Mengizinkan nilai NULL
             $table->timestamps();
-            
-            $table->foreign('booking_id')->references('id')->on('booking')->onDelete('cascade');
+
+            // Mendefinisikan foreign key
+            $table->foreign('kode_booking')->references('kode_booking')->on('booking')->onDelete('cascade');
         });
     }
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('borrowed_items');
+        Schema::dropIfExists('peminjaman_barang');
     }
 };

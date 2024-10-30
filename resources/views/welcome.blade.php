@@ -27,7 +27,8 @@
 
 </head>
 
-<body>
+    <body>
+    @include('layouts.app') <!-- Include your navbar here -->
 
     <div class="container col-lg-5 py-5">
         <div class="d-flex justify-content-center align-items-center ">

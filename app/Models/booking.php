@@ -14,10 +14,12 @@ class booking extends Model
         'id',
     ];
     protected $guarded = ['id'];
-    public function peminjamanBarang()
-    {
-        return $this->hasMany(PeminjamanBarang::class);
-    }
+   // Model Booking
+public function peminjaman()
+{
+    return $this->hasMany(PeminjamanBarang::class, 'kode_booking', 'kode_booking');
+}
+
     
     
 }
