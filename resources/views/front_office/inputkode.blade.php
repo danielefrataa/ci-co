@@ -33,10 +33,6 @@
             <a class="navbar-brand" href="{{ url('/') }}">
                 <img src="https://event.mcc.or.id/assets/images/logo.png" width="250" alt="Event Malang Creative Center">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
         </div>
     </nav>
     <h5 class="text-center my-4 mt-4" style="font-weight:bold;">Check-In Event</h5>

@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\FrontOfficeLoginController;
 use App\Http\Controllers\InputKodeController;
 use App\Http\Controllers\Auth\RegistrationController;
 use App\Http\Controllers\BookingsController;
+use App\Http\Controllers\RoomListController;
 
 use App\Models\Absen;
 
@@ -43,11 +44,7 @@ Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDe
 Route::post('/checkin/store', [AbsenController::class, 'store'])->name('checkin.store');
 
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
-<<<<<<< HEAD
-//Route::get('/front-office/inputkode', [InputKodeController::class, 'match']);
-
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
-
-=======
 Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
->>>>>>> 3005451487f8e9541fcde636ae60b0ea7f7639b8
+
+Route::get('/front-office/roomlist', [RoomListController::class, 'show'])->name('front_office.roomList');

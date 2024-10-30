@@ -30,7 +30,7 @@
 <body>
 
     <div class="container col-lg-5 py-5">
-        <div class="d-flex justify-content-center align-items-center " style="">
+        <div class="d-flex justify-content-center align-items-center ">
             <h4 class="text-center mt-4 " style="font-size: 32px; color: #091F5B;">Silahkan tunjukkan barcode Anda ke
                 Kamera</h4>
         </div>
