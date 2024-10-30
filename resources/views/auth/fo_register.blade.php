@@ -54,7 +54,7 @@
         @csrf
         <div class="form-group justify-content-between my-1">
             <label class="py-1 fw-bold fs-5" for="username">Username</label>
-            <input type="text" style="background-color: white; border-radius: 10px;" name="username" id="username"
+            <input type="text" style="background-color: white; border-radius: 10px;" name="name" id="name"
                 class="form-control py-3" required>
         </div>
         <div class="form-group justify-content-between my-1">

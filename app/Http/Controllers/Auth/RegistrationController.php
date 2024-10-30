@@ -18,16 +18,20 @@ class RegistrationController extends Controller
     {
         // Validate the incoming request data
         $request->validate([
-            'username' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:front_office'],
-            'password' => ['required', 'string', 'confirmed'], // Ensure password confirmation
+            'password' => ['required', 'string', 'confirmed'],
+            'created_at' => now(), // Optional: Track when the user was created
+            'updated_at' => now(),
         ]);
 
         // Create a new user instance
-        DB::table('front_office')->insert([
-            'username' => $request->username,
+        DB::table('users')->insert([
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password), // Hash the password
+            'created_at' => now(), // Optional: Track when the user was created
+            'updated_at' => now(),
         ]);
 
         // Redirect to the desired page after registration

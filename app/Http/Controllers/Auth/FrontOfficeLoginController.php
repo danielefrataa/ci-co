@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\FrontOffice;
+use App\Models\User;
 
 class FrontOfficeLoginController extends Controller
 {
@@ -24,30 +24,32 @@ class FrontOfficeLoginController extends Controller
 
     // Handle login
     public function login(Request $request)
-{
-    // Validate the request input
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
+    {
+        // Validate the request input
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+            'created_at' => now(), // Optional: Track when the user was created
+            'updated_at' => now(),
+        ]);
 
-    // Retrieve user from the front_office table
-    $user = FrontOffice::where('email', $credentials['email'])->first();
+        // Retrieve user from the front_office table
+        $user = User::where('email', $credentials['email'])->first();
 
-    // Check if user exists and password matches
-    if ($user && Hash::check($credentials['password'], $user->password)) {
-        // Log the user in via the front_office guard
-        Auth::guard('front_office')->login($user);
+        // Check if user exists and password matches
+        if ($user && Hash::check($credentials['password'], $user->password)) {
+            // Log the user in via the front_office guard
+            Auth::guard('front_office')->login($user);
 
-        // Redirect to front office dashboard on successful login
-        return redirect()->intended('/front-office/dashboard');
+            // Redirect to front office dashboard on successful login
+            return redirect()->intended('/front-office/dashboard');
+        }
+
+        // If login fails, redirect back with an error
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
-
-    // If login fails, redirect back with an error
-    return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ]);
-}
 
     // Handle logout
     public function logout()
