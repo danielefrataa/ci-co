@@ -40,17 +40,17 @@
             font-weight: bold;
         }
 
-        .room-status.dipesan {
+        .room-status[value|="dipesan"] {
             background-color: #2b2b2b;
             color: #c1c1c1
         }
 
-        .room-status.sedang-digunakan {
+        .room-status[value|="sedang digunakan"] {
             background-color: #A3F1BA60;
             color: #07CF43
         }
 
-        .room-status.kosong {
+        .room-status[value|="kosong"] {
             background-color: #F1A3A450;
             color: #E53235;
         }
@@ -80,6 +80,10 @@
                 <option>Lantai 2</option>
                 <option>Lantai 3</option>
                 <option>Lantai 4</option>
+                <option>Lantai 5</option>
+                <option>Lantai 6</option>
+                <option>Lantai 7</option>
+                <option>Lantai 8</option>
             </select>
             <div class="mt-5">
                 <input type="text" class="py-2 text-center " placeholder="Telusuri" style="border-radius: 21px;">
@@ -95,7 +99,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Studio Musik</span>
-                        <span class="room-status dipesan shadow shadow-sm">dipesan</span>
+                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>16:00 - 20:00</p>
@@ -103,7 +107,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Studio Musik</span>
-                        <span class="room-status dipesan shadow shadow-sm">dipesan</span>
+                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>16:00 - 20:00</p>
@@ -112,7 +116,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Studio Musik</span>
-                        <span class="room-status dipesan shadow shadow-sm">dipesan</span>
+                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>16:00 - 20:00</p>
@@ -122,7 +126,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status sedang-digunakan shadow shadow-sm">sedang digunakan</span>
+                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>12:00 - 17:00</p>
@@ -130,7 +134,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status sedang-digunakan shadow shadow-sm">sedang digunakan</span>
+                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>12:00 - 17:00</p>
@@ -139,7 +143,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status sedang-digunakan shadow shadow-sm">sedang digunakan</span>
+                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>12:00 - 17:00</p>
@@ -149,7 +153,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status kosong shadow shadow-sm">kosong</span>
+                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>12:00 - 17:00</p>
@@ -158,7 +162,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status kosong shadow shadow-sm">kosong</span>
+                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>12:00 - 17:00</p>
@@ -167,7 +171,7 @@
                 <div class="room-card">
                     <div class="d-flex justify-content-between">
                         <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status kosong shadow shadow-sm">kosong</span>
+                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
                     </div>
                     <p>Lantai 4</p>
                     <p>12:00 - 17:00</p>
