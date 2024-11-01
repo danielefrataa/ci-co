@@ -30,11 +30,6 @@
             box-shadow: 1px 4px 2px #D1D1D1, -1px 4px 2px #D1D1D1;
         }
 
-        .room-card h5 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
         .room-card p {
             margin-bottom: 5px;
         }
@@ -59,29 +54,6 @@
             background-color: #F1A3A450;
             color: #E53235;
         }
-
-        .custom-search-bar {
-
-            border: 1px solid #333;
-
-            border-radius: 20px;
-
-
-        }
-
-        .custom-search-bar:focus {
-            box-shadow: none;
-
-        }
-
-        .input-group-text {
-
-            border: none;
-
-            border-radius: 0 20px 20px 0;
-
-
-        }
     </style>
 </head>
 
@@ -102,20 +74,19 @@
 
     <div class="container">
         <div class="d-flex justify-content-between">
-            <select class="form-select my-5 w-25">
+            <select class="form-select my-5 w-25" style="border-radius: 15px;">
                 <option>Semua Lantai</option>
                 <option>Lantai 1</option>
                 <option>Lantai 2</option>
                 <option>Lantai 3</option>
                 <option>Lantai 4</option>
             </select>
-            <div class="container mt-5">
-                <div class="input-group">
-                    <input type="text" class="form-control custom-search-bar" placeholder="Telusuri">
-                    <div class="input-group-append">
-                        <span class="input-group-text"><i class="fa fa-search"></i></span>
-                    </div>
-                </div>
+            <div class="mt-5">
+                <input type="text" class="py-2 text-center " placeholder="Telusuri" style="border-radius: 21px;">
+
+                <button type="button">
+                    <span class="fa fa-search"></span>
+                </button>
             </div>
         </div>
         <div class="row">
