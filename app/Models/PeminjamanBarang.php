@@ -12,7 +12,7 @@ class PeminjamanBarang extends Model
     protected $table = 'peminjaman_barang';
 
     protected $fillable = [
-        'booking_id',
+        'kode_booking',
         'nama_item',
         'jumlah',
         'lokasi',

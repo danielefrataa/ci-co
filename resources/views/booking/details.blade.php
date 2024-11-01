@@ -122,9 +122,11 @@
             <h4 class="text-center mb-4" style="font-weight: 800; font-size: 22px;">Isi Data Check In</h4>
 
             <!-- Form untuk input nama dan nomor telepon -->
-            <form id="checkinForm" action="{{ route('checkin.store') }}" method="POST">
-                @csrf
-                <input type="hidden" name="kode_booking" value="{{ $booking->kode_booking }}">
+        <form id="checkinForm" action="{{ route('checkin.store') }}" method="POST">
+            @csrf
+            <input type="hidden" name="kode_booking" value="{{ $booking->kode_booking }}">
+            <input type="hidden" id="signatureData" name="signatureData"> <!-- Hidden input for signature data -->
+
                 <div>
                     <label for="name" class="form-label bold-text">Nama </label>
                     <input type="text" class="form-control" id="name" name="name" required>
@@ -192,6 +194,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/3.0.2/signature_pad.umd.min.js"></script>
 
+<<<<<<< Updated upstream
         <!-- Signature Pad Initialization -->
         <script>
             document.addEventListener("DOMContentLoaded", function() {
@@ -226,6 +229,46 @@
                 });
             });
         </script>
+=======
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    var canvas = document.getElementById('signature');
+    var ctx = canvas.getContext('2d');
+    var isDrawing = false;
+
+    canvas.addEventListener('mousedown', function(e) {
+        isDrawing = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener('mousemove', function(e) {
+        if (isDrawing) {
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+    });
+
+    canvas.addEventListener('mouseup', function() {
+        isDrawing = false;
+    });
+
+    document.getElementById('clearSignature').addEventListener('click', function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    document.getElementById('checkinForm').addEventListener('submit', function(e) {
+        var signatureData = canvas.toDataURL('image/png');
+        if (signatureData.length <= 100) { 
+            e.preventDefault();
+            alert("Please provide a signature to proceed.");
+        } else {
+            document.getElementById('signatureData').value = signatureData;
+        }
+    });
+});
+</script>
+>>>>>>> Stashed changes
 </body>
 
 </html>
