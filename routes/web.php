@@ -21,7 +21,7 @@ Route::get('/', function () {
     ]);
 })->name('dashboard');
 // front_office
-Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');  
+Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
 
 Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
 
@@ -48,14 +48,13 @@ Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('c
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
-<<<<<<< HEAD
+
 
 
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
 
-=======
+
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
 Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
 
 Route::get('/front-office/roomlist', [RoomListController::class, 'show'])->name('front_office.roomList');
->>>>>>> 2291926b1295da97a545618daa84439eab918e19
