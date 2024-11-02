@@ -22,13 +22,31 @@ class BookingsController extends Controller
         }
 
         if ($search) {
-            $query->where('nama_event', 'LIKE', "%$search%")
+            $query->where(function($q) use ($search) {
+                $q->where('nama_event', 'LIKE', "%$search%")
                   ->orWhere('kode_booking', 'LIKE', "%$search%")
                   ->orWhere('user_name', 'LIKE', "%$search%");
+            });
         }
 
         $bookings = $query->get();
 
         return view('front_office.dashboard', compact('bookings'));
     }
+
+    // Update the booking status
+    public function updateStatus(Request $request, $id)
+    {
+        $booking = Booking::find($id);
+        
+        if ($booking) {
+            $booking->status = $request->status;
+            $booking->save();
+
+            return response()->json(['success' => true, 'message' => 'Status updated successfully.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Booking not found.'], 404);
+    }
 }
+

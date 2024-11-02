@@ -11,30 +11,26 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('absen', function (Blueprint $table) {
+        Schema::create('booking', function (Blueprint $table) {
             $table->id();
             $table->string('kode_booking')->unique(); // Booking code
             $table->string('nama_event'); // Event name
             $table->string('ruangan'); // Room location
-            $table->string('waktu'); // Event time
+            $table->time('waktu_mulai'); // Event start time
+            $table->time('waktu_selesai'); // Event end time
             $table->string('user_name'); // User's name who booked
             $table->enum('status', ['Check-in', 'Booked', 'Check-out'])->default('Booked'); // Booking status
             $table->timestamps(); 
         });
-    }       
+    }
+    
 
-
-  
-
-      /**
+    /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down()
     {
-        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('booking');
     }
 };
-
 

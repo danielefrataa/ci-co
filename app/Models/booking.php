@@ -14,6 +14,12 @@ class booking extends Model
         'id',
     ];
     protected $guarded = ['id'];
+
+    public function getWaktuAttribute()
+    {
+        return $this->waktu_mulai . ' - ' . $this->waktu_selesai;
+    }
+    
    // Model Booking
 public function peminjaman()
 {
