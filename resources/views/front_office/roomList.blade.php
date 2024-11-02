@@ -15,22 +15,19 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
         }
 
         .room-card {
-            border: 1px solid #ccc;
+            border: 1px;
             padding: 20px;
             margin-bottom: 20px;
-            border-radius: 5px;
-            background-color: #f8f8f8;
-        }
-
-        .room-card h5 {
-            font-size: 18px;
-            margin-bottom: 10px;
+            border-radius: 10px;
+            background-color: #FBFCFF;
+            box-shadow: 1px 4px 2px #D1D1D1, -1px 4px 2px #D1D1D1;
         }
 
         .room-card p {
@@ -39,28 +36,23 @@
 
         .room-status {
             padding: 5px 10px;
-            border-radius: 5px;
+            border-radius: 10px;
             font-weight: bold;
         }
 
-        .room-status.belum-digunakan {
-            background-color: #ccc;
-            color: #666;
+        .room-status[value|="dipesan"] {
+            background-color: #2b2b2b;
+            color: #c1c1c1
         }
 
-        .room-status.dipesan {
-            background-color: #ccc;
-            color: #666;
+        .room-status[value|="sedang digunakan"] {
+            background-color: #A3F1BA60;
+            color: #07CF43
         }
 
-        .room-status.sedang-digunakan {
-            background-color: #99ff99;
-            color: #000;
-        }
-
-        .room-status.sudah-digunakan {
-            background-color: #ff9999;
-            color: #fff;
+        .room-status[value|="kosong"] {
+            background-color: #F1A3A450;
+            color: #E53235;
         }
     </style>
 </head>
@@ -78,100 +70,130 @@
             </a>
         </div>
     </nav>
-    <h2 class="text-center">Room List</h2>
-    <div class="container mt-5">
+    <h1 class="text-center">Room List</h1>
+
+    <div class="container">
+        <div class="d-flex justify-content-between">
+            <select class="form-select my-5 w-25" style="border-radius: 15px;">
+                <option>Semua Lantai</option>
+                <option>Lantai 1</option>
+                <option>Lantai 2</option>
+                <option>Lantai 3</option>
+                <option>Lantai 4</option>
+                <option>Lantai 5</option>
+                <option>Lantai 6</option>
+                <option>Lantai 7</option>
+                <option>Lantai 8</option>
+            </select>
+            <div class="mt-5">
+                <input type="text" class="py-2 text-center " placeholder="Telusuri" style="border-radius: 21px;">
+
+                <button type="button">
+                    <span class="fa fa-search"></span>
+                </button>
+            </div>
+        </div>
         <div class="row">
-            <div class="col-md-3">
-                <select class="form-select">
-                    <option>Semua Lantai</option>
-                    <option>Lantai 1</option>
-                    <option>Lantai 2</option>
-                    <option>Lantai 3</option>
-                    <option>Lantai 4</option>
-                </select>
-            </div>
-            <div class="col-md-9">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="room-card">
-                            <h5>Studio Musik</h5>
-                            <p>Lantai 4</p>
-                            <p>16:00 - 20:00</p>
-                            <span class="room-status belum-digunakan">belum digunakan</span>
-                        </div>
-                        <div class="room-card">
-                            <h5>Studio Musik</h5>
-                            <p>Lantai 4</p>
-                            <p>16:00 - 20:00</p>
-                            <span class="room-status dipesan">dipesan</span>
-                        </div>
-                        <div class="room-card">
-                            <h5>Studio Musik</h5>
-                            <p>Lantai 4</p>
-                            <p>16:00 - 20:00</p>
-                            <span class="room-status dipesan">dipesan</span>
-                        </div>
+
+            <div class="col-md-4">
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Studio Musik</span>
+                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
                     </div>
-                    <div class="col-md-4">
-                        <div class="room-card">
-                            <h5>Lab Komputer</h5>
-                            <p>Lantai 4</p>
-                            <p>12:00 - 17:00</p>
-                            <span class="room-status sedang-digunakan">sedang digunakan</span>
-                        </div>
-                        <div class="room-card">
-                            <h5>Lab Komputer</h5>
-                            <p>Lantai 4</p>
-                            <p>12:00 - 17:00</p>
-                            <span class="room-status sedang-digunakan">sedang digunakan</span>
-                        </div>
-                        <div class="room-card">
-                            <h5>Lab Komputer</h5>
-                            <p>Lantai 4</p>
-                            <p>12:00 - 17:00</p>
-                            <span class="room-status sedang-digunakan">sedang digunakan</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="room-card">
-                            <h5>Lab Komputer</h5>
-                            <p>Lantai 4</p>
-                            <p>12:00 - 17:00</p>
-                            <span class="room-status sudah-digunakan">sudah digunakan</span>
-                        </div>
-                        <div class="room-card">
-                            <h5>Lab Komputer</h5>
-                            <p>Lantai 4</p>
-                            <p>12:00 - 17:00</p>
-                            <span class="room-status sudah-digunakan">sudah digunakan</span>
-                        </div>
-                        <div class="room-card">
-                            <h5>Lab Komputer</h5>
-                            <p>Lantai 4</p>
-                            <p>12:00 - 17:00</p>
-                            <span class="room-status sudah-digunakan">sudah digunakan</span>
-                        </div>
-                    </div>
+                    <p>Lantai 4</p>
+                    <p>16:00 - 20:00</p>
                 </div>
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item   
- disabled">
-                            <a class="page-link">Previous</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link">1</a></li>
-                        <li class="page-item"><a class="page-link">2</a></li>
-                        <li class="page-item"><a class="page-link">3</a></li>
-                        <li class="page-item"><a class="page-link">...</a></li>  
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Studio Musik</span>
+                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
+                    </div>
+                    <p>Lantai 4</p>
+                    <p>16:00 - 20:00</p>
 
-                        <li class="page-item"><a class="page-link">10</a></li>
-                        <li class="page-item">
-                            <a class="page-link">Next</a>  
-
-                        </li>
-                    </ul>
-                </nav>
+                </div>
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Studio Musik</span>
+                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
+                    </div>
+                    <p>Lantai 4</p>
+                    <p>16:00 - 20:00</p>
+                </div>
             </div>
+            <div class="col-md-4">
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Lab Komputer</span>
+                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
+                    </div>
+                    <p>Lantai 4</p>
+                    <p>12:00 - 17:00</p>
+                </div>
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Lab Komputer</span>
+                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
+                    </div>
+                    <p>Lantai 4</p>
+                    <p>12:00 - 17:00</p>
+
+                </div>
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Lab Komputer</span>
+                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
+                    </div>
+                    <p>Lantai 4</p>
+                    <p>12:00 - 17:00</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Lab Komputer</span>
+                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
+                    </div>
+                    <p>Lantai 4</p>
+                    <p>12:00 - 17:00</p>
+
+                </div>
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Lab Komputer</span>
+                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
+                    </div>
+                    <p>Lantai 4</p>
+                    <p>12:00 - 17:00</p>
+
+                </div>
+                <div class="room-card">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold mt-1">Lab Komputer</span>
+                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
+                    </div>
+                    <p>Lantai 4</p>
+                    <p>12:00 - 17:00</p>
+
+                </div>
+            </div>
+
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link">Previous</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link">1</a></li>
+                    <li class="page-item"><a class="page-link">2</a></li>
+                    <li class="page-item"><a class="page-link">3</a></li>
+                    <li class="page-item"><a class="page-link">...</a></li>  
+                    <li class="page-item"><a class="page-link">10</a></li>
+                    <li class="page-item">
+                        <a class="page-link">Next</a>  
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
     @csrf
