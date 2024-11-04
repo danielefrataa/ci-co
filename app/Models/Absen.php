@@ -11,9 +11,10 @@ class Absen extends Model
     protected $table = 'absen'; // Tambahkan ini jika nama tabel kamu tanpa 's'
     protected $guarded = ['id'];
 
-    public function booking()
+// In Absen model
+public function booking()
 {
-    return $this->hasOne(Booking::class, 'kode_booking', 'id_booking');
+    return $this->belongsTo(Booking::class, 'booking_id'); // Make sure 'booking_id' matches your foreign key in Absen
 }
 
 }

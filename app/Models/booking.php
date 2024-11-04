@@ -12,6 +12,13 @@ class booking extends Model
 
     protected $fillable = [
         'id',
+        'kode_booking',
+        'nama_event',
+        'ruangan',
+        'waktu_mulai',
+        'waktu_selesai',
+        'user_name',
+        'status'
     ];
     protected $guarded = ['id'];
 
@@ -20,7 +27,7 @@ class booking extends Model
         return $this->waktu_mulai . ' - ' . $this->waktu_selesai;
     }
     
-   // Model Booking
+   // Model Bookin
 public function peminjaman()
 {
     return $this->hasMany(PeminjamanBarang::class, 'kode_booking', 'kode_booking');
