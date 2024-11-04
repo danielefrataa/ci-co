@@ -16,7 +16,6 @@ class BookingController extends Controller
         // Return the view with the booking details
         return view('booking.details', compact('booking', 'borrowedItems'));
     }
-<<<<<<< Updated upstream
     public function index(Request $request)
 {
     $status = $request->input('status');
@@ -30,7 +29,6 @@ class BookingController extends Controller
     return view('bookings.index', compact('bookings'));
 }
 
-=======
     public function getBookingData()
     {
         $response = Http::withHeaders([
@@ -44,5 +42,5 @@ class BookingController extends Controller
     
     
     
->>>>>>> Stashed changes
+
 }

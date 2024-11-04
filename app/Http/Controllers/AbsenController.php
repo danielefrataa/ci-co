@@ -10,50 +10,43 @@ use Illuminate\Support\Facades\Log;
 class AbsenController extends Controller
 {
     public function store(Request $request)
-    {
-        // Validasi input data
-        $request->validate([
-            'id_booking' => 'required|string', // Asumsikan ini adalah kode_booking dari scan
-        ]);
+{
+    // Validasi input data
+    $request->validate([
+        'id_booking' => 'required|string', // Asumsikan ini adalah kode_booking dari scan
+    ]);
 
-        // Cek peminjaman barang berdasarkan id_booking
-        $peminjaman = PeminjamanBarang::where('kode_booking', $request->id_booking)->first();
-// Debug log
-Log::info('Kode Booking: ' . $request->id_booking);
-Log::info('Peminjaman: ' . ($peminjaman ? 'Ditemukan' : 'Tidak Ditemukan'));
-        if (!$peminjaman) {
-            // Jika peminjaman tidak ditemukan, beri pesan dan redirect
-            return redirect('/')->with('gagal', 'Peminjaman tidak ditemukan. Anda tidak dapat check-in.');
-        }
+    // Cek apakah user sudah pernah check-in berdasarkan id_booking
+    $cek = Absen::where('id_booking', $request->id_booking)->first();
 
-        // Cek apakah user sudah pernah check-in berdasarkan id_booking
-        $cek = Absen::where('id_booking', $request->id_booking)->first();
-
-        if ($cek) {
-            // Jika data check-in sudah ada, beri pesan bahwa check-in sudah pernah dilakukan
-            return redirect('/')->with('gagal', 'Anda sudah pernah check-in sebelumnya.');
-        }
-
-        // Buat catatan check-in baru
-        Absen::create([
-            'id_booking' => $request->id_booking,
-            'tanggal' => now()->toDateString(),
-        ]);
-
-        // Dapatkan detail booking berdasarkan kode_booking
-        $booking = Booking::where('kode_booking', $request->id_booking)->first();
-
-        if (!$booking) {
-            return redirect('/')->with('gagal', 'Booking tidak ditemukan.');
-        }
-
-        // Simpan kode_booking ke sesi
-        $request->session()->put('kode_booking', $booking->kode_booking);
-
-        // Redirect ke halaman detil untuk lengkapi data
-        return redirect()->route('booking.details', ['kode_booking' => $booking->kode_booking])
-            ->with('success', 'Silahkan lengkapi data Anda.');
+    if ($cek) {
+        // Jika data check-in sudah ada, beri pesan bahwa check-in sudah pernah dilakukan
+        return redirect('/')->with('gagal', 'Anda sudah pernah check-in sebelumnya.');
     }
+
+    // Buat catatan check-in baru
+    Absen::create([
+        'id_booking' => $request->id_booking,
+        'tanggal' => now()->toDateString(),
+    ]);
+
+    // Dapatkan detail booking berdasarkan kode_booking
+    $booking = Booking::where('kode_booking', $request->id_booking)->first();
+
+    if (!$booking) {
+        return redirect('/')->with('gagal', 'Booking tidak ditemukan.');
+    }
+
+    // Simpan kode_booking ke sesi
+    $request->session()->put('kode_booking', $booking->kode_booking);
+
+    // Cek apakah ada peminjaman barang
+    $peminjaman = PeminjamanBarang::where('kode_booking', $request->id_booking)->first();
+
+    // Redirect ke halaman detail booking
+    return redirect()->route('booking.details', ['kode_booking' => $booking->kode_booking])
+        ->with('success', 'Check-in berhasil.'); 
+}
 
     public function checkinstore(Request $request)
     {

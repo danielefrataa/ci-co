@@ -52,6 +52,16 @@
             background-color: #e3f2fd;
             text-align: center;
         }
+        .table th, .table td {
+            border:none; /* Hilangkan border pada sel tabel */
+        }
+        .form-check-input {
+            border-color: #091F5B; /* Warna border default */
+        }
+        .form-check-input:checked {
+            background-color: #091F5B; /* Warna latar belakang saat dicentang */
+            border-color: #091F5B; /* Warna border saat dicentang */
+        }
 
         .signature-wrapper {
             display: flex;
@@ -62,23 +72,23 @@
             font-size: ;
         }
         .signature-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Untuk menengahkan konten di dalam kolom */
-}
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Untuk menengahkan konten di dalam kolom */
+        }       
 
-.signature-img {
-    width: 150px; /* Atur lebar gambar tanda tangan */
-    height: auto; /* Biarkan tinggi otomatis untuk mempertahankan rasio aspek */
-}
+        .signature-img {
+            width: 100px; /* Atur lebar gambar tanda tangan */
+            height: auto; /* Biarkan tinggi otomatis untuk mempertahankan rasio aspek */
+        }
 
-.signature-title {
-    margin-bottom: 10px; /* Spasi antara judul dan gambar */
-}
+        .signature-title {
+            margin-bottom: 10px; /* Spasi antara judul dan gambar */
+        }
 
-.signature-group p {
-    margin: 5px 0; /* Atur margin untuk paragraf agar tidak terlalu rapat */
-}
+        .signature-group p {
+            margin: 5px 0; /* Atur margin untuk paragraf agar tidak terlalu rapat */
+        }
 
         .btn-primary{
             background-color: #091F5B;
@@ -93,44 +103,44 @@
     <div class="main-card border">
         <h4 class="text-center  mb-4">Formulir Peminjaman Barang</h4>
     <!-- Info Card untuk Nama Event -->
-<div class="info-card border mb-2 p-3">
-    <!-- Nama Event dan isinya di samping -->
-    <div class="d-flex  align-items-center">
-        <p class="mb-0">Nama Event</p>
-        <p class="mb-0" style="color: #091F5B; margin-left: 20px;"><strong>{{ $nama_event }}</strong></p>
-    </div>
-</div>
-
-<!-- Card untuk Ruangan, PIC, Tanggal, dan Jam -->
-<div class="info-card border p-3 mb-3">
-    <div class="row">
-        <!-- Ruangan dan PIC -->
-        <div class="col-md-6 d-flex  align-items-center">
-            <p class="mb-0">Ruangan</p>
-            <p class="mb-0 " style="color: #091F5B; margin-left: 40px;">{{ $ruangan }}</p>
-        </div>
-        <div class="col-md-6 d-flex  align-items-center">
-            <p class="mb-0">PIC</p>
-            <p class="mb-0 " style="color: #091F5B; margin-left: 25px;">{{ $pic }}</p>
-        </div>
-        <!-- Tanggal dan Jam -->
-        <div class="col-md-6 d-flex  align-items-center mt-2">
-            <p class="mb-0">Tanggal</p>
-            <p class="mb-0 text-end" style="color: #091F5B; margin-left: 50px;">{{ $tanggal }}</p>
-        </div>
-        <div class="col-md-6 d-flex  align-items-center mt-2">
-            <p class="mb-0">Jam</p>
-            <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">{{ $jam }}</p>
+    <div class="info-card border mb-2 p-3">
+        <!-- Nama Event dan isinya di samping -->
+        <div class="d-flex  align-items-center">
+            <p class="mb-0">Nama Event</p>
+            <p class="mb-0" style="color: #091F5B; margin-left: 20px;"><strong>{{ $nama_event }}</strong></p>
         </div>
     </div>
-</div>
 
+    <!-- Card untuk Ruangan, PIC, Tanggal, dan Jam -->
+    <div class="info-card border p-3 mb-3">
+        <div class="row">
+            <!-- Ruangan dan PIC -->
+            <div class="col-md-6 d-flex  align-items-center">
+                <p class="mb-0">Ruangan</p>
+                <p class="mb-0 " style="color: #091F5B; margin-left: 40px;">{{ $ruangan }}</p>
+            </div>
+            <div class="col-md-6 d-flex  align-items-center">
+                <p class="mb-0">PIC</p>
+                <p class="mb-0 " style="color: #091F5B; margin-left: 25px;">{{ $pic }}</p>
+            </div>
+            <!-- Tanggal dan Jam -->
+            <div class="col-md-6 d-flex  align-items-center mt-2">
+                <p class="mb-0">Tanggal</p>
+                <p class="mb-0 text-end" style="color: #091F5B; margin-left: 50px;">{{ $tanggal }}</p>
+            </div>
+            <div class="col-md-6 d-flex  align-items-center mt-2">
+                <p class="mb-0">Jam</p>
+                <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">{{ $jam }}</p>
+            </div>
+        </div>
+    </div>
 
             <!-- Tabel List Barang yang Dipinjam -->
         <h5 class="section-title mt-4"  style="color: #091F5B">List Barang yang Dipinjam</h5>
-        <table class="table table-bordered table-striped table-custom text-center">
+        <table class="table table-striped table-custom text-center">
             <thead>
                 <tr>
+                    <th>No</th>
                     <th>Kode Booking</th>
                     <th>Nama Item</th>
                     <th>Jumlah</th>
@@ -138,8 +148,9 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($peminjamans as $peminjaman) <!-- Looping untuk setiap item -->
+                @foreach($peminjamans as $index => $peminjaman) <!-- Looping untuk setiap item -->
                 <tr>
+                    <td>{{ $index + 1 }}</td> <!-- Menampilkan nomor urut -->
                     <td>{{ $peminjaman->kode_booking }}</td>
                     <td>{{ $peminjaman->nama_item }}</td>
                     <td>{{ $peminjaman->jumlah }}</td>
@@ -147,47 +158,46 @@
                 </tr>
                 @endforeach
             </tbody>
+
         </table>
 
 
         <!-- Syarat dan Ketentuan -->
-        <h5 class="section-title mt-4" style="color: #091F5B">Syarat dan Ketentuan</h5>
         <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="agree" name="agree" required>
-            <label class="form-check-label" for="agree">Saya setuju dengan syarat dan ketentuan</label>
+            <input type="checkbox" class="form-check-input" id="agree" name="agree" required >
+            <label class="form-check-label" for="agree" style="color: #091F5B; font-weight:500;">syarat dan ketentuan</label>
         </div>
 
         <div class="signature-wrapper d-flex justify-content-between">
-    <!-- Marketing di sebelah kiri -->
-    <div class="signature-group mt-4" style="text-align: center; flex-basis: 30%;">
-        <p class="signature-title">Mengetahui,<br> Marketing</p>
-        <p>(Tanda Tangan)</p>
-        <p>{{ $peminjaman->marketing }}</p>
-    </div>
-    
-    <!-- Peminjam dan FO di sebelah kanan dengan jarak di antaranya -->
-    <div class="d-flex" style="flex-basis: 45%; justify-content: space-between;">
-        <div class="signature-group mt-4 text-center">
-            <p class="signature-title">Mengetahui,<br> Peminjam</p>
-            <p> 
-                @if(isset($signature) && $signature != 'Tidak Tersedia')
-                    <img src="{{$signature}}" alt="Tanda Tangan" style="width: 150px; height: auto;">
-                @else
-                    <p>Tanda tangan tidak tersedia.</p>
-                @endif
-            </p>
-            <p>{{ $name }}</p>
-
-        </div>
-        
-        <div class="signature-group mt-4 text-center">
-            <p class="signature-title">Mengetahui,<br> FO</p>
+        <!-- Marketing di sebelah kiri -->
+        <div class="signature-group mt-4" style="text-align: center; flex-basis: 20%;">
+            <p class="signature-title">Mengetahui,<br> Marketing</p>
             <p>(Tanda Tangan)</p>
-            <p>{{ $peminjaman->FO }}</p>
+            <p>{{ $peminjaman->marketing }}</p>
         </div>
-    </div>
-</div>
+            
+            <!-- Peminjam dan FO di sebelah kanan dengan jarak di antaranya -->
+            <div class="d-flex" style="flex-basis: 35%; justify-content: space-between;">
+                <div class="signature-group mt-4 text-center">
+                    <p class="signature-title">Mengetahui,<br> Peminjam</p>
+                    <p> 
+                        @if(isset($signature) && $signature != 'Tidak Tersedia')
+                            <img src="{{$signature}}" alt="Tanda Tangan" style="width: 150px; height: auto; padding-left: 25px;">
+                        @else
+                            <p>Tanda tangan tidak tersedia.</p>
+                        @endif
+                    </p>
+                    <p>{{ $name }}</p>
 
+                </div>
+                
+                <div class="signature-group mt-4" style="text-align: center; flex-basis: 35%;">
+                    <p class="signature-title">Mengetahui,<br> FO</p>
+                    <p>(Tanda Tangan)</p>
+                    <p>{{ $peminjaman->FO }}</p>
+                </div>
+            </div>
+        </div>
 
         <div class="text-center mt-4">
             <a href="{{ route('dashboard') }}" class="btn btn-primary">Kirim</a>
