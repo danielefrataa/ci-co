@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
-        Schema::create('front_office', function (Blueprint $table) {
+        Schema::create('absen', function (Blueprint $table){
             $table->increments('id')->primary();
-            $table->string('username');
-            $table->string('email');
-            $table->string('password');
-        });
+            $table->integer('id_booking');
+            $table->date('tanggal');
+            $table->timestamps();
+        });        
     }
 
     /**
@@ -26,6 +25,5 @@ return new class extends Migration
     public function down(): void
     {
         //
-        Schema::dropIfExists('front_office');
     }
 };
