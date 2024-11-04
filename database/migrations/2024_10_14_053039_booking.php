@@ -11,12 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
+<<<<<<< Updated upstream
         Schema::create('absen', function (Blueprint $table){
             $table->increments('id')->primary();
+=======
+        Schema::create('absen', function (Blueprint $table) {
+            $table->id();
+            $table->string('name'); // Menambahkan kolom name
+            $table->string('phone'); // Menambahkan kolom phone
+>>>>>>> Stashed changes
             $table->integer('id_booking');
             $table->date('tanggal');
             $table->timestamps();
-        });        
+        });
     }
 
     /**
@@ -24,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('absen'); // Hapus tabel saat rollback migrasi
     }
 };

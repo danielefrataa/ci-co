@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PeminjamanBarang;
 use App\Models\Booking;
+use App\Models\Absen; // Pastikan model Absen telah diimpor
 use Illuminate\Support\Facades\Log;
 
 class PeminjamanController extends Controller
 {
     public function show($kode_booking)
     {
-        // Log awal untuk memastikan metode dipanggil
         Log::info("Memulai pengecekan untuk kode booking: {$kode_booking}");
 
         // Ambil semua data peminjaman berdasarkan kode_booking
@@ -34,6 +34,9 @@ class PeminjamanController extends Controller
 
         Log::info("Booking ditemukan: ", ['booking' => $booking]);
 
+        // Ambil tanda tangan (signature) dari tabel absen
+        $absen = Absen::where('id_booking', $kode_booking)->first();
+
         // Siapkan data tambahan untuk ditampilkan di view
         $data = [
             'peminjamans' => $peminjamans,
@@ -42,6 +45,8 @@ class PeminjamanController extends Controller
             'pic' => $booking->nama_pic ?? 'Tidak Tersedia',
             'tanggal' => $booking->tanggal ?? 'Tidak Tersedia',
             'jam' => $booking->jam ?? 'Tidak Tersedia',
+            'signature' => $absen->signature ?? 'Tidak Tersedia', // Tambahkan signature dari absen
+            'name'=> $absen->name ?? 'tidak tersedia'
         ];
 
         Log::info("Data untuk ditampilkan di view: ", $data);
