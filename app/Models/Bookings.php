@@ -11,11 +11,14 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'booking_code',
-        'event_name',
-        'room_time',
+        'id',
+        'kode_booking',
+        'nama_event',
+        'ruangan',
+        'waktu_mulai',
+        'waktu_selesai',
         'user_name',
-        'status',
+        'status'
     ];
 }
 
