@@ -8,8 +8,16 @@ use App\Http\Controllers\InputKodeController;
 use App\Http\Controllers\Auth\RegistrationController;
 use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\RoomListController;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> 0b3c98356792e43b4e9ba98f716bdf5a0719d66b
 
 use App\Http\Controllers\PeminjamanController;
+>>>>>>> 79ab108b9388dd213d84edbbfc0bfa11f3b385dd
 use App\Models\Absen;
 
 Route::get('/', function () {
@@ -19,7 +27,6 @@ Route::get('/', function () {
 })->name('dashboard');
 // front_office
 Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
-
 Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
 Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
 Route::get('/bookings', [BookingController::class, 'getBookingData']);
@@ -40,6 +47,18 @@ Route::post('/front-office/register', [RegistrationController::class, 'register'
 
 // dewint tambahin, untuk akses detail booking, checkin, dan peminjaman. 
 Route::post('/store', [AbsenController::class, 'store'])->name('store');
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+//Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
+Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
+Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
+Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
+Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
+Route::get('/front-office/roomlist', [RoomListController::class, 'show'])->name('front_office.roomList');
+=======
+<<<<<<< Updated upstream
+>>>>>>> 0b3c98356792e43b4e9ba98f716bdf5a0719d66b
 
 Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
@@ -67,3 +86,4 @@ Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.in
 
 Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
 
+>>>>>>> 79ab108b9388dd213d84edbbfc0bfa11f3b385dd
