@@ -24,4 +24,8 @@ class PeminjamanBarang extends Model
     {
         return $this->belongsTo(Booking::class);
     }
+    public function absen()
+    {
+        return $this->hasOne(Absen::class, 'id_booking', 'kode_booking'); // Sesuaikan dengan kolom yang sesuai
+    }
 }

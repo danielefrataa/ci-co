@@ -8,6 +8,14 @@ use App\Http\Controllers\InputKodeController;
 use App\Http\Controllers\Auth\RegistrationController;
 use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\RoomListController;
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
+use App\Http\Controllers\PeminjamanController;
+>>>>>>> 79ab108b9388dd213d84edbbfc0bfa11f3b385dd
 use App\Models\Absen;
 
 Route::get('/', function () {
@@ -18,7 +26,14 @@ Route::get('/', function () {
 // front_office
 Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
 Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
+<<<<<<< Updated upstream
 Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
+=======
+Route::get('/bookings', [BookingController::class, 'getBookingData']);
+>>>>>>> Stashed changes
+
+Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');  
+Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
 
 // Login
 Route::get('/front-office/login', [FrontOfficeLoginController::class, 'showLoginForm'])->name('front_office.login');
@@ -33,9 +48,49 @@ Route::post('/front-office/register', [RegistrationController::class, 'register'
 
 // dewint tambahin, untuk akses detail booking, checkin, dan peminjaman. 
 Route::post('/store', [AbsenController::class, 'store'])->name('store');
+<<<<<<< HEAD
 //Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
 Route::get('/front-office/roomlist', [RoomListController::class, 'show'])->name('front_office.roomList');
+=======
+<<<<<<< Updated upstream
+
+//Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
+
+//Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
+
+=======
+//Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
+>>>>>>> Stashed changes
+Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
+Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
+Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
+
+Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
+<<<<<<< Updated upstream
+
+Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
+
+
+
+Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
+
+
+Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
+=======
+>>>>>>> Stashed changes
+Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
+
+Route::get('/front-office/roomlist', [RoomListController::class, 'show'])->name('front_office.roomList');
+
+//Route::get('/front-office/inputkode', [InputKodeController::class, 'match']);
+
+Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
+
+
+Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
+
+>>>>>>> 79ab108b9388dd213d84edbbfc0bfa11f3b385dd

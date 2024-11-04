@@ -61,15 +61,25 @@
             border-top: 1px solid #ced4da;
             font-size: ;
         }
-
         .signature-group {
-            text-align: center;
-            font-size: 14px;
-        }
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Untuk menengahkan konten di dalam kolom */
+}
 
-        .signature-title {
-            font-weight: 500;
-        }
+.signature-img {
+    width: 150px; /* Atur lebar gambar tanda tangan */
+    height: auto; /* Biarkan tinggi otomatis untuk mempertahankan rasio aspek */
+}
+
+.signature-title {
+    margin-bottom: 10px; /* Spasi antara judul dan gambar */
+}
+
+.signature-group p {
+    margin: 5px 0; /* Atur margin untuk paragraf agar tidak terlalu rapat */
+}
+
         .btn-primary{
             background-color: #091F5B;
             border: none;
@@ -147,24 +157,37 @@
             <label class="form-check-label" for="agree">Saya setuju dengan syarat dan ketentuan</label>
         </div>
 
-        <!-- Marketing, FO, dan Tanda Tangan -->
-        <div class="signature-wrapper ">
-            <div class="signature-group mt-4">
-                <p class="signature-title">Mengetahui,<br> Marketing</p>
-                <p>(Tanda Tangan)</p>
-                <p>{{ $peminjaman->marketing }}</p>
-            </div>
-            <div class="signature-group mt-4">
-                <p class="signature-title">Mengetahui,<br> Peminjam</p>
-                <p>(Tanda Tangan)</p>
-                <p>{{ $peminjaman->signature ?? 'Tidak Tersedia' }}</p>
-            </div>
-            <div class="signature-group mt-4">
-                <p class="signature-title">Mengetahui,<br> FO</p>
-                <p>(Tanda Tangan)</p>
-                <p>{{ $peminjaman->FO }}</p>
-            </div>
+        <div class="signature-wrapper d-flex justify-content-between">
+    <!-- Marketing di sebelah kiri -->
+    <div class="signature-group mt-4" style="text-align: center; flex-basis: 30%;">
+        <p class="signature-title">Mengetahui,<br> Marketing</p>
+        <p>(Tanda Tangan)</p>
+        <p>{{ $peminjaman->marketing }}</p>
+    </div>
+    
+    <!-- Peminjam dan FO di sebelah kanan dengan jarak di antaranya -->
+    <div class="d-flex" style="flex-basis: 45%; justify-content: space-between;">
+        <div class="signature-group mt-4 text-center">
+            <p class="signature-title">Mengetahui,<br> Peminjam</p>
+            <p> 
+                @if(isset($signature) && $signature != 'Tidak Tersedia')
+                    <img src="{{$signature}}" alt="Tanda Tangan" style="width: 150px; height: auto;">
+                @else
+                    <p>Tanda tangan tidak tersedia.</p>
+                @endif
+            </p>
+            <p>{{ $name }}</p>
+
         </div>
+        
+        <div class="signature-group mt-4 text-center">
+            <p class="signature-title">Mengetahui,<br> FO</p>
+            <p>(Tanda Tangan)</p>
+            <p>{{ $peminjaman->FO }}</p>
+        </div>
+    </div>
+</div>
+
 
         <div class="text-center mt-4">
             <a href="{{ route('dashboard') }}" class="btn btn-primary">Kirim</a>

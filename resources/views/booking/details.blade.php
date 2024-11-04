@@ -79,14 +79,16 @@
             font-weight: 800;
 
         }
-
+        .modal-body{
+            
+        }
         .modal-dialog {
             max-width: 600px;
             /* Ukuran modal diperkecil */
         }
 
         .modal-content {
-            text-align: center;
+            text-align: ;
         }
 
         .modal-footer {
@@ -160,7 +162,7 @@
                         <button type="button" class="btn-close position-absolute" style="right: 25px;" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <ul style=" padding-left: 20px; font-size:14px;"> <!-- Menghilangkan bullet points -->
+                        <ul style=" padding-left: 20px; font-size:14px;"> 
                             <li>Penggunaan Ruangan maksimal pada pukul 21.00 WIB. Lebih dari jam tersebut Manajemen berhak untuk menghentikan acara.</li>
                             <li>Menjaga fasilitas, sarana, dan prasarana yang tersedia dalam Ruangan/Gedung MCC.</li>
                             <li>Melengkapi sendiri kebutuhan yang tidak tersedia/kurang seperti kabel roll, alat tulis, kursi, meja, level stage, dekorasi, dll.</li>
