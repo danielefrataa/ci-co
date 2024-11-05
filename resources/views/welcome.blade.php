@@ -56,6 +56,21 @@
         </div>
         <h5 class="text-center mt-4 " style="font-size: 14px; color: #091F5B;">*barcode dikirimkan ke email anda apabila
             sudah di approve</h5>
+
+        <!-- <div class="table-responsive">
+            <table class="table table-bordered table-hover mt-5">
+                <tr>
+                    <th>Nama</th>
+                    <th>Tanggal </th>
+                </tr>
+                @foreach ($absen as $item)
+                <tr>
+                    <td>{{ $item->booking->nama }}</td>
+                    <td>{{ $item->tanggal }}</td>
+                </tr>
+@endforeach
+            </table>
+        </div> -->
     </div>
 
     <script type="text/javascript">

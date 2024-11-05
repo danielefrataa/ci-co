@@ -8,9 +8,8 @@ use App\Http\Controllers\InputKodeController;
 use App\Http\Controllers\Auth\RegistrationController;
 use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\RoomListController;
-
 use App\Http\Controllers\PeminjamanController;
-
+use App\Http\Controllers\MarketingController;
 use App\Models\Absen;
 
 Route::get('/', function () {
@@ -21,10 +20,11 @@ Route::get('/', function () {
 // front_office
 Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
 Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
+
 Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
 Route::get('/bookings', [BookingController::class, 'getBookingData']);
 
-Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
+Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');  
 Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
 
 // Login
@@ -46,7 +46,7 @@ Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDe
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
-Route::get('/front-office/roomlist', [RoomListController::class, 'index'])->name('front_office.roomList');
+Route::get('/front-office/roomlist', [RoomListController::class, 'show'])->name('front_office.roomList');
 
 
 Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
@@ -55,16 +55,17 @@ Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])-
 
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
 
+Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
+
+
+
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
 
 
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
+Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
+
+
 
 Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
 
-//Route::get('/front-office/inputkode', [InputKodeController::class, 'match']);
-
-Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
-
-
-Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');

@@ -14,14 +14,11 @@ class booking extends Model
         'id',
         'kode_booking',
         'nama_event',
-        'nama_ruangan',
-        'lantai',
+        'ruangan',
         'waktu_mulai',
         'waktu_selesai',
         'user_name',
-        'nama_pic',
-        'phone',
-            
+        'status'
     ];
     protected $guarded = ['id'];
 
