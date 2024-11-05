@@ -138,7 +138,25 @@
                     <h4 class="text-center judul">{{ $booking->nama_event }}</h4>
                     <p class="text-center mt-2 mb-1">{{ $booking->ruangan }}, <span>Lantai {{ $booking->lantai }}</span></p> <!-- Tambahkan mb-1 -->
                     <p class="text-center mb-1"> {{ $booking->tanggal }}</p> <!-- Tambahkan mb-1 -->
-                    <p class="text-center mb-1"><strong> {{ $booking->waktu_mulai }}- {{ $booking->waktu_selesai }}</strong></p> <!-- Tambahkan mb-1 -->
+                    <p class="text-center mb-1">
+                        <strong>
+                            @if(!empty($booking->waktu_mulai) && !empty($booking->waktu_selesai))
+                                {{ \Carbon\Carbon::parse($booking->waktu_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->waktu_selesai)->format('H:i') }}
+                            @elseif(!empty($booking->waktu))
+                                @php
+                                    $timeRange = explode(' - ', $booking->waktu);
+                                    if (count($timeRange) === 2) {
+                                        echo \Carbon\Carbon::parse($timeRange[0])->format('H:i') . ' - ' . \Carbon\Carbon::parse($timeRange[1])->format('H:i');
+                                    } else {
+                                        echo \Carbon\Carbon::parse($booking->waktu)->format('H:i');
+                                    }
+                                @endphp
+                            @else
+                                Waktu tidak tersedia
+                            @endif
+                        </strong>
+                    </p>
+                     <!-- Tambahkan mb-1 -->
                     <p class="text-center mt-2 mb-1"><strong>{{ $booking->nama_pic}}</strong> </p> <!-- Tambahkan mb-1 -->
                 </div>
 

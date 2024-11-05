@@ -48,6 +48,9 @@ Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])-
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
 Route::get('/front-office/roomlist', [RoomListController::class, 'index'])->name('front_office.roomList');
 
+//marketing
+Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name('bookings.index');
+
 
 Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
