@@ -16,6 +16,7 @@ class BookingController extends Controller
         // Return the view with the booking details
         return view('booking.details', compact('booking', 'borrowedItems'));
     }
+
     public function index(Request $request)
 {
     $status = $request->input('status');

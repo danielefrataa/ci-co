@@ -27,18 +27,10 @@
 </head>
 
 <body>
+    @include('layouts.app')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
     </script>
-
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="https://event.mcc.or.id/assets/images/logo.png" width="250"
-                    alt="Event Malang Creative Center">
-            </a>
-        </div>
-    </nav>
     <div class="d-flex flex-column justify-content-center align-items-center pt-5">
         @if (session('success'))
             <div class="alert alert-success">
