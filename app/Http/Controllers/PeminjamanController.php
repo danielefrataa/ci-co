@@ -52,6 +52,6 @@ class PeminjamanController extends Controller
         Log::info("Data untuk ditampilkan di view: ", $data);
 
         // Tampilkan view dengan data peminjaman
-        return view('booking.showPinjam', $data);
+        return view('peminjaman.showPinjam', $data);
     }
 }

@@ -79,16 +79,10 @@
             font-weight: 800;
 
         }
-        .modal-body{
-            
-        }
+        
         .modal-dialog {
             max-width: 600px;
             /* Ukuran modal diperkecil */
-        }
-
-        .modal-content {
-            text-align: ;
         }
 
         .modal-footer {
@@ -141,11 +135,11 @@
                 <!-- Detail Booking -->
                 <h5 class="mb-4 mt-4" style="font-weight: 800; font-size: 18px;">Detail Booking</h5> <!-- Tambahkan text-center untuk judul -->
                 <div class="card detail p-3 bg-white mb-3">
-                    <h4 class="text-center judul"> Global Visionary {{ $booking->event_name }}</h4>
-                    <p class="text-center mt-2 mb-1">Ruang Kelas {{ $booking->ruangan }}, <span>Lantai</span></p> <!-- Tambahkan mb-1 -->
-                    <p class="text-center mb-1">Kamis, 3 Oktober 2024 {{ $booking->hari }}, {{ $booking->tanggal }}</p> <!-- Tambahkan mb-1 -->
-                    <p class="text-center mb-1"><strong>19.00-21.00</strong> {{ $booking->jam }}</p> <!-- Tambahkan mb-1 -->
-                    <p class="text-center mt-2 mb-1"><strong>Nama PIC</strong> {{ $booking->pic_name }}</p> <!-- Tambahkan mb-1 -->
+                    <h4 class="text-center judul">{{ $booking->nama_event }}</h4>
+                    <p class="text-center mt-2 mb-1">{{ $booking->ruangan }}, <span>Lantai {{ $booking->lantai }}</span></p> <!-- Tambahkan mb-1 -->
+                    <p class="text-center mb-1"> {{ $booking->tanggal }}</p> <!-- Tambahkan mb-1 -->
+                    <p class="text-center mb-1"><strong> {{ $booking->waktu_mulai }}- {{ $booking->waktu_selesai }}</strong></p> <!-- Tambahkan mb-1 -->
+                    <p class="text-center mt-2 mb-1"><strong>{{ $booking->nama_pic}}</strong> </p> <!-- Tambahkan mb-1 -->
                 </div>
 
                 <!-- Tombol Check In -->
@@ -158,7 +152,7 @@
             <div class="modal-dialog modal-sm">
                 <div class="modal-content" style="border: none;"> <!-- Menghilangkan garis pada modal -->
                     <div class="modal-header justify-content-center" style="border-bottom: none;"> <!-- Menghilangkan garis bawah dan posisi tengah -->
-                        <h5 class="modal-title" id="termsModalLabel" style="color: #091F5B; text-align: center; font-weight:800;">Syarat dan Ketentuan</h5> <!-- Warna biru dan center -->
+                        <h5 class="modal-title" id="termsModalLabel" style="color: #091F5B; text-align:; font-weight:800;">Syarat dan Ketentuan</h5> <!-- Warna biru dan center -->
                         <button type="button" class="btn-close position-absolute" style="right: 25px;" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -196,7 +190,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/3.0.2/signature_pad.umd.min.js"></script>
 
-<<<<<<< Updated upstream
         <!-- Signature Pad Initialization -->
         <script>
             document.addEventListener("DOMContentLoaded", function() {
@@ -231,7 +224,6 @@
                 });
             });
         </script>
-=======
     <script>
 document.addEventListener("DOMContentLoaded", function() {
     var canvas = document.getElementById('signature');
@@ -270,7 +262,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
->>>>>>> Stashed changes
 </body>
 
 </html>

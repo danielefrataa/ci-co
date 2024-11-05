@@ -8,9 +8,15 @@ use App\Http\Controllers\InputKodeController;
 use App\Http\Controllers\Auth\RegistrationController;
 use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\RoomListController;
+<<<<<<< Updated upstream
 
 use App\Http\Controllers\PeminjamanController;
 
+=======
+
+
+use App\Http\Controllers\PeminjamanController;
+>>>>>>> Stashed changes
 use App\Models\Absen;
 
 Route::get('/', function () {
@@ -40,14 +46,20 @@ Route::post('/front-office/register', [RegistrationController::class, 'register'
 
 // dewint tambahin, untuk akses detail booking, checkin, dan peminjaman. 
 Route::post('/store', [AbsenController::class, 'store'])->name('store');
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 //Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
 Route::get('/front-office/roomlist', [RoomListController::class, 'show'])->name('front_office.roomList');
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 
 Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
