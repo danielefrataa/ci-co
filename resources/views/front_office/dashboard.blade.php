@@ -13,6 +13,9 @@
             background-color: #091F5B; /* MCC blue color */
             color: white;
         }
+        .wide-select {
+            width: 100px; /* Adjust the width as needed */
+        }
     </style>
 </head>
 
@@ -41,7 +44,7 @@
 
         <!-- Filter Form -->
         <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3" style="margin: 8px">
-            <select name="status" class="form-select w-auto" aria-label="Status Filter" onchange="this.form.submit()">
+            <select name="status" class="form-select width-select" style="width: 200px;" aria-label="Status Filter" onchange="this.form.submit()">
                 <option value="">Semua Status</option>
                 <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Check-in</option>
                 <option value="Booked" {{ request('status') == 'Booked' ? 'selected' : '' }}>Booked</option>
