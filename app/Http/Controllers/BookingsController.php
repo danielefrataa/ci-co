@@ -30,6 +30,8 @@ class BookingsController extends Controller
         }
 
         $bookings = $query->get();
+        $bookings = $query->orderBy('kode_booking', 'asc')->paginate(6);
+
 
         return view('front_office.dashboard', compact('bookings'));
     }
