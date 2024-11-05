@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+@php
+use Carbon\Carbon;
+@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -152,7 +155,13 @@
                             <span class="room-status shadow shadow-sm" value="{{ $status }}">{{ $status }}</span>
                         </div>
                         <p>Lantai {{ $room->lantai }}</p>
-                        <p>{{ $room->waktu_mulai }} - {{ $room->waktu_selesai }}</p>
+
+                        <p> @if ($room->waktu_mulai && $room->waktu_selesai)
+                            {{ Carbon::parse($room->waktu_mulai)->format('H:i') }} - {{ Carbon::parse($room->waktu_selesai)->format('H:i') }}
+                            @else
+                            {{ ' ' }}
+                            @endif
+                        </p>
                     </div>
                 </div>
                 @endforeach
