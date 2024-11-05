@@ -14,10 +14,13 @@ class Booking extends Model
         'id',
         'kode_booking',
         'nama_event',
-        'ruangan',
+        'nama_ruangan',
+        'lantai',
         'waktu_mulai',
         'waktu_selesai',
         'user_name',
+        'nama_pic',
+        'phone',
         'status'
     ];
 }

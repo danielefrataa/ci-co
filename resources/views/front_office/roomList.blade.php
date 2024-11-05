@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Room List</title>
+    <title>Room List</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
 
@@ -54,10 +54,45 @@
             background-color: #F1A3A450;
             color: #E53235;
         }
+
+        .pagination .page-item.active .page-link {
+            background-color: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        .pagination .page-item .page-link {
+            color: #000;
+        }
+
+        .pagination .page-item .page-link:hover {
+            color: #fff;
+            background-color: #000;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #ccc;
+        }
     </style>
 </head>
 
 <body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[placeholder="Telusuri"]');
+            let timeout = null;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    const url = new URL(window.location);
+                    url.searchParams.set('search', this.value);
+                    window.location = url;
+                }, 500);
+            });
+        });
+    </script>
+
     @if (session('success'))
     <div class="alert alert-success">
         {{ session('success') }}
@@ -74,127 +109,92 @@
 
     <div class="container">
         <div class="d-flex justify-content-between">
-            <select class="form-select my-5 w-25" style="border-radius: 15px;">
-                <option>Semua Lantai</option>
-                <option>Lantai 1</option>
-                <option>Lantai 2</option>
-                <option>Lantai 3</option>
-                <option>Lantai 4</option>
-                <option>Lantai 5</option>
-                <option>Lantai 6</option>
-                <option>Lantai 7</option>
-                <option>Lantai 8</option>
-            </select>
-            <div class="mt-5">
-                <input type="text" class="py-2 text-center " placeholder="Telusuri" style="border-radius: 21px;">
+            <form method="GET" action="{{ route('front_office.roomList') }}" class="d-inline">
+                <select name="lantai" class="form-select my-5 shadow shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
+                    <option value="">Semua Lantai</option>
+                    <option value="2" {{ request('lantai') == '2' ? 'selected' : '' }}>Lantai 2</option>
+                    <option value="3" {{ request('lantai') == '3' ? 'selected' : '' }}>Lantai 3</option>
+                    <option value="4" {{ request('lantai') == '4' ? 'selected' : '' }}>Lantai 4</option>
+                    <option value="5" {{ request('lantai') == '5' ? 'selected' : '' }}>Lantai 5</option>
+                    <option value="6" {{ request('lantai') == '6' ? 'selected' : '' }}>Lantai 6</option>
+                    <option value="7" {{ request('lantai') == '7' ? 'selected' : '' }}>Lantai 7</option>
+                    <option value="8" {{ request('lantai') == '8' ? 'selected' : '' }}>Lantai 8</option>
+                </select>
+            </form>
+            <div class="mb-5">
+                <div class="mt-5" style="position: relative; display: inline-block; width: 100%;">
+                    <input type="text" class="py-2 pl-3 pr-5 text-center" placeholder="Telusuri" name="search" value="{{ request('search') }}" style="width: 100%; border-radius: 21px; border: 1px solid #ccc;">
 
-                <button type="button">
-                    <span class="fa fa-search"></span>
-                </button>
+                    <button type="button" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                        <span class="fa fa-search" style="font-size: 18px;"></span>
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="row">
 
-            <div class="col-md-4">
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Studio Musik</span>
-                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
+        <div id="pagination-container">
+            <div class="row">
+                @foreach ($rooms as $room)
+                <div class="col-md-4">
+                    <div class="room-card">
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold mt-1">{{ $room->nama_ruangan }}</span>
+                            @php
+                            $status = $room->status;
+                            if ($status == 'Booked') {
+                            $status = 'dipesan';
+                            } elseif ($status == 'Check-out') {
+                            $status = 'kosong';
+                            } elseif ($status == 'Check-in') {
+                            $status = 'sedang digunakan';
+                            }
+                            @endphp
+                            <span class="room-status shadow shadow-sm" value="{{ $status }}">{{ $status }}</span>
+                        </div>
+                        <p>Lantai {{ $room->lantai }}</p>
+                        <p>{{ $room->waktu_mulai }} - {{ $room->waktu_selesai }}</p>
                     </div>
-                    <p>Lantai 4</p>
-                    <p>16:00 - 20:00</p>
                 </div>
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Studio Musik</span>
-                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
-                    </div>
-                    <p>Lantai 4</p>
-                    <p>16:00 - 20:00</p>
-
-                </div>
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Studio Musik</span>
-                        <span class="room-status shadow shadow-sm" value="dipesan">dipesan</span>
-                    </div>
-                    <p>Lantai 4</p>
-                    <p>16:00 - 20:00</p>
-                </div>
+                @endforeach
             </div>
-            <div class="col-md-4">
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
-                    </div>
-                    <p>Lantai 4</p>
-                    <p>12:00 - 17:00</p>
-                </div>
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
-                    </div>
-                    <p>Lantai 4</p>
-                    <p>12:00 - 17:00</p>
+        </div>
 
-                </div>
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status shadow shadow-sm" value="sedang digunakan">sedang digunakan</span>
-                    </div>
-                    <p>Lantai 4</p>
-                    <p>12:00 - 17:00</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
-                    </div>
-                    <p>Lantai 4</p>
-                    <p>12:00 - 17:00</p>
+        @if ($rooms->hasPages())
+        <nav>
+            <ul class="pagination justify-content-center">
+                {{-- Previous Page Link --}}
+                @if ($rooms->onFirstPage())
+                <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.previous')">
+                    <span class="page-link" aria-hidden="true">&laquo;</span>
+                </li>
+                @else
+                <li class="page-item">
+                    <a class="page-link" href="{{ $rooms->previousPageUrl() }}&search={{ request('search') }}&lantai={{ request('lantai') }}" rel="prev" aria-label="@lang('pagination.previous')">&laquo;</a>
+                </li>
+                @endif
 
-                </div>
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
-                    </div>
-                    <p>Lantai 4</p>
-                    <p>12:00 - 17:00</p>
+                @for ($page = 1; $page <= $rooms->lastPage(); $page++)
+                    @if ($page == $rooms->currentPage())
+                    <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
+                    @else
+                    <li class="page-item"><a class="page-link" href="{{ $rooms->url($page) }}&search={{ request('search') }}&lantai={{ request('lantai') }}">{{ $page }}</a></li>
+                    @endif
+                    @endfor
 
-                </div>
-                <div class="room-card">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold mt-1">Lab Komputer</span>
-                        <span class="room-status shadow shadow-sm" value="kosong">kosong</span>
-                    </div>
-                    <p>Lantai 4</p>
-                    <p>12:00 - 17:00</p>
-
-                </div>
-            </div>
-
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled">
-                        <a class="page-link">Previous</a>
-                    </li>
-                    <li class="page-item active"><a class="page-link">1</a></li>
-                    <li class="page-item"><a class="page-link">2</a></li>
-                    <li class="page-item"><a class="page-link">3</a></li>
-                    <li class="page-item"><a class="page-link">...</a></li>  
-                    <li class="page-item"><a class="page-link">10</a></li>
+                    @if ($rooms->hasMorePages())
                     <li class="page-item">
-                        <a class="page-link">Next</a>  
+                        <a class="page-link" href="{{ $rooms->nextPageUrl() }}&search={{ request('search') }}&lantai={{ request('lantai') }}" rel="next" aria-label="@lang('pagination.next')">&raquo;</a>
                     </li>
-                </ul>
-            </nav>
-        </div>
+                    @else
+                    <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
+                        <span class="page-link" aria-hidden="true">&raquo;</span>
+                    </li>
+                    @endif
+            </ul>
+        </nav>
+        @endif
+
+    </div>
     </div>
     @csrf
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
