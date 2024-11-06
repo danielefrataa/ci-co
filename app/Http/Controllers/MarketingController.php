@@ -13,6 +13,7 @@ class MarketingController extends Controller
         $query = booking::query()
             ->select(
                 'nama_event',
+                'kode_booking',
                 'nama_organisasi',
                 'tanggal',
                 'ruangan',
