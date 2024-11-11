@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+@php
+    use Carbon\Carbon;
+    Carbon::setLocale('id');
+
+@endphp
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet"> <!-- Include Montserrat font -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Include Montserrat font -->
 
     <style>
         body {
@@ -79,7 +85,7 @@
             font-weight: 800;
 
         }
-        
+
         .modal-dialog {
             max-width: 600px;
             /* Ukuran modal diperkecil */
@@ -118,10 +124,10 @@
             <h4 class="text-center mb-4" style="font-weight: 800; font-size: 22px;">Isi Data Check In</h4>
 
             <!-- Form untuk input nama dan nomor telepon -->
-        <form id="checkinForm" action="{{ route('checkin.store') }}" method="POST">
-            @csrf
-            <input type="hidden" name="kode_booking" value="{{ $booking->kode_booking }}">
-            <input type="hidden" id="signatureData" name="signatureData"> <!-- Hidden input for signature data -->
+            <form id="checkinForm" action="{{ route('checkin.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="kode_booking" value="{{ $booking->kode_booking }}">
+                <input type="hidden" id="signatureData" name="signatureData"> <!-- Hidden input for signature data -->
 
                 <div>
                     <label for="name" class="form-label bold-text">Nama </label>
@@ -133,35 +139,27 @@
                 </div>
 
                 <!-- Detail Booking -->
-                <h5 class="mb-4 mt-4" style="font-weight: 800; font-size: 18px;">Detail Booking</h5> <!-- Tambahkan text-center untuk judul -->
+                <h5 class="mb-4 mt-4 text-center" style="font-weight: 800; font-size: 18px;">Detail Booking</h5>
                 <div class="card detail p-3 bg-white mb-3">
                     <h4 class="text-center judul">{{ $booking->nama_event }}</h4>
-                    <p class="text-center mt-2 mb-1">{{ $booking->ruangan }}, <span>Lantai {{ $booking->lantai }}</span></p> <!-- Tambahkan mb-1 -->
-                    <p class="text-center mb-1"> {{ $booking->tanggal }}</p> <!-- Tambahkan mb-1 -->
-                    <p class="text-center mb-1">
-                        <strong>
-                            @if(!empty($booking->waktu_mulai) && !empty($booking->waktu_selesai))
-                                {{ \Carbon\Carbon::parse($booking->waktu_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($booking->waktu_selesai)->format('H:i') }}
-                            @elseif(!empty($booking->waktu))
-                                @php
-                                    $timeRange = explode(' - ', $booking->waktu);
-                                    if (count($timeRange) === 2) {
-                                        echo \Carbon\Carbon::parse($timeRange[0])->format('H:i') . ' - ' . \Carbon\Carbon::parse($timeRange[1])->format('H:i');
-                                    } else {
-                                        echo \Carbon\Carbon::parse($booking->waktu)->format('H:i');
-                                    }
-                                @endphp
-                            @else
-                                Waktu tidak tersedia
-                            @endif
-                        </strong>
+                    <p class="text-center mt-2 mb-1">{{ $booking->ruangan }}, <span>Lantai {{ $booking->lantai }}</span>
                     </p>
-                     <!-- Tambahkan mb-1 -->
-                    <p class="text-center mt-2 mb-1"><strong>{{ $booking->nama_pic}}</strong> </p> <!-- Tambahkan mb-1 -->
+                    <p class="text-center mb-1">
+                        {{ Carbon::parse($booking->tanggal)->translatedFormat('l, d F Y') }}
+                    </p>
+
+                    <p class="text-center mb-1">
+                        <strong>{{ Carbon::parse($booking->waktu_mulai)->format('H:i') }} -
+                            {{ Carbon::parse($booking->waktu_selesai)->format('H:i') }}</strong>
+                    </p>
+
+                    <p class="text-center mt-2 mb-1"><strong>{{ $booking->nama_pic }}</strong></p>
                 </div>
 
+
                 <!-- Tombol Check In -->
-                <button type="button" class="btn btn-primary small-btn" data-bs-toggle="modal" data-bs-target="#termsModal">Check In</button>
+                <button type="button" class="btn btn-primary small-btn" data-bs-toggle="modal"
+                    data-bs-target="#termsModal">Check In</button>
             </form>
         </div>
 
@@ -169,23 +167,33 @@
         <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-sm">
                 <div class="modal-content" style="border: none;"> <!-- Menghilangkan garis pada modal -->
-                    <div class="modal-header justify-content-center" style="border-bottom: none;"> <!-- Menghilangkan garis bawah dan posisi tengah -->
-                        <h5 class="modal-title" id="termsModalLabel" style="color: #091F5B; text-align:; font-weight:800;">Syarat dan Ketentuan</h5> <!-- Warna biru dan center -->
-                        <button type="button" class="btn-close position-absolute" style="right: 25px;" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-header justify-content-center" style="border-bottom: none;">
+                        <!-- Menghilangkan garis bawah dan posisi tengah -->
+                        <h5 class="modal-title" id="termsModalLabel"
+                            style="color: #091F5B; text-align:; font-weight:800;">Syarat dan Ketentuan</h5>
+                        <!-- Warna biru dan center -->
+                        <button type="button" class="btn-close position-absolute" style="right: 25px;"
+                            data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <ul style=" padding-left: 20px; font-size:14px;"> 
-                            <li>Penggunaan Ruangan maksimal pada pukul 21.00 WIB. Lebih dari jam tersebut Manajemen berhak untuk menghentikan acara.</li>
+                        <ul style=" padding-left: 20px; font-size:14px;">
+                            <li>Penggunaan Ruangan maksimal pada pukul 21.00 WIB. Lebih dari jam tersebut Manajemen
+                                berhak untuk menghentikan acara.</li>
                             <li>Menjaga fasilitas, sarana, dan prasarana yang tersedia dalam Ruangan/Gedung MCC.</li>
-                            <li>Melengkapi sendiri kebutuhan yang tidak tersedia/kurang seperti kabel roll, alat tulis, kursi, meja, level stage, dekorasi, dll.</li>
+                            <li>Melengkapi sendiri kebutuhan yang tidak tersedia/kurang seperti kabel roll, alat tulis,
+                                kursi, meja, level stage, dekorasi, dll.</li>
                             <li>Menjaga ketertiban, kebersihan dan keamanan penyelenggaraan acara.</li>
                             <li>Dilarang menempel, memaku benda apapun pada dinding Ruangan/Gedung MCC.</li>
-                            <li>Dilarang memasang atribut Partai Politik, atau Ormas Keagamaan yang berbau politik di Ruangan/Gedung MCC.</li>
+                            <li>Dilarang memasang atribut Partai Politik, atau Ormas Keagamaan yang berbau politik di
+                                Ruangan/Gedung MCC.</li>
                             <li>Loading in barang dilakukan pada H-1 Jam 22.00-06.00 WIB.</li>
                             <li>Loading out barang dilakukan di hari yang sama setelah rundown acara selesai.</li>
-                            <li>Jika proses loading out melebihi batas waktu yang ditentukan, Manajemen MCC berhak memindahkan properti dan tidak bertanggung jawab atas kerusakan properti.</li>
-                            <li>Mengumpulkan sampah pada titik/tempat sampah yang tersedia. Petugas Kebersihan MCC akan melakukan pembuangan sampah yang telah terkumpul.</li>
-                            <li>Ruangan yang sudah selesai digunakan serta peralatannya wajib dikembalikan pada posisi semula dan memberikan konfirmasi ke Customer Service pada saat Check-out.</li>
+                            <li>Jika proses loading out melebihi batas waktu yang ditentukan, Manajemen MCC berhak
+                                memindahkan properti dan tidak bertanggung jawab atas kerusakan properti.</li>
+                            <li>Mengumpulkan sampah pada titik/tempat sampah yang tersedia. Petugas Kebersihan MCC akan
+                                melakukan pembuangan sampah yang telah terkumpul.</li>
+                            <li>Ruangan yang sudah selesai digunakan serta peralatannya wajib dikembalikan pada posisi
+                                semula dan memberikan konfirmasi ke Customer Service pada saat Check-out.</li>
                         </ul>
 
                         <!-- Signature Pad dan Teks di bawahnya -->
@@ -193,8 +201,10 @@
                             <!-- Canvas signature -->
                             <canvas id="signature" class="mb-3"></canvas>
                             <!-- Clear button di samping kanan canvas -->
-                            <button type="button" class="btn btn-secondary" id="clearSignature" style="margin-left: px;">Clear</button>
-                            <p class="text-start" style="font-style: italic; font-size: 12px;">Silahkan menandatangani untuk menyetejui syarat dan ketentuan</p>
+                            <button type="button" class="btn btn-secondary" id="clearSignature"
+                                style="margin-left: px;">Clear</button>
+                            <p class="text-start" style="font-style: italic; font-size: 12px;">Silahkan menandatangani
+                                untuk menyetejui syarat dan ketentuan</p>
                         </div>
                     </div>
                     <div class="modal-footer " style="border: none;">
@@ -210,76 +220,76 @@
 
         <!-- Signature Pad Initialization -->
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function () {
                 var canvas = document.getElementById('signature');
                 var ctx = canvas.getContext('2d');
                 var isDrawing = false;
 
-                canvas.addEventListener('mousedown', function(e) {
+                canvas.addEventListener('mousedown', function (e) {
                     isDrawing = true;
                     ctx.beginPath();
                     ctx.moveTo(e.offsetX, e.offsetY);
                 });
 
-                canvas.addEventListener('mousemove', function(e) {
+                canvas.addEventListener('mousemove', function (e) {
                     if (isDrawing) {
                         ctx.lineTo(e.offsetX, e.offsetY);
                         ctx.stroke();
                     }
                 });
 
-                canvas.addEventListener('mouseup', function() {
+                canvas.addEventListener('mouseup', function () {
                     isDrawing = false;
                 });
 
-                document.getElementById('clearSignature').addEventListener('click', function() {
+                document.getElementById('clearSignature').addEventListener('click', function () {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                 });
 
-                document.getElementById('checkinForm').addEventListener('submit', function(e) {
+                document.getElementById('checkinForm').addEventListener('submit', function (e) {
                     var signatureData = canvas.toDataURL('image/png');
                     document.getElementById('signatureData').value = signatureData;
                 });
             });
         </script>
-    <script>
-document.addEventListener("DOMContentLoaded", function() {
-    var canvas = document.getElementById('signature');
-    var ctx = canvas.getContext('2d');
-    var isDrawing = false;
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var canvas = document.getElementById('signature');
+                var ctx = canvas.getContext('2d');
+                var isDrawing = false;
 
-    canvas.addEventListener('mousedown', function(e) {
-        isDrawing = true;
-        ctx.beginPath();
-        ctx.moveTo(e.offsetX, e.offsetY);
-    });
+                canvas.addEventListener('mousedown', function (e) {
+                    isDrawing = true;
+                    ctx.beginPath();
+                    ctx.moveTo(e.offsetX, e.offsetY);
+                });
 
-    canvas.addEventListener('mousemove', function(e) {
-        if (isDrawing) {
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-        }
-    });
+                canvas.addEventListener('mousemove', function (e) {
+                    if (isDrawing) {
+                        ctx.lineTo(e.offsetX, e.offsetY);
+                        ctx.stroke();
+                    }
+                });
 
-    canvas.addEventListener('mouseup', function() {
-        isDrawing = false;
-    });
+                canvas.addEventListener('mouseup', function () {
+                    isDrawing = false;
+                });
 
-    document.getElementById('clearSignature').addEventListener('click', function() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
+                document.getElementById('clearSignature').addEventListener('click', function () {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                });
 
-    document.getElementById('checkinForm').addEventListener('submit', function(e) {
-        var signatureData = canvas.toDataURL('image/png');
-        if (signatureData.length <= 100) { 
-            e.preventDefault();
-            alert("Please provide a signature to proceed.");
-        } else {
-            document.getElementById('signatureData').value = signatureData;
-        }
-    });
-});
-</script>
+                document.getElementById('checkinForm').addEventListener('submit', function (e) {
+                    var signatureData = canvas.toDataURL('image/png');
+                    if (signatureData.length <= 100) {
+                        e.preventDefault();
+                        alert("Please provide a signature to proceed.");
+                    } else {
+                        document.getElementById('signatureData').value = signatureData;
+                    }
+                });
+            });
+        </script>
 </body>
 
 </html>
