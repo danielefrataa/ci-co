@@ -78,7 +78,8 @@
                             <a href="" style="color: #091F5B; font-weight: 600;">{{ $pesan->nama_event }}</a>
                         </div>
                         <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
-                            {{ $pesan->nama_organisasi }}</div>
+                            {{ $pesan->nama_organisasi }}
+                        </div>
                         <div class="col-md-2 text-left">{{ $pesan->tanggal }}</div>
                         <div class="col-md-2 text-left">
                             {{ $pesan->ruangan }}<br>
@@ -87,7 +88,8 @@
                         </div>
                         <div class="col-md-2 text-left">{{ $pesan->nama_pic }}</div>
                         <div class="col-md-1 text-left">
-                            <a href="" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{{ route('peminjaman.create', ['nama_event' => $pesan->nama_event]) }}" class="btn btn-warning btn-sm">Edit</a>
+
                         </div>
                     </div>
                 </div>

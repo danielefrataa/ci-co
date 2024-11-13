@@ -46,12 +46,74 @@ class PeminjamanController extends Controller
             'tanggal' => $booking->tanggal ?? 'Tidak Tersedia',
             'jam' => $booking->jam ?? 'Tidak Tersedia',
             'signature' => $absen->signature ?? 'Tidak Tersedia', // Tambahkan signature dari absen
-            'name'=> $absen->name ?? 'tidak tersedia'
+            'name' => $absen->name ?? 'tidak tersedia'
         ];
 
         Log::info("Data untuk ditampilkan di view: ", $data);
 
         // Tampilkan view dengan data peminjaman
         return view('peminjaman.showPinjam', $data);
+    }
+
+    public function edit($kode_booking)
+    {
+        $booking = Booking::select('id', 'nama_event', 'nama_organisasi', 'tanggal', 'ruangan', 'waktu_mulai', 'waktu_selesai', 'nama_pic', 'kode_booking')->get();
+        // Pass $booking to the edit view for editing.
+        return view('peminjaman.edit', compact('booking'));
+    }
+    public function showEdit($nama_event)
+    {
+
+        // Fetch the booking record based on nama_event
+        $booking = Booking::where('nama_event', $nama_event)->first();
+
+        // Check if booking is found
+        // if ($booking) {
+        //     // Access kode_booking directly from the booking record
+        //     $kode_booking = $booking->kode_booking;
+    
+        //     // Redirect to the edit route, passing kode_booking as a parameter
+        //     return redirect()->route('peminjaman.create', ['kode_booking' => $kode_booking]);
+        //     //return redirect()->route('peminjaman.create', ['kode_booking' => $booking->kode_booking]);
+        // } else {
+        //     // Handle case if no booking found
+        //     return redirect()->back()->with('error', 'Event not found.');
+        // }
+        $kodebook = $booking->kode_booking;
+
+        Log::info("Memulai pengecekan untuk kode booking: {$kodebook}");
+
+        // Ambil semua data peminjaman berdasarkan kode_booking
+        $peminjamans = PeminjamanBarang::where('kode_booking', $kodebook)->get();
+
+        if ($peminjamans->isEmpty()) {
+            Log::warning("Peminjaman tidak ditemukan untuk kode_booking: {$kodebook}");
+            return redirect('/')->with('error', 'Peminjaman tidak ditemukan.');
+        }
+
+        Log::info("Peminjaman ditemukan: ", ['peminjamans' => $peminjamans]);
+
+        // Ambil data booking terkait peminjaman (jika tersedia)
+       // $booking = Booking::where('kode_booking', $kode_booking)->first();
+
+        // Ambil tanda tangan (signature) dari tabel absen
+        $absen = Absen::where('id_booking', $kodebook)->first();
+
+        // Siapkan data tambahan untuk ditampilkan di view
+        $data = [
+            'peminjamans' => $peminjamans,
+            'nama_event' => $booking->nama_event ?? 'Tidak Tersedia',
+            'ruangan' => $booking->ruangan ?? 'Tidak Tersedia',
+            'pic' => $booking->nama_pic ?? 'Tidak Tersedia',
+            'tanggal' => $booking->tanggal ?? 'Tidak Tersedia',
+            'jam' => $booking->jam ?? 'Tidak Tersedia',
+            'signature' => $absen->signature ?? 'Tidak Tersedia', // Tambahkan signature dari absen
+            'name' => $absen->name ?? 'tidak tersedia'
+        ];
+
+        Log::info("Data untuk ditampilkan di view: ", $data);
+
+        // Tampilkan view dengan data peminjaman
+        return view('peminjaman.create', $data);
     }
 }

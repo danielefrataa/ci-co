@@ -8,19 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class booking extends Model
 {
     use HasFactory;
-    protected $table = 'booking_absen'; // Tambahkan ini jika nama tabel kamu tanpa
+    protected $table = 'booking'; // Tambahkan ini jika nama tabel kamu tanpa
 
     protected $fillable = [
         'id',
-        'kode_booking',
-        'nama_event',
-        'nama_ruangan',
-        'lantai',
-        'waktu_mulai',
-        'waktu_selesai',
-        'user_name',
+        'nama_event', 
+        'kode_booking', 
+        'nama_organisasi', 
+        'tanggal', 
+        'ruangan', 
+        'waktu_mulai', 
+        'waktu_selesai', 
         'nama_pic',
-        'phone',
         'status'
     ];
     protected $guarded = ['id'];

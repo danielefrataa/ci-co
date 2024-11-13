@@ -55,7 +55,12 @@ Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name
 
 Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
+
+//peminjaman
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
+Route::get('/peminjaman/create/{nama_event}', [PeminjamanController::class, 'showEdit'])->name('peminjaman.create');
+//Route::get('/peminjaman/{id}/create', [PeminjamanController::class, 'edit'])->name('peminjaman.create');
+
 
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
 
