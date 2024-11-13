@@ -10,6 +10,7 @@ use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\RoomListController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\MarketingController;
+use App\Http\Controllers\ProductionController;
 use App\Models\Absen;
 
 Route::get('/', function () {
@@ -58,16 +59,6 @@ Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])-
 
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
 
-Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
-
-
-
-Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
-
-
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
 Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
 
-
-
-Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
