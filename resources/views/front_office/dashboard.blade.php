@@ -9,13 +9,37 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Booking List</title>
     <style>
-        .custom-blue-table {
-            background-color: #091F5B; /* MCC blue color */
-            color: white;
-        }
-        .wide-select {
-            width: 100px; /* Adjust the width as needed */
-        }
+    .custom-blue {
+        background-color: #091F5B;
+        color: white;
+        padding: 10px 15px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for header row */
+    }
+    .booking-container {
+        border: none; /* Remove container border */
+    }
+    .booking-card {
+        padding: 16px;
+        border: 1px solid #ddd; /* Add border around each card */
+        border-radius: 8px; /* Rounded corners for each card */
+        margin-bottom: 20px; /* Space between booking cards */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for each card */
+    }
+    .header-text-left {
+        text-align: left;
+    }
+    .badge-status-large {
+        font-size: 16px; /* Larger font for badges */
+        padding: 6px 14px; /* Increased padding */
+    }
+    .status-column {
+        text-align: center; /* Center-align status content */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
     </style>
 </head>
 
@@ -36,15 +60,14 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container my-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-center align-items-center mb-4">
             <h2>Booking List</h2>
         </div>
 
         <!-- Filter Form -->
         <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3" style="margin: 8px">
-            <select name="status" class="form-select width-select" style="width: 200px;" aria-label="Status Filter" onchange="this.form.submit()">
+            <select name="status" class="form-select wide-select" style="width: 200px;" aria-label="Status Filter" onchange="this.form.submit()">
                 <option value="">Semua Status</option>
                 <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Check-in</option>
                 <option value="Booked" {{ request('status') == 'Booked' ? 'selected' : '' }}>Booked</option>
@@ -52,96 +75,86 @@
             </select>
         </form>
 
-        <!-- Booking Table -->
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="custom-blue-table">
-                    <tr>
-                        <th>Kode Booking</th>
-                        <th>Nama Event</th>
-                        <th>Ruangan dan Waktu</th>
-                        <th>Nama</th>
-                        <th>Nama PIC</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($bookings as $booking)
-                        <tr>
-                            <td>{{ $booking->kode_booking }}</td>
-                            <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking->id }}">
-                                    {{ $booking->nama_event }}
-                                </a>
-                            </td>
-                            <td>
-                                <strong>{{ $booking->nama_ruangan }}</strong> <br> Lantai {{ $booking->lantai }}
-                                <br>
-                                @php
-                                    $timeRange = explode(' - ', $booking->waktu);
-                                    if (count($timeRange) === 2) {
-                                        $startTime = \Carbon\Carbon::parse($timeRange[0])->format('H:i');
-                                        $endTime = \Carbon\Carbon::parse($timeRange[1])->format('H:i');
-                                        echo $startTime . ' - ' . $endTime;
-                                    } else {
-                                        echo \Carbon\Carbon::parse($booking->waktu)->format('H:i');
-                                    }
-                                @endphp
-                            </td>
-                            <td>{{ $booking->user_name }}</td>
-                            <td>{{ $booking->nama_pic }} <br> {{ $booking->phone }}</td>
-                            <td>
-                                <span class="badge bg-{{ $booking->status == 'Check-in' ? 'success' : ($booking->status == 'Booked' ? 'secondary' : 'danger') }}">
-                                    {{ $booking->status }}
-                                </span>
-                                @if($booking->status == 'Booked')
-                                    <button class="btn btn-success btn-sm ms-2" onclick="updateStatus({{ $booking->id }}, 'Check-in')">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                @elseif($booking->status == 'Check-in')
-                                    <button class="btn btn-danger btn-sm ms-2" onclick="updateStatus({{ $booking->id }}, 'Check-out')">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                    </button>
-                                @endif
-                            </td>
-                        </tr>
+        <!-- Booking Container with Header Row and Cards -->
+        <div class="booking-container">
+            <!-- Header Row with Blue Background, Left-aligned Text, and Shadow -->
+            <div class="row fw-bold custom-blue text-white">
+                <div class="col-md-2 header-text-left">Kode Booking</div>
+                <div class="col-md-2 header-text-left">Nama Event</div>
+                <div class="col-md-2 header-text-left">Ruangan dan Waktu</div>
+                <div class="col-md-2 header-text-left">Nama</div>
+                <div class="col-md-2 header-text-left">Nama PIC</div>
+                <div class="col-md-2 header-text-left">Status</div>
+            </div>
 
-                        <!-- Modal for Booking Details -->
-                        <div class="modal fade" id="eventModal{{ $booking->id }}" tabindex="-1" aria-labelledby="eventModalLabel{{ $booking->id }}" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content p-4 rounded-3">
-                                    <div class="modal-header border-0">
-                                        <h5 class="modal-title w-100 text-center fw-bold" id="eventModalLabel{{ $booking->id }}">
-                                            Detail Acara
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="text-center mb-3 fw-semibold">{{ $booking->nama_event }}</div>
-                                        <hr class="my-3">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p><strong>Nama PIC:</strong> {{ $booking->nama_pic }}</p>
-                                                <p><strong>Kategori Ekraf:</strong> {{ $booking->kategori_ekraf }}</p>
-                                                <p><strong>Jumlah Peserta:</strong> {{ $booking->jumlah_peserta }} Orang</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p><strong>No Telp:</strong> {{ $booking->no_telp }}</p>
-                                                <p><strong>Kategori Event:</strong> {{ $booking->kategori_event }}</p>
-                                            </div>
+            <!-- Booking Cards -->
+            <div id="booking-list">
+                @foreach($bookings as $booking)
+                    <div class="booking-card">
+                        <div class="row text-start">
+                            @php
+                                $fields = [
+                                    'Kode Booking' => $booking->kode_booking,
+                                    'Nama Event' => '<a href="#" data-bs-toggle="modal" data-bs-target="#eventModal'.$booking->id.'">'.$booking->nama_event.'</a>',
+                                    'Ruangan dan Waktu' =>  '<b>'. $booking->nama_ruangan .'</b>' . '<br>'.'Lantai ' . $booking->lantai . '<br>' . (\Carbon\Carbon::parse(explode(" - ", $booking->waktu)[0])->format('H:i') . ' - ' . \Carbon\Carbon::parse(explode(" - ", $booking->waktu)[1])->format('H:i')),
+                                    'Nama' => $booking->user_name,
+                                    'Nama PIC' => $booking->nama_pic . '<br>' . $booking->phone,
+                                    'Status' => '<span class="badge bg-' . ($booking->status == 'Check-in' ? 'primary' : ($booking->status == 'Booked' ? 'secondary' : 'danger')) . ' ' . ($booking->status == 'Check-in' || $booking->status == 'Check-out' ? 'badge-status-large' : '') . '">' . $booking->status . '</span>'
+                                ];
+                            @endphp
+                            @foreach($fields as $key => $value)
+                                <div class="col-md-2 text-start {{ $key == 'Kode Booking' ? 'fw-bold' : '' }} {{ $key == 'Status' ? 'status-column' : '' }}">
+                                    {!! $value !!}
+                                    @if($key == 'Status')
+                                        @if($booking->status == 'Booked')
+                                            <button class="btn btn-primary btn-sm ms-2" onclick="updateStatus({{ $booking->id }}, 'Check-in')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        @elseif($booking->status == 'Check-in')
+                                            <button class="btn btn-danger btn-sm ms-2" onclick="updateStatus({{ $booking->id }}, 'Check-out')">
+                                                <i class="fas fa-sign-out-alt"></i>
+                                            </button>
+                                        @endif
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Modal for Booking Details -->
+                    <div class="modal fade" id="eventModal{{ $booking->id }}" tabindex="-1" aria-labelledby="eventModalLabel{{ $booking->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content p-4 rounded-3">
+                                <div class="modal-header border-0">
+                                    <h5 class="modal-title w-100 text-center fw-bold" id="eventModalLabel{{ $booking->id }}">
+                                        Detail Acara
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="text-center mb-3 fw-semibold">{{ $booking->nama_event }}</div>
+                                    <hr class="my-3">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Nama PIC:</strong> {{ $booking->nama_pic }}</p>
+                                            <p><strong>Kategori Ekraf:</strong> {{ $booking->kategori_ekraf }}</p>
+                                            <p><strong>Jumlah Peserta:</strong> {{ $booking->jumlah_peserta }} Orang</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>No Telp:</strong> {{ $booking->no_telp }}</p>
+                                            <p><strong>Kategori Event:</strong> {{ $booking->kategori_event }}</p>
                                         </div>
                                     </div>
-                                    <div class="modal-footer border-0">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 </div>
                             </div>
                         </div>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>    
 
     <!-- Pagination -->
     <table class="table">
@@ -150,7 +163,7 @@
     
     <!-- Custom Pagination -->
     <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
+        <ul class="pagination justify-content-end">
             <!-- Previous Button -->
             <li class="page-item {{ $bookings->onFirstPage() ? 'disabled' : '' }}">
                 <a class="page-link" href="{{ $bookings->previousPageUrl() }}" aria-disabled="{{ $bookings->onFirstPage() }}">Previous</a>
@@ -169,7 +182,8 @@
             </li>
         </ul>
     </nav>
-    
+    </div>
+
 
     <!-- JavaScript for Updating Booking Status -->
     <script>

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class booking extends Model
 {
     use HasFactory;
-    protected $table = 'booking'; // Tambahkan ini jika nama tabel kamu tanpa
+    protected $table = 'booking_absen'; // Tambahkan ini jika nama tabel kamu tanpa
 
     protected $fillable = [
         'id',
