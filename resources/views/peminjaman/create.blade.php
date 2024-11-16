@@ -143,33 +143,45 @@
                     <p class="mb-0">Jam</p>
                     <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">{{ $jam }}</p>
                 </div>
+                
             </div>
         </div>
 
-        <!-- Tabel List Barang yang Dipinjam -->
+        <!-- Form List Barang yang Dipinjam -->
         <h5 class="section-title mt-4" style="color: #091F5B">List Barang yang Dipinjam</h5>
-        <table class="table table-striped table-custom text-center mb-4">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Kode Booking</th>
-                    <th>Nama Item</th>
-                    <th>Jumlah</th>
-                    <th>Lokasi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($peminjamans as $index => $peminjaman)
+        <form method="POST" action="{{ route('peminjaman.store') }}">
+            @csrf
+            <table class="table table-striped table-custom text-center mb-4">
+            <input type="hidden" name="kode_booking" value="{{ $kode_booking }}">
+
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Item</th>
+                        <th>Jumlah</th>
+                        <th>Lokasi</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="barangList">
+                    @foreach ($peminjamans as $index => $peminjaman)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $peminjaman->kode_booking }}</td>
-                        <td>{{ $peminjaman->nama_item }}</td>
-                        <td>{{ $peminjaman->jumlah }}</td>
-                        <td>{{ $peminjaman->lokasi }}</td>
+                        <td><input type="text" name="items[{{ $index }}][nama_item]" value="{{ $peminjaman->nama_item }}" class="form-control"></td>
+                        <td><input type="number" name="items[{{ $index }}][jumlah]" value="{{ $peminjaman->jumlah }}" class="form-control"></td>
+                        <td><input type="text" name="items[{{ $index }}][lokasi]" value="{{ $peminjaman->lokasi }}" class="form-control"></td>
+                        <td><button type="button" class="btn btn-danger removeItem" onclick="removeItem(this)">Hapus</button></td>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                    @endforeach
+                </tbody>
+            </table>
+            <!-- Tambah Barang -->
+            <button type="button" class="btn btn-success" onclick="addItem()">Tambah Barang</button>
+
+            <div class="text-center mt-4 mb-4">
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
 
         <!-- Checkbox Syarat dan Ketentuan -->
         <div class="form-check mb-3">
@@ -179,82 +191,27 @@
             </label>
         </div>
 
-        <!-- Bagian Tanda Tangan -->
-        <div class="signature-wrapper d-flex justify-content-between mt-2">
-            <div class="signature-group mt-4 text-center">
-                <p class="signature-title">Mengetahui,<br> Marketing</p>
-                <p><img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
-                        style="width: 80px; height: 80px;"></p>
-                <p>{{ $peminjaman->marketing }}</p>
-            </div>
-            <div class="d-flex" style="flex-basis: 35%; justify-content: space-between;">
-                <div class="signature-group mt-4 text-center">
-                    <p class="signature-title">Mengetahui,<br> Peminjam</p>
-                    <p>
-                        @if (isset($signature) && $signature != 'Tidak Tersedia')
-                            <img src="{{ $signature }}" alt="Tanda Tangan"
-                                style="width: 180px; height: 80px; padding-left: 45px;">
-                        @else
-                            <p>Tanda tangan tidak tersedia.</p>
-                        @endif
-                    </p>
-                    <p>{{ $name }}</p>
-                </div>
-                <div class="signature-group mt-4 text-center">
-                    <p class="signature-title">Mengetahui,<br> FO</p>
-                    <p><img src="{{ asset('images/fo_ttd.png') }}" alt="Tanda Tangan"
-                            style=" width: 80px; height: 80px;"></p>
-                    <p>{{ $peminjaman->FO }}</p>
-                </div>
-            </div>
-        </div>
     </div>
-
-    <!-- Tombol Setuju -->
-    <div class="text-center mt-4 mb-4">
-        <a href="{{ route('dashboard') }}" class="btn btn-primary">Setuju</a>
-    </div>
-
-    <!-- Modal Syarat dan Ketentuan -->
-    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-        <div class="modal-dialog" style="max-width: 500px;"> <!-- Mengatur ukuran modal menjadi 600px -->
-            <div class="modal-content">
-                <div class="modal-header text-center"
-                    style="border-bottom: none; display: flex; justify-content: center; width: 100%;">
-                    <h5 class="modal-title" id="termsModalLabel" style="color: #091F5B; text-align: center; margin: 0;">
-                        Syarat dan Ketentuan</h5>
-                </div>
-                <div class="modal-body ">
-                    <ul class="">
-                        <li>Peminjam setuju untuk mengembalikan semua pinjaman pada tanggal pengembalian di atas dalam
-                            keadaan baik atau lebih baik dari kondisi yang dipinjam </li>
-                        <li>Peminjam menyanggupi penggantian bila terjadi kehilangan dan kerusakan</li>
-                        <!-- Tambahkan syarat lainnya sesuai kebutuhan -->
-                    </ul>
-                </div>
-                <div class="modal-footer"
-                    style="border-top: none; display: flex; justify-content: center; width: 100%;">
-                    <!-- Menggunakan flexbox untuk memusatkan tombol -->
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Setuju</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Bootstrap JS untuk Modal -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 
     <script>
-        // Menangani acara saat checkbox diubah
-        document.getElementById('agree').addEventListener('change', function() {
-            if (this.checked) {
-                // Tampilkan modal saat checkbox dicentang
-                var modal = new bootstrap.Modal(document.getElementById('termsModal'));
-                modal.show();
-            }
-        });
+        function addItem() {
+            let table = document.getElementById('barangList');
+            let rowCount = table.rows.length;
+            let row = table.insertRow(rowCount);
+
+            row.innerHTML = `
+                <td>${rowCount + 1}</td>
+                <td><input type="text" name="items[${rowCount}][nama_item]" class="form-control"></td>
+                <td><input type="number" name="items[${rowCount}][jumlah]" class="form-control"></td>
+                <td><input type="text" name="items[${rowCount}][lokasi]" class="form-control"></td>
+                <td><button type="button" class="btn btn-danger removeItem" onclick="removeItem(this)">Hapus</button></td>
+            `;
+        }
+
+        function removeItem(button) {
+            let row = button.parentElement.parentElement;
+            row.remove();
+        }
     </script>
 </body>
 

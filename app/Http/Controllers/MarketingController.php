@@ -11,16 +11,11 @@ class MarketingController extends Controller
     public function index(Request $request)
     {
         $query = booking::query()
-            ->select(
-                'nama_event',
-                'kode_booking',
-                'nama_organisasi',
-                'tanggal',
-                'ruangan',
-                'waktu_mulai',
-                'waktu_selesai',
-                'nama_pic'
-            );
+        ->select(
+            'id', 'nama_event', 'nama_organisasi', 'tanggal', 'nama_ruangan',
+            'waktu_mulai', 'waktu_selesai', 'nama_pic', 'kategori_ekraf',
+            'jumlah_peserta', 'no_pic', 'kategori_event'
+        );
 
         $ruanganWaktu = explode(' - ', $request->input('ruangan_dan_waktu', ''));
         if (count($ruanganWaktu) === 2) {
@@ -36,8 +31,7 @@ class MarketingController extends Controller
                 ->orWhere('nama_organisasi', 'like', '%' . $request->search . '%');
         }
 
-        $booking = $query->orderBy('tanggal')->get();
-
+        $booking = $query->orderBy('tanggal')->paginate(5);
         return view('marketing.peminjaman', compact('booking'));
     }
 }

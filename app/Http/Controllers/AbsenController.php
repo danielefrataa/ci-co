@@ -19,49 +19,52 @@ class AbsenController extends Controller
 
         // Cek peminjaman barang berdasarkan id_booking
         $peminjaman = PeminjamanBarang::where('kode_booking', $request->id_booking)->first();
-        // Debug log
+
         Log::info('Kode Booking: ' . $request->id_booking);
         Log::info('Peminjaman: ' . ($peminjaman ? 'Ditemukan' : 'Tidak Ditemukan'));
-        if (!$peminjaman) {
-            // Jika peminjaman tidak ditemukan, beri pesan dan redirect
-            return redirect('/')->with('gagal', 'Peminjaman tidak ditemukan. Anda tidak dapat check-in.');
-        } {
-            // Validasi input data
-            $request->validate([
-                'id_booking' => 'required|string', // Asumsikan ini adalah kode_booking dari scan
-            ]);
 
-            // Cek apakah user sudah pernah check-in berdasarkan id_booking
-            $cek = Absen::where('id_booking', $request->id_booking)->first();
+        // Cek status booking
+        $booking = Booking::where('kode_booking', $request->id_booking)
+                          ->where('status', 'Approved') // Pastikan status booking Approved
+                          ->first();
 
-            if ($cek) {
-                // Jika data check-in sudah ada, beri pesan bahwa check-in sudah pernah dilakukan
-                return redirect('/')->with('gagal', 'Anda sudah pernah check-in sebelumnya.');
+        if (!$booking) {
+            // Jika booking tidak ditemukan atau statusnya bukan 'Approved', beri pesan dan redirect
+            return redirect('/')->with('gagal', 'Booking tidak ditemukan atau statusnya bukan Approved.');
+        }
+
+        // Cek apakah user sudah pernah check-in berdasarkan id_booking dan statusnya
+        $absen = Absen::where('id_booking', $request->id_booking)->first();
+
+        if ($absen) {
+            // Jika sudah ada dan statusnya 'Check-in', beri pesan bahwa check-in sudah dilakukan
+            if ($absen->status == 'Check-in') {
+                return redirect('/')->with('gagal', 'Anda sudah check-in sebelumnya.');
             }
 
-            // Buat catatan check-in baru
+            // Jika statusnya bukan 'Check-in', update statusnya
+            $absen->update([
+                'status' => 'Check-in',
+                'tanggal' => now()->toDateString(), // Update tanggal jika diperlukan
+            ]);
+        } else {
+            // Jika belum ada, buat catatan baru dengan status 'Check-in'
             Absen::create([
                 'id_booking' => $request->id_booking,
                 'tanggal' => now()->toDateString(),
+                'status' => 'Check-in',
             ]);
-
-            // Dapatkan detail booking berdasarkan kode_booking
-            $booking = Booking::where('kode_booking', $request->id_booking)->first();
-
-            if (!$booking) {
-                return redirect('/')->with('gagal', 'Booking tidak ditemukan.');
-            }
-
-            // Simpan kode_booking ke sesi
-            $request->session()->put('kode_booking', $booking->kode_booking);
-
-            // Cek apakah ada peminjaman barang
-            $peminjaman = PeminjamanBarang::where('kode_booking', $request->id_booking)->first();
-
-            // Redirect ke halaman detail booking
-            return redirect()->route('booking.details', ['kode_booking' => $booking->kode_booking])
-                ->with('success', 'Check-in berhasil.');
         }
+
+        // Simpan kode_booking ke sesi
+        $request->session()->put('kode_booking', $booking->kode_booking);
+
+        // Cek apakah ada peminjaman barang
+        $peminjaman = PeminjamanBarang::where('kode_booking', $request->id_booking)->first();
+
+        // Redirect ke halaman detail booking
+        return redirect()->route('booking.details', ['kode_booking' => $booking->kode_booking])
+            ->with('success', 'Check-in berhasil.');
     }
 
     public function checkinstore(Request $request)
@@ -80,20 +83,22 @@ class AbsenController extends Controller
         $absen = Absen::where('id_booking', $kode_booking)->first();
 
         if (!$absen) {
-            // Jika belum ada, buat catatan baru
+            // Jika belum ada, buat catatan baru dengan status 'Check-in'
             Absen::create([
                 'id_booking' => $kode_booking,
                 'name' => $request->input('name'),
                 'phone' => $request->input('phone'),
                 'signature' => $request->input('signatureData'),
                 'tanggal' => now()->toDateString(),
+                'status' => 'Check-in', // Menambahkan status check-in
             ]);
         } else {
-            // Jika sudah ada, update data yang diperlukan
+            // Jika sudah ada, update data yang diperlukan dan statusnya menjadi 'Check-in'
             $absen->update([
                 'name' => $request->input('name'),
                 'phone' => $request->input('phone'),
                 'signature' => $request->input('signatureData'),
+                'status' => 'Check-in', // Update status menjadi 'Check-in'
             ]);
         }
 

@@ -142,7 +142,7 @@
                 <h5 class="mb-4 mt-4 text-center" style="font-weight: 800; font-size: 18px;">Detail Booking</h5>
                 <div class="card detail p-3 bg-white mb-3">
                     <h4 class="text-center judul">{{ $booking->nama_event }}</h4>
-                    <p class="text-center mt-2 mb-1">{{ $booking->ruangan }}, <span>Lantai {{ $booking->lantai }}</span>
+                    <p class="text-center mt-2 mb-1">{{ $booking->nama_ruangan }}, <span>Lantai {{ $booking->lantai }}</span>
                     </p>
                     <p class="text-center mb-1">
                         {{ Carbon::parse($booking->tanggal)->translatedFormat('l, d F Y') }}

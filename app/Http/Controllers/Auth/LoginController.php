@@ -8,18 +8,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
-class FrontOfficeLoginController extends Controller
+class LoginController extends Controller
 {
     // Show login form
     public function showLoginForm()
     {
-        return view('auth.fo_login');
-    }
-
-    // Show Dashboard
-    public function showFoDashboard()
-    {
-        return view('front_office.dashboard');
+        return view('auth.login');
     }
 
     // Handle login
@@ -29,20 +23,29 @@ class FrontOfficeLoginController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
-            'created_at' => now(), // Optional: Track when the user was created
-            'updated_at' => now(),
         ]);
 
-        // Retrieve user from the front_office table
+        // Retrieve user by email
         $user = User::where('email', $credentials['email'])->first();
 
         // Check if user exists and password matches
         if ($user && Hash::check($credentials['password'], $user->password)) {
-            // Log the user in via the front_office guard
-            Auth::guard('front_office')->login($user);
+            // Log the user in with the default guard
+            Auth::login($user);
 
-            // Redirect to front office dashboard on successful login
-            return redirect()->intended('/front-office/dashboard');
+            // Redirect to the specific dashboard based on role
+            switch ($user->role) {
+                case 'frontoffice':
+                    return redirect()->intended('/front-office/dashboard');
+                case 'marketing':
+                    return redirect()->intended('/marketing/peminjaman');
+                case 'it':
+                    return redirect()->intended('/it/home');
+                case 'produksi':
+                    return redirect()->intended('/produksi/home');
+                default:
+                    return redirect()->intended('/home'); // Default home for other roles
+            }
         }
 
         // If login fails, redirect back with an error
@@ -55,6 +58,6 @@ class FrontOfficeLoginController extends Controller
     public function logout()
     {
         Auth::logout();
-        return redirect('/front-office/login');
+        return redirect('/login');
     }
 }

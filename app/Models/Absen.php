@@ -12,9 +12,10 @@ class Absen extends Model
     protected $guarded = ['id'];
 
 // In Absen model
+
 public function booking()
 {
-    return $this->belongsTo(Booking::class, 'booking_id'); // Make sure 'booking_id' matches your foreign key in Absen
+    return $this->belongsTo(Booking::class, 'id_booking', 'kode_booking');
 }
 
 }

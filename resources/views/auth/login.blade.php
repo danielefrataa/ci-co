@@ -38,8 +38,8 @@
             </div>
         @endif
         <h1 style="color: #091F5B;">Login</h1>
-        <form action="{{ route('front_office.login.post') }}" method="POST" style="border-radius: 10px"
-            class="card p-5 w-75 shadow-lg p-3">
+        <form action="{{ route('login') }}" method="POST" style="border-radius: 10px"
+            class="card p-5 w-75 shadow-lg ">
             @csrf
             <div class="form-group justify-content-between my-1">
                 <label class="py-1 fw-bold fs-5" for="email">Email</label>

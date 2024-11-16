@@ -101,11 +101,12 @@
             font-weight: 600;
             padding-top: 12px;
         }
+
         .modal-header,
         .modal-footer {
-            border: none; /* Menghilangkan border */
+            border: none;
+            /* Menghilangkan border */
         }
-        
     </style>
 </head>
 
@@ -159,13 +160,13 @@
             </thead>
             <tbody>
                 @foreach($peminjamans as $index => $peminjaman)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $peminjaman->kode_booking }}</td>
-                    <td>{{ $peminjaman->nama_item }}</td>
-                    <td>{{ $peminjaman->jumlah }}</td>
-                    <td>{{ $peminjaman->lokasi }}</td>
-                </tr>
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $peminjaman->kode_booking }}</td>
+                        <td>{{ $peminjaman->nama_item }}</td>
+                        <td>{{ $peminjaman->jumlah }}</td>
+                        <td>{{ $peminjaman->lokasi }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
@@ -182,7 +183,8 @@
         <div class="signature-wrapper d-flex justify-content-between mt-2">
             <div class="signature-group mt-4 text-center">
                 <p class="signature-title">Mengetahui,<br> Marketing</p>
-                <p><img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan" style="width: 80px; height: 80px;"></p>
+                <p><img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
+                        style="width: 80px; height: 80px;"></p>
                 <p>{{ $peminjaman->marketing }}</p>
             </div>
             <div class="d-flex" style="flex-basis: 35%; justify-content: space-between;">
@@ -190,7 +192,8 @@
                     <p class="signature-title">Mengetahui,<br> Peminjam</p>
                     <p>
                         @if(isset($signature) && $signature != 'Tidak Tersedia')
-                            <img src="{{$signature}}" alt="Tanda Tangan" style="width: 180px; height: 80px; padding-left: 45px;">
+                            <img src="{{$signature}}" alt="Tanda Tangan"
+                                style="width: 180px; height: 80px; padding-left: 45px;">
                         @else
                             <p>Tanda tangan tidak tersedia.</p>
                         @endif
@@ -199,7 +202,8 @@
                 </div>
                 <div class="signature-group mt-4 text-center">
                     <p class="signature-title">Mengetahui,<br> FO</p>
-                    <p><img src="{{ asset('images/fo_ttd.png') }}" alt="Tanda Tangan" style=" width: 80px; height: 80px;"></p>
+                    <p><img src="{{ asset('images/fo_ttd.png') }}" alt="Tanda Tangan"
+                            style=" width: 80px; height: 80px;"></p>
                     <p>{{ $peminjaman->FO }}</p>
                 </div>
             </div>
@@ -212,32 +216,36 @@
     </div>
 
     <!-- Modal Syarat dan Ketentuan -->
-    <!-- Modal Syarat dan Ketentuan -->
-<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 500px;"> <!-- Mengatur ukuran modal menjadi 600px -->
-        <div class="modal-content">
-            <div class="modal-header text-center" style="border-bottom: none; display: flex; justify-content: center; width: 100%;">
-                <h5 class="modal-title" id="termsModalLabel" style="color: #091F5B; text-align: center; margin: 0;">Syarat dan Ketentuan</h5>
-            </div>
-            <div class="modal-body "> 
-                <ul class=""> 
-                    <li>Peminjam setuju untuk mengembalikan semua pinjaman pada tanggal pengembalian di atas dalam keadaan baik atau lebih baik dari kondisi yang dipinjam </li>
-                    <li>Peminjam menyanggupi penggantian bila terjadi kehilangan dan kerusakan</li>
-                    <!-- Tambahkan syarat lainnya sesuai kebutuhan -->
-                </ul>
-            </div>
-            <div class="modal-footer" style="border-top: none; display: flex; justify-content: center; width: 100%;"> <!-- Menggunakan flexbox untuk memusatkan tombol -->
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Setuju</button>
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="max-width: 500px;"> <!-- Mengatur ukuran modal menjadi 600px -->
+            <div class="modal-content">
+                <div class="modal-header text-center"
+                    style="border-bottom: none; display: flex; justify-content: center; width: 100%;">
+                    <h5 class="modal-title" id="termsModalLabel" style="color: #091F5B; text-align: center; margin: 0;">
+                        Syarat dan Ketentuan</h5>
+                </div>
+                <div class="modal-body ">
+                    <ul class="list-unstyled mb-1">
+                        <li>Peminjam setuju untuk mengembalikan semua pinjaman pada tanggal pengembalian di atas dalam
+                            keadaan baik atau lebih baik dari kondisi yang dipinjam </li>
+                        <li>Peminjam menyanggupi penggantian bila terjadi kehilangan dan kerusakan</li>
+                        <!-- Tambahkan syarat lainnya sesuai kebutuhan -->
+                    </ul>
+                </div>
+                <div class="modal-footer"
+                    style="border-top: none; display: flex; justify-content: center; width: 100%;">
+                    <!-- Menggunakan flexbox untuk memusatkan tombol -->
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Setuju</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     <!-- Bootstrap JS untuk Modal -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
-    
+
     <script>
         // Menangani acara saat checkbox diubah
         document.getElementById('agree').addEventListener('change', function () {

@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Carbon\Carbon;
+use App\Models\Room;
 class booking extends Model
 {
     use HasFactory;
-    protected $table = 'booking_absen'; // Tambahkan ini jika nama tabel kamu tanpa
+
+    protected $table = 'booking';
 
     protected $fillable = [
         'id',
@@ -22,19 +24,31 @@ class booking extends Model
         'nama_pic',
         'status'
     ];
-    protected $guarded = ['id'];
 
     public function getWaktuAttribute()
     {
-        return $this->waktu_mulai . ' - ' . $this->waktu_selesai;
+        return Carbon::parse($this->waktu_mulai)->format('H:i') . ' - ' . Carbon::parse($this->waktu_selesai)->format('H:i');
     }
-    
-   // Model Bookin
-public function peminjaman()
+
+    public function absen()
 {
-    return $this->hasMany(PeminjamanBarang::class, 'kode_booking', 'kode_booking');
+    return $this->hasMany(Absen::class, 'id_booking', 'kode_booking');
 }
 
     
-    
+
+    public function peminjaman()
+    {
+        return $this->hasMany(PeminjamanBarang::class, 'kode_booking', 'kode_booking');
+    }
+
+    // Accessor for status from Absen table
+    public function getAbsenStatusAttribute()
+    {
+        return $this->absen()->latest()->value('status');
+    }
+    public function ruangan()
+    {
+        return $this->belongsTo(Room::class); // Sesuaikan dengan nama model Ruangan
+    }
 }

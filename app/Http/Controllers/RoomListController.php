@@ -41,7 +41,6 @@ class RoomListController extends Controller
 
         // Perform the pagination
         $rooms = $query->latest()->paginate(9);
-
         // Return the view with the filtered and combined data
         return view('front_office.roomList', compact('rooms'));
     }

@@ -23,5 +23,10 @@ class Bookings extends Model
         'phone',
         'status'
     ];
+    public function absen()
+    {
+        return $this->hasMany(Absen::class, 'id_booking', 'kode_booking');
+    }
+
 }
 

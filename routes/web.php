@@ -3,37 +3,37 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AbsenController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\Auth\FrontOfficeLoginController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\InputKodeController;
 use App\Http\Controllers\Auth\RegistrationController;
 use App\Http\Controllers\BookingsController;
 use App\Http\Controllers\RoomListController;
+use App\Http\Middleware\RoleRedirect;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProductionController;
 use App\Models\Absen;
 
+// udah fix jangan kerubah 
 Route::get('/', function () {
     return view('welcome', [
         'absen' => Absen::all()
     ]);
 })->name('dashboard');
-// front_office
-Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
-Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
-
-Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
-Route::get('/bookings', [BookingController::class, 'getBookingData']);
-
-Route::get('/front-office/dashboard', [FrontOfficeLoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
-Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
 
 // Login
-Route::get('/front-office/login', [FrontOfficeLoginController::class, 'showLoginForm'])->name('front_office.login');
-Route::post('/front-office/login', [FrontOfficeLoginController::class, 'login'])->name('front_office.login.post');
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->middleware(RoleRedirect::class);
 
 // Logout
-Route::post('/front-office/logout', [FrontOfficeLoginController::class, 'logout'])->name('front_office.logout');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// front_office
+Route::get('/front-office/dashboard', [LoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
+Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
+Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
+
+Route::get('/bookings', [BookingsController::class, 'getBookingData']);
 
 // register
 Route::get('/front-office/register', [RegistrationController::class, 'showRegistrationForm'])->name('front_office.register');
@@ -42,28 +42,27 @@ Route::post('/front-office/register', [RegistrationController::class, 'register'
 // dewint tambahin, untuk akses detail booking, checkin, dan peminjaman. 
 Route::post('/store', [AbsenController::class, 'store'])->name('store');
 
-//Route::get('/booking/details/{id}', [BookingController::class, 'showDetails'])->name('booking.details');
-Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
+Route::get('/booking/details/{kode_booking}', [BookingsController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
+Route::get('/front-office/roomlist', [RoomListController::class, 'show'])->name('front_office.roomList');
 Route::get('/front-office/roomlist', [RoomListController::class, 'index'])->name('front_office.roomList');
+// In routes/web.php
 
 //marketing
 Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name('bookings.index');
 
-
-Route::get('/booking/details/{kode_booking}', [BookingController::class, 'showDetails'])->name('booking.details');
-Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
-
 //peminjaman
-Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
+// Route untuk update dan tambah barang
+Route::post('/peminjaman/update', [PeminjamanController::class, 'update'])->name('peminjaman.update');
+Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
 Route::get('/peminjaman/create/{nama_event}', [PeminjamanController::class, 'showEdit'])->name('peminjaman.create');
-//Route::get('/peminjaman/{id}/create', [PeminjamanController::class, 'edit'])->name('peminjaman.create');
-
-
-Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
-
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
 Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->name('match');
 
+// production 
+Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');
+
+
+// Batas Terakhir dewinta yang ngerapihinnn

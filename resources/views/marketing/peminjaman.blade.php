@@ -5,14 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Styles -->
+     
     <script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -29,14 +30,10 @@
 
 <body class="bg-light">
     <!-- Header -->
+    @include('layouts.app')
+
     <div class="d-flex justify-content-between align-items-center mb-4">
-        @include('layouts.app')
-        <div class="text-muted">
-            {{ now()->locale('id')->format('l, d F Y') }}
-            <span class="ms-3">
-                Production: Adenna Rizki
-            </span>
-        </div>
+        
     </div>
     <div class="container py-4">
 
@@ -89,12 +86,18 @@
                         <div class="col-md-2 text-left">{{ $pesan->nama_pic }}</div>
                         <div class="col-md-1 text-left">
                             <a href="{{ route('peminjaman.create', ['nama_event' => $pesan->nama_event]) }}" class="btn btn-warning btn-sm">Edit</a>
-
                         </div>
                     </div>
                 </div>
             @endforeach
+            <nav aria-label="Page navigation example">
+                <ul class="pagination pagination-md justify-content-end">
+                    {{ $booking->links('pagination::bootstrap-4') }}
+                </ul>
+            </nav>
         </div>
+
+        
     </div>
     </div>
 

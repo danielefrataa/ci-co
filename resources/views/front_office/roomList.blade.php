@@ -10,6 +10,7 @@ use Carbon\Carbon;
     <title>Room List</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <!-- Styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -31,7 +32,10 @@ use Carbon\Carbon;
             border-radius: 10px;
             background-color: #FBFCFF;
             box-shadow: 1px 4px 2px #D1D1D1, -1px 4px 2px #D1D1D1;
+            min-height: 120px; /* Sesuaikan tinggi minimum yang diinginkan */
         }
+        
+
 
         .room-card p {
             margin-bottom: 5px;
@@ -41,6 +45,7 @@ use Carbon\Carbon;
             padding: 5px 10px;
             border-radius: 10px;
             font-weight: bold;
+            font-size: 14px;
         }
 
         .room-status[value|="dipesan"] {
@@ -80,7 +85,7 @@ use Carbon\Carbon;
 </head>
 
 <body>
-
+@include('layouts.app');
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[placeholder="Telusuri"]');
@@ -101,19 +106,13 @@ use Carbon\Carbon;
         {{ session('success') }}
     </div>
     @endif
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="https://event.mcc.or.id/assets/images/logo.png" width="250" alt="Event Malang Creative Center">
-            </a>
-        </div>
-    </nav>
+    
     <h1 class="text-center">Room List</h1>
 
     <div class="container">
         <div class="d-flex justify-content-between">
             <form method="GET" action="{{ route('front_office.roomList') }}" class="d-inline">
-                <select name="lantai" class="form-select my-5 shadow shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
+                <select name="lantai" class="form-select my-5 shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
                     <option value="">Semua Lantai</option>
                     <option value="2" {{ request('lantai') == '2' ? 'selected' : '' }}>Lantai 2</option>
                     <option value="3" {{ request('lantai') == '3' ? 'selected' : '' }}>Lantai 3</option>
@@ -136,8 +135,8 @@ use Carbon\Carbon;
         </div>
 
         <div id="pagination-container">
-            <div class="row">
-                @foreach ($rooms as $room)
+        <div class="row d-flex align-items-stretch">
+            @foreach ($rooms as $room)
                 <div class="col-md-4">
                     <div class="room-card">
                         <div class="d-flex justify-content-between">
@@ -152,7 +151,7 @@ use Carbon\Carbon;
                             $status = 'sedang digunakan';
                             }
                             @endphp
-                            <span class="room-status shadow shadow-sm" value="{{ $status }}">{{ $status }}</span>
+                            <span class="room-status  shadow-sm" value="{{ $status }}">{{ $status }}</span>
                         </div>
                         <p>Lantai {{ $room->lantai }}</p>
 

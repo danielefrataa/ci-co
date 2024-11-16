@@ -17,7 +17,10 @@ class Room extends Model
     ];
 
 
-
+    public function bookingAbsen()
+    {
+        return $this->hasMany(Booking::class, 'room_id', 'id');
+    }
     // Accessor to get combined data
 
 }

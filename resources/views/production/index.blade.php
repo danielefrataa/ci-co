@@ -29,15 +29,8 @@
 
 <body class="bg-light">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        @include('layouts.app')
-        <div class="text-muted">
-            {{ now()->locale('id')->format('l, d F Y') }}
-            <span class="ms-3">
-                Production: Adenna Rizki
-            </span>
-        </div>
-    </div>
+    @include('layouts.app')
+
     <div class="container py-4">
 
         <h1 class="display-4 mb-4 text-center">Peminjaman List</h1>
@@ -75,13 +68,18 @@
                 <div class="card-header text-dark my-2 shadow-sm" style="background-color:white; border-radius: 5px;">
                     <div class="row align-items-center">
                         <div class="col-md-3 text-left">
-                            <a href="" style="color: #091F5B; font-weight: 600;">{{ $pesan->nama_event }}</a>
+                            <a href="javascript:void(0);" style="color: #091F5B; font-weight: 600;" data-bs-toggle="modal"
+                                data-bs-target="#eventModal{{ $pesan->id }}">
+                                {{ $pesan->nama_event }}
+                            </a>
                         </div>
+
                         <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
-                            {{ $pesan->nama_organisasi }}</div>
+                            {{ $pesan->nama_organisasi }}
+                        </div>
                         <div class="col-md-2 text-left">{{ $pesan->tanggal }}</div>
                         <div class="col-md-2 text-left">
-                            {{ $pesan->ruangan }}<br>
+                            {{ $pesan->nama_ruangan }}<br>
                             {{ $pesan->waktu_mulai ? date('H:i', strtotime($pesan->waktu_mulai)) : '-' }} -
                             {{ $pesan->waktu_selesai ? date('H:i', strtotime($pesan->waktu_selesai)) : '-' }}
                         </div>
@@ -91,18 +89,66 @@
                         </div>
                     </div>
                 </div>
+                <!-- Modal untuk detail acara -->
+                 <div class="modal fade" id="eventModal{{ $pesan->id }}" tabindex="-1"
+                aria-labelledby="eventModalLabel{{ $pesan->id }}" aria-hidden="true">
+                <!-- Mengatur ukuran modal agar lebih kecil -->
+                <div class="modal-dialog" style="max-width: 600px;"> <!-- Menyesuaikan ukuran -->
+                    <div class="modal-content p-0 rounded-3">
+                        <div class="modal-header"
+                            style="border: none; padding-bottom: 0px; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="modal-title w-100 text-center" id="eventModalLabel{{ $pesan->id }}"
+                                style="color: #091F5B; font-weight: 400;">
+                                Detail Acara
+                            </h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body" style="padding-top: 0px;">
+                            <!-- Nama Acara dengan garis bawah biru tebal -->
+                            <div class="text-center mb-2"
+                                style="border-bottom: 3px solid #091F5B; padding-bottom: 5px; justify-content-center">
+                                <div class="" style="font-size: 1.5rem;"> <!-- Ukuran font lebih besar -->
+                                    {{ $pesan->nama_event }}
+                                </div>
+                            </div>
+                            <!-- Isi Detail Acara -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Nama PIC:</strong></p>
+                                    <p>{{ $pesan->nama_pic }}</p>
+
+                                    <p><strong>Kategori Ekraf:</strong></p>
+                                    <p>{{ $pesan->kategori_ekraf }}</p>
+
+                                    <p><strong>Jumlah Peserta:</strong></p>
+                                    <p>{{ $pesan->jumlah_peserta }} Orang</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>No Telp:</strong></p>
+                                    <p>{{ $pesan->no_pic }}</p>
+
+                                    <p><strong>Kategori Event:</strong></p>
+                                    <p>{{ $pesan->kategori_event }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @endforeach
         </div>
     </div>
-    </div>
+
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Date filter handler
             const dateFilter = document.querySelector('input[name="tanggal"]');
-            dateFilter.addEventListener('change', function() {
+            dateFilter.addEventListener('change', function () {
                 const url = new URL(window.location);
                 url.searchParams.set('tanggal', this.value);
                 window.location = url;
@@ -111,7 +157,7 @@
             // Search handler
             const searchInput = document.querySelector('input[placeholder="Search..."]');
             let timeout = null;
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 clearTimeout(timeout);
                 timeout = setTimeout(() => {
                     const url = new URL(window.location);
