@@ -65,4 +65,8 @@ Route::post('/front-office/inputkode', [InputKodeController::class, 'match'])->n
 Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');
 
 
+// web.php
+
+
+
 // Batas Terakhir dewinta yang ngerapihinnn

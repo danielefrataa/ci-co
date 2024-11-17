@@ -83,7 +83,9 @@
                             {{ $pesan->waktu_mulai ? date('H:i', strtotime($pesan->waktu_mulai)) : '-' }} -
                             {{ $pesan->waktu_selesai ? date('H:i', strtotime($pesan->waktu_selesai)) : '-' }}
                         </div>
-                        <div class="col-md-2 text-left">{{ $pesan->nama_pic }}</div>
+                        <div class="col-md-2 text-left">{{ $pesan->nama_pic }} <br> 
+                            <p> 
+                                <a href="https://wa.me/{{ $pesan->no_pic }}" target="_blank" style="color: #25D366;">{{ $pesan->no_pic }}</a></p></div> 
                         <div class="col-md-1 text-left">
                             <a href="{{ route('peminjaman.create', ['nama_event' => $pesan->nama_event]) }}" class="btn btn-warning btn-sm">Edit</a>
                         </div>

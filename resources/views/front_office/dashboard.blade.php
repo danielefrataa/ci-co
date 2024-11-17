@@ -62,6 +62,7 @@
                         <th>Ruangan dan Waktu</th>
                         <th>Nama PIC</th>
                         <th>User Checkin</th>
+                        <th>Duty Officer</th>
                         <th class="status-column">Status</th>
                     </tr>
                 </thead>
@@ -93,9 +94,10 @@
                                             <td>{{ $booking->nama_pic }}</td>
                                             <td>
                                                 @foreach($booking->absen as $absen)
-                                                    <p>{{ $absen->name }} <br> {{ $absen->phone }}</p>
+                                                    <p>{{ $absen->name }} <br> <a href="https://wa.me/{{ $absen->phone }}" target="_blank" style="color: #25D366;">{{ $absen->phone }}</a></p>
                                                 @endforeach
                                             </td>
+                                            <td> {{ $booking->duty_officer}} </td>
                                             <td>
                                             @if($booking->absen->isNotEmpty())
     <span id="status-badge-{{ $booking->id }}" class="badge status-badge-{{ $booking->absen->last()->status }}">
