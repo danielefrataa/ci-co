@@ -12,6 +12,7 @@ use App\Http\Middleware\RoleRedirect;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProductionController;
+use App\Http\Controllers\EventController;
 use App\Models\Absen;
 
 // udah fix jangan kerubah 
@@ -66,7 +67,7 @@ Route::get('/production/peminjaman', [ProductionController::class, 'index'])->na
 
 
 // web.php
-
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
 
 
 // Batas Terakhir dewinta yang ngerapihinnn
