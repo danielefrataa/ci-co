@@ -19,7 +19,45 @@
         body {
             font-family: 'Montserrat', sans-serif;
         }
+
+        .toggle-button {
+            display: flex;
+            width: 18%;
+            border-radius: 25px;
+            overflow: hidden;
+            background-color: #e0e8ff;
+            margin-left: 29cm;
+            margin-top: 5px;
+            /* Center the toggle */
+        }
+
+        .toggle-button div {
+            flex: 1;
+            text-align: center;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-button .active {
+            background-color: #002855;
+            color: #fff;
+            font-weight: bold;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-button .inactive {
+            background-color: #e0e8ff;
+            color: #002855;
+            font-weight: bold;
+        }
+
+        .toggle-button div:hover {
+            opacity: 0.9;
+            /* Slight effect on hover */
+        }
     </style>
+
 </head>
 
 <body class="">
@@ -28,13 +66,21 @@
         {{ session('success') }}
     </div>
     @endif
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="https://event.mcc.or.id/assets/images/logo.png" width="250" alt="Event Malang Creative Center">
-            </a>
-        </div>
-    </nav>
+    @include('layouts.app')
+    <div class="toggle-button">
+        <div id="barcodeButton" class="inactive" onclick="navigateTo('barcode')">BARCODE</div>
+        <div id="inputButton" class="active" onclick="navigateTo('input')">INPUT</div>
+    </div>
+
+    <script>
+        function navigateTo(view) {
+            if (view === 'barcode') {
+                window.location.href = "{{ route('dashboard') }}";
+            } else if (view === 'input') {
+                window.location.href = "{{ route('match') }}";
+            }
+        }
+    </script>
     <h5 class="text-center my-4 mt-4" style="font-weight:bold;">Check-In Event</h5>
     <form action="{{ route('match') }}" method="POST" id="form">
         <div class="container">

@@ -17,9 +17,9 @@
 <body>
     <!-- Success Alert -->
     @if (session('success'))
-        <div class="alert alert-success text-center mx-3 mt-3">
-            {{ session('success') }}
-        </div>
+    <div class="alert alert-success text-center mx-3 mt-3">
+        {{ session('success') }}
+    </div>
     @endif
 
     <!-- Navbar -->
@@ -67,42 +67,42 @@
                 </thead>
                 <tbody>
                     @foreach ($bookings['data'] as $booking)
-                        <tr class="table-row">
-                            <td class="d-none">{{ $booking['booking_id'] }}</td>
-                            <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
-                                    class="fw-bold" style="color: #091F5B;">
-                                    {{ $booking['name'] }}
-                                </a>
-                            </td>
-                            <td class="fw-semibold">{{ $booking['user_name'] }}</td>
-                            <td>
-                                @foreach ($booking['ruangans'] as $ruangan)
-                                    <p>
-                                    <strong>{{ $ruangan['name'] }} <br>
-                                        {{ $ruangan['floor'] }}</strong>
+                    <tr class="table-row">
+                        <td class="d-none">{{ $booking['booking_id'] }}</td>
+                        <td>
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
+                                class="fw-bold" style="color: #091F5B;">
+                                {{ $booking['name'] }}
+                            </a>
+                        </td>
+                        <td class="fw-semibold">{{ $booking['user_name'] }}</td>
+                        <td>
+                            @foreach ($booking['ruangans'] as $ruangan)
+                            <p>
+                                <strong>{{ $ruangan['name'] }} <br>
+                                    {{ $ruangan['floor'] }}</strong>
                                 @endforeach
-                            </td>
-                            <td>{{ $booking['pic_name'] }}</td>
-                            <td>
-                                <!-- Check-in Badge (Jika diperlukan tetap tampilkan di kolom ini) -->
-                                @if (!empty($booking['absen']))
-                                    <span id="status-badge-{{ $booking['id'] }}" class="badge status-badge-{{ last($booking['absen'])['status'] }}">
-                                        {{ last($booking['absen'])['status'] }}
-                                    </span>
-                                @else
-                                    <span class="badge bg-warning">Belum Check-in</span>
-                                @endif
-                            </td>
-                            <td>
-                                <!-- Status Column -->
-                                @if (!empty($booking['absen']))
-                                    <span class="badge bg-success">{{ last($booking['absen'])['status'] }}</span>
-                                @else
-                                    <span class="badge bg-success">Booked</span>
-                                @endif
-                            </td>
-                        </tr>
+                        </td>
+                        <td>{{ $booking['pic_name'] }}</td>
+                        <td>
+                            <!-- Check-in Badge (Jika diperlukan tetap tampilkan di kolom ini) -->
+                            @if (!empty($booking['absen']))
+                            <span id="status-badge-{{ $booking['id'] }}" class="badge status-badge-{{ last($booking['absen'])['status'] }}">
+                                {{ last($booking['absen'])['status'] }}
+                            </span>
+                            @else
+                            <span class="badge bg-warning">Belum Check-in</span>
+                            @endif
+                        </td>
+                        <td>
+                            <!-- Status Column -->
+                            @if (!empty($booking['absen']))
+                            <span class="badge bg-success">{{ last($booking['absen'])['status'] }}</span>
+                            @else
+                            <span class="badge bg-success">Booked</span>
+                            @endif
+                        </td>
+                    </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -120,7 +120,7 @@
                 </select>
             </div>
             <!-- Pagination Section -->
-    {{-- <nav aria-label="Page navigation example">
+            {{-- <nav aria-label="Page navigation example">
     <ul class="pagination mb-0">
         <!-- Previous Page Link -->
         @if ($bookings->onFirstPage())
@@ -131,31 +131,31 @@
             <li class="page-item">
                 <a class="page-link" href="{{ $bookings->previousPageUrl() }}" rel="prev">&laquo; Previous</a>
             </li>
-        @endif
+            @endif
 
-        <!-- Pagination Links -->
-        @foreach ($bookings->getUrlRange(1, $bookings->lastPage()) as $page => $url)
+            <!-- Pagination Links -->
+            @foreach ($bookings->getUrlRange(1, $bookings->lastPage()) as $page => $url)
             <li class="page-item {{ $page == $bookings->currentPage() ? 'active' : '' }}">
                 <a class="page-link" href="{{ $url }}">{{ $page }}</a>
             </li>
-        @endforeach
+            @endforeach
 
-        <!-- Next Page Link -->
-        @if ($bookings->hasMorePages())
+            <!-- Next Page Link -->
+            @if ($bookings->hasMorePages())
             <li class="page-item">
                 <a class="page-link" href="{{ $bookings->nextPageUrl() }}" rel="next">Next &raquo;</a>
             </li>
-        @else
+            @else
             <li class="page-item disabled">
                 <span class="page-link">Next &raquo;</span>
             </li>
-        @endif
-    </ul>
-</nav> --}}
+            @endif
+            </ul>
+            </nav> --}}
 
 
-        <!-- Modal for Event Details -->
-        @foreach($bookings ['data'] as $booking)
+            <!-- Modal for Event Details -->
+            @foreach($bookings ['data'] as $booking)
             <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
                 aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
                 <!-- Mengatur ukuran modal agar lebih kecil -->
@@ -172,8 +172,7 @@
 
                         <div class="modal-body" style="padding-top: 0px;">
                             <!-- Nama Acara dengan garis bawah biru tebal -->
-                            <div class="text-center mb-2"
-                                style="border-bottom: 3px solid #091F5B; padding-bottom: 5px; justify-content-center">
+                            <div class="text-center mb-2" style="border-bottom: 3px solid #091F5B; padding-bottom: 5px; justify-content: center;">
                                 <div style="font-size: 1.5rem;">
                                     {{ $booking['name'] }}
                                 </div>
@@ -201,48 +200,50 @@
                     </div>
                 </div>
             </div>
-        @endforeach
+            @endforeach
 
 
-        <!-- JavaScript for Updating Booking Status -->
-        <script>
-            function updateStatus(bookingId, newStatus) {
-                fetch(`/bookings/${bookingId}/update-status`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ status: newStatus })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);  // Log data untuk debugging
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Status Updated',
-                                text: data.message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                location.reload();  // Reload untuk menampilkan status terbaru
-                            });
-                        } else {
-                            Swal.fire('Error', 'Failed to update status', 'error');
-                        }
-                    })
-                    .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
-            }
+            <!-- JavaScript for Updating Booking Status -->
+            <script>
+                function updateStatus(bookingId, newStatus) {
+                    fetch(`/bookings/${bookingId}/update-status`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                status: newStatus
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data); // Log data untuk debugging
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Status Updated',
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload(); // Reload untuk menampilkan status terbaru
+                                });
+                            } else {
+                                Swal.fire('Error', 'Failed to update status', 'error');
+                            }
+                        })
+                        .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
+                }
 
-            function updatePerPage() {
-                var perPage = document.getElementById('per-page').value;
-                var query = new URLSearchParams(window.location.search);
-                query.set('per_page', perPage);
-                window.location.href = '?' + query.toString(); // Mengarahkan kembali dengan query string per_page
-            }
-        </script>
-    </div>
+                function updatePerPage() {
+                    var perPage = document.getElementById('per-page').value;
+                    var query = new URLSearchParams(window.location.search);
+                    query.set('per_page', perPage);
+                    window.location.href = '?' + query.toString(); // Mengarahkan kembali dengan query string per_page
+                }
+            </script>
+        </div>
 </body>
 
 </html>
