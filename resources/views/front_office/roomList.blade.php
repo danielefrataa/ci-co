@@ -32,9 +32,10 @@ use Carbon\Carbon;
             border-radius: 10px;
             background-color: #FBFCFF;
             box-shadow: 1px 4px 2px #D1D1D1, -1px 4px 2px #D1D1D1;
-            min-height: 120px; /* Sesuaikan tinggi minimum yang diinginkan */
+            min-height: 120px;
+            /* Sesuaikan tinggi minimum yang diinginkan */
         }
-        
+
 
 
         .room-card p {
@@ -85,7 +86,7 @@ use Carbon\Carbon;
 </head>
 
 <body>
-@include('layouts.app');
+    @include('layouts.app');
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[placeholder="Telusuri"]');
@@ -106,7 +107,7 @@ use Carbon\Carbon;
         {{ session('success') }}
     </div>
     @endif
-    
+
     <h1 class="text-center">Room List</h1>
 
     <div class="container">
@@ -114,13 +115,14 @@ use Carbon\Carbon;
             <form method="GET" action="{{ route('front_office.roomList') }}" class="d-inline">
                 <select name="lantai" class="form-select my-5 shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
                     <option value="">Semua Lantai</option>
-                    <option value="2" {{ request('lantai') == '2' ? 'selected' : '' }}>Lantai 2</option>
-                    <option value="3" {{ request('lantai') == '3' ? 'selected' : '' }}>Lantai 3</option>
-                    <option value="4" {{ request('lantai') == '4' ? 'selected' : '' }}>Lantai 4</option>
-                    <option value="5" {{ request('lantai') == '5' ? 'selected' : '' }}>Lantai 5</option>
-                    <option value="6" {{ request('lantai') == '6' ? 'selected' : '' }}>Lantai 6</option>
-                    <option value="7" {{ request('lantai') == '7' ? 'selected' : '' }}>Lantai 7</option>
-                    <option value="8" {{ request('lantai') == '8' ? 'selected' : '' }}>Lantai 8</option>
+                    <option value="1" {{ request('lantai') == 'Lantai 1' ? 'selected' : '' }}>Lantai 1</option>
+                    <option value="2" {{ request('lantai') == 'Lantai 2' ? 'selected' : '' }}>Lantai 2</option>
+                    <option value="3" {{ request('lantai') == 'Lantai 3' ? 'selected' : '' }}>Lantai 3</option>
+                    <option value="4" {{ request('lantai') == 'Lantai 4' ? 'selected' : '' }}>Lantai 4</option>
+                    <option value="5" {{ request('lantai') == 'Lantai 5' ? 'selected' : '' }}>Lantai 5</option>
+                    <option value="6" {{ request('lantai') == 'Lantai 6' ? 'selected' : '' }}>Lantai 6</option>
+                    <option value="7" {{ request('lantai') == 'Lantai 7' ? 'selected' : '' }}>Lantai 7</option>
+                    <option value="8" {{ request('lantai') == 'Lantai 8' ? 'selected' : '' }}>Lantai 8</option>
                 </select>
             </form>
             <div class="mb-5">
@@ -135,14 +137,14 @@ use Carbon\Carbon;
         </div>
 
         <div id="pagination-container">
-        <div class="row d-flex align-items-stretch">
-            @foreach ($rooms as $room)
+            <div class="row d-flex align-items-stretch">
+                @foreach ($rooms as $room)
                 <div class="col-md-4">
                     <div class="room-card">
                         <div class="d-flex justify-content-between">
-                            <span class="fw-bold mt-1">{{ $room->nama_ruangan }}</span>
+                            <span class="fw-bold mt-1">{{ $room['name'] }}</span>
                             @php
-                            $status = $room->status;
+                            $status = $room['status'];
                             if ($status == 'Booked') {
                             $status = 'dipesan';
                             } elseif ($status == 'Check-out') {
@@ -153,54 +155,26 @@ use Carbon\Carbon;
                             @endphp
                             <span class="room-status  shadow-sm" value="{{ $status }}">{{ $status }}</span>
                         </div>
-                        <p>Lantai {{ $room->lantai }}</p>
+                        <p>{{ $room['floor'] }}</p>
 
-                        <p> @if ($room->waktu_mulai && $room->waktu_selesai)
-                            {{ Carbon::parse($room->waktu_mulai)->format('H:i') }} - {{ Carbon::parse($room->waktu_selesai)->format('H:i') }}
-                            @else
-                            {{ ' ' }}
-                            @endif
-                        </p>
                     </div>
                 </div>
                 @endforeach
             </div>
         </div>
 
-        @if ($rooms->hasPages())
-        <nav>
+        <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
-                {{-- Previous Page Link --}}
-                @if ($rooms->onFirstPage())
-                <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.previous')">
-                    <span class="page-link" aria-hidden="true">&laquo;</span>
-                </li>
-                @else
-                <li class="page-item">
-                    <a class="page-link" href="{{ $rooms->previousPageUrl() }}&search={{ request('search') }}&lantai={{ request('lantai') }}" rel="prev" aria-label="@lang('pagination.previous')">&laquo;</a>
-                </li>
-                @endif
-
-                @for ($page = 1; $page <= $rooms->lastPage(); $page++)
-                    @if ($page == $rooms->currentPage())
-                    <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
-                    @else
-                    <li class="page-item"><a class="page-link" href="{{ $rooms->url($page) }}&search={{ request('search') }}&lantai={{ request('lantai') }}">{{ $page }}</a></li>
-                    @endif
+                @for ($page = 1; $page <= $totalPages; $page++)
+                    <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                    <a class="page-link"
+                        href="{{ url()->current() }}?page={{ $page }}&search={{ request('search') }}&per_page={{ $perPage }}">
+                        {{ $page }}
+                    </a>
+                    </li>
                     @endfor
-
-                    @if ($rooms->hasMorePages())
-                    <li class="page-item">
-                        <a class="page-link" href="{{ $rooms->nextPageUrl() }}&search={{ request('search') }}&lantai={{ request('lantai') }}" rel="next" aria-label="@lang('pagination.next')">&raquo;</a>
-                    </li>
-                    @else
-                    <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
-                        <span class="page-link" aria-hidden="true">&raquo;</span>
-                    </li>
-                    @endif
             </ul>
         </nav>
-        @endif
 
     </div>
     </div>
