@@ -61,6 +61,7 @@
                         <th>Nama Organisasi</th>
                         <th>Ruangan dan Waktu</th>
                         <th>Nama PIC</th>
+                        <th>Duty officer</th>
                         <th>User Check-in</th>
                         <th class="status-column">Status</th>
                     </tr>
@@ -82,8 +83,23 @@
                                     <strong>{{ $ruangan['name'] }} <br>
                                         {{ $ruangan['floor'] }}</strong>
                                 @endforeach
+                                @foreach ($booking['booking_items'] as $bookingitems)
+                                <p> {{$bookingitems['booking_hour']}}</p>
+                                @endforeach
                             </td>
                             <td>{{ $booking['pic_name'] }}</td>
+                            <td>
+                                <div class="form-group">
+                                    <select name="duty_officer" class="form-control" onchange="updateDutyOfficer(this)">
+                                        <option value="" disabled selected>--</option>
+                                        @foreach ($duty_officer as $duty)
+                                            <option value="{{ $duty->id }}">{{ $duty->nama_do }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </td>
+                            
+                            
                             <td>
                                 <!-- Check-in Badge (Jika diperlukan tetap tampilkan di kolom ini) -->
                                 @if (!empty($booking['absen']))
@@ -241,6 +257,13 @@
                 query.set('per_page', perPage);
                 window.location.href = '?' + query.toString(); // Mengarahkan kembali dengan query string per_page
             }
+
+    document.getElementById('duty_officer').addEventListener('change', function() {
+        const selectedDuty = this.options[this.selectedIndex].text;
+        alert('Duty Officer terpilih: ' + selectedDuty);
+    });
+</script>
+
         </script>
     </div>
 </body>
