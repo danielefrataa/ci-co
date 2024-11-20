@@ -46,9 +46,11 @@
 
             <!-- Search Form -->
             <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3" style="margin: 8px">
-                <input type="text" name="search" class="form-control" placeholder="Search by Event Name or Kode Booking"
-                    value="{{ request('search') }}" onkeyup="this.form.submit()">
-            </form>
+    <input type="text" name="search" class="form-control" placeholder="Search by Event Name or Kode Booking"
+           value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
+</form>
+
+
         </div>
 
         <!-- Booking Table -->
@@ -66,21 +68,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($bookings['data'] as $booking)
-                    <tr class="table-row">
-                        <td class="d-none">{{ $booking['booking_id'] }}</td>
-                        <td>
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
-                                class="fw-bold" style="color: #091F5B;">
-                                {{ $booking['name'] }}
-                            </a>
-                        </td>
-                        <td class="fw-semibold">{{ $booking['user_name'] }}</td>
-                        <td>
-                            @foreach ($booking['ruangans'] as $ruangan)
-                            <p>
-                                <strong>{{ $ruangan['name'] }} <br>
-                                    {{ $ruangan['floor'] }}</strong>
+                    @foreach ($bookings as $booking)
+                        <tr class="table-row">
+                            <td class="d-none">{{ $booking['booking_id'] }}</td>
+                            <td>
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
+                                    class="fw-bold" style="color: #091F5B;">
+                                    {{ $booking['name'] }}
+                                </a>
+                            </td>
+                            <td class="fw-semibold">{{ $booking['user_name'] }}</td>
+                            <td>
+                                @foreach ($booking['ruangans'] as $ruangan)
+                                    <p>
+                                    <strong>{{ $ruangan['name'] }} <br>
+                                        {{ $ruangan['floor'] }}</strong>
                                 @endforeach
                         </td>
                         <td>{{ $booking['pic_name'] }}</td>
@@ -111,51 +113,31 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <!-- Dropdown untuk memilih jumlah data per halaman -->
-            <div>
-                <select id="per-page" class="form-select" onchange="updatePerPage()">
-                    <option value="6" {{ request('per_page') == 6 ? 'selected' : '' }}>6</option>
-                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                    <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
-                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                </select>
-            </div>
+            <div class="mb-3">
+        <label for="per-page" class="form-label">Jumlah Data Per Halaman:</label>
+        <select id="per-page" class="form-select" onchange="updatePerPage()">
+            <option value="6" {{ request('per_page') == 6 ? 'selected' : '' }}>6</option>
+            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+            <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
+            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+        </select>
+    </div>
             <!-- Pagination Section -->
-            {{-- <nav aria-label="Page navigation example">
-    <ul class="pagination mb-0">
-        <!-- Previous Page Link -->
-        @if ($bookings->onFirstPage())
-            <li class="page-item disabled">
-                <span class="page-link">&laquo; Previous</span>
+            <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        @for ($page = 1; $page <= $totalPages; $page++)
+            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                <a class="page-link" href="{{ url()->current() }}?page={{ $page }}&per_page={{ $perPage }}">
+                    {{ $page }}
+                </a>
             </li>
-        @else
-            <li class="page-item">
-                <a class="page-link" href="{{ $bookings->previousPageUrl() }}" rel="prev">&laquo; Previous</a>
-            </li>
-            @endif
-
-            <!-- Pagination Links -->
-            @foreach ($bookings->getUrlRange(1, $bookings->lastPage()) as $page => $url)
-            <li class="page-item {{ $page == $bookings->currentPage() ? 'active' : '' }}">
-                <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-            </li>
-            @endforeach
-
-            <!-- Next Page Link -->
-            @if ($bookings->hasMorePages())
-            <li class="page-item">
-                <a class="page-link" href="{{ $bookings->nextPageUrl() }}" rel="next">Next &raquo;</a>
-            </li>
-            @else
-            <li class="page-item disabled">
-                <span class="page-link">Next &raquo;</span>
-            </li>
-            @endif
-            </ul>
-            </nav> --}}
+        @endfor
+    </ul>
+</nav>
 
 
-            <!-- Modal for Event Details -->
-            @foreach($bookings ['data'] as $booking)
+        <!-- Modal for Event Details -->
+        @foreach($bookings as $booking)
             <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
                 aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
                 <!-- Mengatur ukuran modal agar lebih kecil -->
@@ -236,14 +218,12 @@
                         .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
                 }
 
-                function updatePerPage() {
-                    var perPage = document.getElementById('per-page').value;
-                    var query = new URLSearchParams(window.location.search);
-                    query.set('per_page', perPage);
-                    window.location.href = '?' + query.toString(); // Mengarahkan kembali dengan query string per_page
-                }
-            </script>
-        </div>
+            function updatePerPage() {
+        const perPage = document.getElementById('per-page').value;
+        window.location.href = `{{ url()->current() }}?per_page=${perPage}`;
+    }
+        </script>
+    </div>
 </body>
 
 </html>
