@@ -1,38 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Events</title>
-</head>
-<body>
-    <h1>Daftar Events</h1>
+@extends('layouts.app')
 
-    @if (!empty($events['data']))
-        <table border="1">
-            <thead>
+@section('content')
+<div class="container my-4">
+    <h2>Booking List</h2>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table custom-table">
+            <theead>
                 <tr>
-                    <th>ID</th>
+                    <th>Kode Booking</th>
                     <th>Nama Event</th>
+                    <th>Nama Organisasi</th>
+                    <th>Ruangan dan Waktu</th>
+                    <th>Nama PIC</th>
+                    <th>User Checkin</th>
                     <th>Status</th>
-                    <th>Created At</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($events['data'] as $event)
+                @forelse($bookings as $booking)
                     <tr>
-                        <td>{{ $event['id'] }}</td>
-                        <td>{{ $event['name'] }}</td>
-                        <td>{{ $event['status'] }}</td>
-                        <td>{{ $event['pic_name'] }}</td>
-                        <td>{{ $event['created_at'] }}</td>
-
+                        <td>{{ $booking['kode_booking'] }}</td>
+                        <td>{{ $booking['nama_event'] }}</td>
+                        <td>{{ $booking['nama_organisasi'] }}</td>
+                        <td>
+                            {{ $booking['nama_ruangan'] }} (Lantai {{ $booking['lantai'] }})<br>
+                        </td>
+                        <td>{{ $booking['nama_pic'] }}</td>
+                        <td>
+                           
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ $booking['status'] ?? 'Booked' }}</span>
+                        </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center">Tidak ada data booking.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
-    @else
-        <p>Tidak ada data tersedia.</p>
-    @endif
-</body>
-</html>
+    </div>
+</div>
+@endsection

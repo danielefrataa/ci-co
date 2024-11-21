@@ -4,72 +4,76 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Absen;
-use App\Models\Booking;
 use App\Models\PeminjamanBarang;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class AbsenController extends Controller
 {
+    private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
+
     public function store(Request $request)
     {
-        // Validasi input data
+        // Validasi input
         $request->validate([
-            'id_booking' => 'required|string', // Asumsikan ini adalah kode_booking dari scan
+            'id_booking' => 'required|string',
         ]);
 
-        // Cek peminjaman barang berdasarkan id_booking
-        $peminjaman = PeminjamanBarang::where('kode_booking', $request->id_booking)->first();
+        $id_booking = strtolower(trim($request->id_booking));
 
-        Log::info('Kode Booking: ' . $request->id_booking);
-        Log::info('Peminjaman: ' . ($peminjaman ? 'Ditemukan' : 'Tidak Ditemukan'));
+        // Panggil API
+        $apiUrl = "https://event.mcc.or.id/api/event?status=booked";
+        $response = Http::withHeaders([
+            'X-API-KEY' => $this->apiKey,
+        ])->withoutVerifying()->get($apiUrl);
 
-        // Cek status booking
-        $booking = Booking::where('kode_booking', $request->id_booking)
-                          ->where('status', 'Approved') // Pastikan status booking Approved
-                          ->first();
-
-        if (!$booking) {
-            // Jika booking tidak ditemukan atau statusnya bukan 'Approved', beri pesan dan redirect
-            return redirect('/')->with('gagal', 'Booking tidak ditemukan atau statusnya bukan Approved.');
+        if (!$response->successful()) {
+            return redirect('/')->with('gagal', 'Gagal mengambil data booking dari API.');
         }
 
-        // Cek apakah user sudah pernah check-in berdasarkan id_booking dan statusnya
-        $absen = Absen::where('id_booking', $request->id_booking)->first();
+        // Ambil data booking berdasarkan 'booking_code'
+        $bookingData = collect($response->json()['data'])->firstWhere('booking_code', $id_booking);
+
+        if (!$bookingData) {
+            return redirect('/')->with('gagal', 'Booking tidak ditemukan.');
+        }
+
+        // Log data untuk debugging
+        Log::info('Data Booking dari API: ', $bookingData);
+
+        // Cek apakah user sudah check-in
+        $absen = Absen::where('id_booking', $id_booking)->first();
 
         if ($absen) {
-            // Jika sudah ada dan statusnya 'Check-in', beri pesan bahwa check-in sudah dilakukan
             if ($absen->status == 'Check-in') {
                 return redirect('/')->with('gagal', 'Anda sudah check-in sebelumnya.');
             }
 
-            // Jika statusnya bukan 'Check-in', update statusnya
             $absen->update([
                 'status' => 'Check-in',
-                'tanggal' => now()->toDateString(), // Update tanggal jika diperlukan
+                'tanggal' => now()->toDateString(),
             ]);
         } else {
-            // Jika belum ada, buat catatan baru dengan status 'Check-in'
             Absen::create([
-                'id_booking' => $request->id_booking,
+                'id_booking' => $id_booking,
                 'tanggal' => now()->toDateString(),
                 'status' => 'Check-in',
             ]);
         }
 
         // Simpan kode_booking ke sesi
-        $request->session()->put('kode_booking', $booking->kode_booking);
+        $request->session()->put('kode_booking', $id_booking);
 
         // Cek apakah ada peminjaman barang
-        $peminjaman = PeminjamanBarang::where('kode_booking', $request->id_booking)->first();
+        $peminjaman = PeminjamanBarang::where('kode_booking', $id_booking)->first();
 
-        // Redirect ke halaman detail booking
-        return redirect()->route('booking.details', ['kode_booking' => $booking->kode_booking])
+        return redirect()->route('booking.details', ['kode_booking' => $id_booking])
             ->with('success', 'Check-in berhasil.');
     }
 
     public function checkinstore(Request $request)
     {
-        // Validasi data form
+        // Validasi input form check-in
         $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:15',
@@ -79,33 +83,46 @@ class AbsenController extends Controller
         // Ambil kode_booking dari sesi
         $kode_booking = $request->session()->get('kode_booking');
 
-        // Cek apakah user sudah pernah check-in
+        // Pastikan booking ada di API
+        $apiUrl = "https://event.mcc.or.id/api/event?status=booked";
+        $response = Http::withHeaders([
+            'X-API-KEY' => $this->apiKey,
+        ])->withoutVerifying()->get($apiUrl);
+
+        if (!$response->successful()) {
+            return redirect('/')->with('gagal', 'Gagal mengambil data booking dari API.');
+        }
+
+        $bookingData = collect($response->json()['data'])->firstWhere('booking_code', $kode_booking);
+
+        if (!$bookingData) {
+            return redirect('/')->with('gagal', 'Booking tidak ditemukan.');
+        }
+
+        // Cek apakah absen sudah ada
         $absen = Absen::where('id_booking', $kode_booking)->first();
 
         if (!$absen) {
-            // Jika belum ada, buat catatan baru dengan status 'Check-in'
             Absen::create([
                 'id_booking' => $kode_booking,
                 'name' => $request->input('name'),
                 'phone' => $request->input('phone'),
                 'signature' => $request->input('signatureData'),
                 'tanggal' => now()->toDateString(),
-                'status' => 'Check-in', // Menambahkan status check-in
+                'status' => 'Check-in',
             ]);
         } else {
-            // Jika sudah ada, update data yang diperlukan dan statusnya menjadi 'Check-in'
             $absen->update([
                 'name' => $request->input('name'),
                 'phone' => $request->input('phone'),
                 'signature' => $request->input('signatureData'),
-                'status' => 'Check-in', // Update status menjadi 'Check-in'
+                'status' => 'Check-in',
             ]);
         }
 
         // Cek apakah ada peminjaman barang
         $peminjaman = PeminjamanBarang::where('kode_booking', $kode_booking)->first();
 
-        // Redirect sesuai dengan kondisi peminjaman barang
         if ($peminjaman) {
             Log::info('Peminjaman ditemukan: ', $peminjaman->toArray());
             return redirect()->route('peminjaman.show', $peminjaman->kode_booking);
