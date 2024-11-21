@@ -69,10 +69,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($bookings as $booking)
+                    @foreach ($bookings ['data'] as $booking)
                         <tr class="table-row">
                             <td class="d-none">{{ $booking['booking_id'] }}</td>
-                            <td>
+                           <td>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
                                     class="fw-bold" style="color: #091F5B;">
                                     {{ $booking['name'] }}
@@ -91,7 +91,7 @@
                             </td>
                             <td>{{ $booking['pic_name'] }}</td>
                             <td>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <select name="duty_officer" class="form-control" onchange="updateDutyOfficer(this)">
                                         <option value="" disabled selected>--</option>
                                         @foreach ($duty_officer as $duty)
@@ -99,7 +99,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                            </td>
+                            </td> --}}
                             
                             
                             <td>
@@ -139,7 +139,7 @@
         </select>
     </div>
             <!-- Pagination Section -->
-            <nav aria-label="Page navigation">
+            {{-- <nav aria-label="Page navigation">
     <ul class="pagination justify-content-center">
         @for ($page = 1; $page <= $totalPages; $page++)
             <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
@@ -149,11 +149,11 @@
             </li>
         @endfor
     </ul>
-</nav>
+</nav> --}}
 
 
         <!-- Modal for Event Details -->
-        @foreach($bookings as $booking)
+        @foreach($bookings ['data'] as $booking)
             <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
                 aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
                 <!-- Mengatur ukuran modal agar lebih kecil -->
