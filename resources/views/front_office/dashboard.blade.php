@@ -17,9 +17,9 @@
 <body>
     <!-- Success Alert -->
     @if (session('success'))
-    <div class="alert alert-success text-center mx-3 mt-3">
-        {{ session('success') }}
-    </div>
+        <div class="alert alert-success text-center mx-3 mt-3">
+            {{ session('success') }}
+        </div>
     @endif
 
     <!-- Navbar -->
@@ -46,9 +46,9 @@
 
             <!-- Search Form -->
             <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3" style="margin: 8px">
-    <input type="text" name="search" class="form-control" placeholder="Search by Event Name or Kode Booking"
-           value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
-</form>
+                <input type="text" name="search" class="form-control" placeholder="Search by Event Name or Kode Booking"
+                    value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
+            </form>
 
 
         </div>
@@ -60,7 +60,7 @@
                     <tr>
                         <th class="d-none">Kode Booking</th>
                         <th class="nama-event-column">Nama Event</th>
-                        <th>Nama Organisasi</th>
+                        <th >Nama Organisasi</th>
                         <th>Ruangan dan Waktu</th>
                         <th>Nama PIC</th>
                         <th>User Check-in</th>
@@ -80,31 +80,33 @@
                             <td class="fw-semibold">{{ $booking['user_name'] }}</td>
                             <td>
                                 @foreach ($booking['ruangans'] as $ruangan)
-                                    <p>
-                                    <strong>{{ $ruangan['name'] }} <br>
-                                        {{ $ruangan['floor'] }}</strong>
+                                    <p>{{ $ruangan['name'] }}<br>
+                                        <span>{{ $ruangan['floor'] }}</span><br>
+                                        <span>{{ $booking['start_time'] ?? 'N/A' }} - {{ $booking['end_time'] ?? 'N/A' }} </span>
+                                    </p>
                                 @endforeach
-                        </td>
-                        <td>{{ $booking['pic_name'] }}</td>
-                        <td>
-                            <!-- Check-in Badge (Jika diperlukan tetap tampilkan di kolom ini) -->
-                            @if (!empty($booking['absen']))
-                            <span id="status-badge-{{ $booking['id'] }}" class="badge status-badge-{{ last($booking['absen'])['status'] }}">
-                                {{ last($booking['absen'])['status'] }}
-                            </span>
-                            @else
-                            <span class="badge bg-warning">Belum Check-in</span>
-                            @endif
-                        </td>
-                        <td>
-                            <!-- Status Column -->
-                            @if (!empty($booking['absen']))
-                            <span class="badge bg-success">{{ last($booking['absen'])['status'] }}</span>
-                            @else
-                            <span class="badge bg-success">Booked</span>
-                            @endif
-                        </td>
-                    </tr>
+                            </td>
+                            <td>{{ $booking['pic_name'] }}</td>
+                            <td>
+                                <!-- Check-in Badge (Jika diperlukan tetap tampilkan di kolom ini) -->
+                                @if (!empty($booking['absen']))
+                                    <span id="status-badge-{{ $booking['id'] }}"
+                                        class="badge status-badge-{{ last($booking['absen'])['status'] }}">
+                                        {{ last($booking['absen'])['status'] }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-warning">Belum Check-in</span>
+                                @endif
+                            </td>
+                            <td>
+                                <!-- Status Column -->
+                                @if (!empty($booking['absen']))
+                                    <span class="badge bg-success">{{ last($booking['absen'])['status'] }}</span>
+                                @else
+                                    <span class="badge bg-success">Booked</span>
+                                @endif
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -114,74 +116,75 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <!-- Dropdown untuk memilih jumlah data per halaman -->
             <div class="mb-3">
-        <label for="per-page" class="form-label">Jumlah Data Per Halaman:</label>
-        <select id="per-page" class="form-select" onchange="updatePerPage()">
-            <option value="6" {{ request('per_page') == 6 ? 'selected' : '' }}>6</option>
-            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-            <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
-            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-        </select>
-    </div>
+                <label for="per-page" class="form-label">Jumlah Data Per Halaman:</label>
+                <select id="per-page" class="form-select" onchange="updatePerPage()">
+                    <option value="6" {{ request('per_page') == 6 ? 'selected' : '' }}>6</option>
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                </select>
+            </div>
             <!-- Pagination Section -->
             <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @for ($page = 1; $page <= $totalPages; $page++)
-            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
-                <a class="page-link" href="{{ url()->current() }}?page={{ $page }}&per_page={{ $perPage }}">
-                    {{ $page }}
-                </a>
-            </li>
-        @endfor
-    </ul>
-</nav>
+                <ul class="pagination justify-content-center">
+                    @for ($page = 1; $page <= $totalPages; $page++)
+                        <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                            <a class="page-link" href="{{ url()->current() }}?page={{ $page }}&per_page={{ $perPage }}">
+                                {{ $page }}
+                            </a>
+                        </li>
+                    @endfor
+                </ul>
+            </nav>
 
 
-        <!-- Modal for Event Details -->
-        @foreach($bookings as $booking)
-            <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
-                aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
-                <!-- Mengatur ukuran modal agar lebih kecil -->
-                <div class="modal-dialog" style="max-width: 600px;"> <!-- Menyesuaikan ukuran -->
-                    <div class="modal-content p-0 rounded-3">
-                        <div class="modal-header"
-                            style="border: none; padding-bottom: 0px; display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="modal-title w-100 text-center" id="eventModalLabel{{ $booking['id'] }}"
-                                style="color: #091F5B; font-weight: 400;">
-                                Detail Acara
-                            </h3>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-
-                        <div class="modal-body" style="padding-top: 0px;">
-                            <!-- Nama Acara dengan garis bawah biru tebal -->
-                            <div class="text-center mb-2" style="border-bottom: 3px solid #091F5B; padding-bottom: 5px; justify-content: center;">
-                                <div style="font-size: 1.5rem;">
-                                    {{ $booking['name'] }}
-                                </div>
+            <!-- Modal for Event Details -->
+            @foreach($bookings as $booking)
+                <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
+                    aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
+                    <!-- Mengatur ukuran modal agar lebih kecil -->
+                    <div class="modal-dialog" style="max-width: 600px;"> <!-- Menyesuaikan ukuran -->
+                        <div class="modal-content p-0 rounded-3">
+                            <div class="modal-header"
+                                style="border: none; padding-bottom: 0px; display: flex; justify-content: space-between; align-items: center;">
+                                <h3 class="modal-title w-100 text-center" id="eventModalLabel{{ $booking['id'] }}"
+                                    style="color: #091F5B; font-weight: 400;">
+                                    Detail Acara
+                                </h3>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <!-- Isi Detail Acara -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Nama PIC:</strong></p>
-                                    <p>{{ $booking['pic_name'] }}</p>
 
-                                    <p><strong>Kategori Ekraf:</strong></p>
-                                    <p>{{ $booking['kategori_ekraf'] }}</p>
-
-                                    <p><strong>Jumlah Peserta:</strong></p>
-                                    <p>{{ $booking['participant'] }} Orang</p>
+                            <div class="modal-body" style="padding-top: 0px;">
+                                <!-- Nama Acara dengan garis bawah biru tebal -->
+                                <div class="text-center mb-2"
+                                    style="border-bottom: 3px solid #091F5B; padding-bottom: 5px; justify-content: center;">
+                                    <div style="font-size: 1.5rem;">
+                                        {{ $booking['name'] }}
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <p><strong>No Telp:</strong></p>
-                                    <p>{{ $booking['pic_phone_number'] }}</p>
-                                    <p><strong>Kategori Event:</strong></p>
-                                    <p>{{ $booking['kategori_event'] }}</p>
+                                <!-- Isi Detail Acara -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Nama PIC:</strong></p>
+                                        <p>{{ $booking['pic_name'] }}</p>
+
+                                        <p><strong>Kategori Ekraf:</strong></p>
+                                        <p>{{ $booking['kategori_ekraf'] }}</p>
+
+                                        <p><strong>Jumlah Peserta:</strong></p>
+                                        <p>{{ $booking['participant'] }} Orang</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>No Telp:</strong></p>
+                                        <p>{{ $booking['pic_phone_number'] }}</p>
+                                        <p><strong>Kategori Event:</strong></p>
+                                        <p>{{ $booking['kategori_event'] }}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
             @endforeach
 
 
@@ -189,15 +192,15 @@
             <script>
                 function updateStatus(bookingId, newStatus) {
                     fetch(`/bookings/${bookingId}/update-status`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                status: newStatus
-                            })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
                         })
+                    })
                         .then(response => response.json())
                         .then(data => {
                             console.log(data); // Log data untuk debugging
@@ -218,12 +221,12 @@
                         .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
                 }
 
-            function updatePerPage() {
-        const perPage = document.getElementById('per-page').value;
-        window.location.href = `{{ url()->current() }}?per_page=${perPage}`;
-    }
-        </script>
-    </div>
+                function updatePerPage() {
+                    const perPage = document.getElementById('per-page').value;
+                    window.location.href = `{{ url()->current() }}?per_page=${perPage}`;
+                }
+            </script>
+        </div>
 </body>
 
 </html>

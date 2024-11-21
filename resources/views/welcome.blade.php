@@ -77,7 +77,7 @@
             if (view === 'barcode') {
                 window.location.href = "{{ route('dashboard') }}";
             } else if (view === 'input') {
-                window.location.href = "{{ route('match') }}";
+                window.location.href = "{{ route('inputkode.show') }}";
             }
         }
     </script>

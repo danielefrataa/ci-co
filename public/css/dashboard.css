@@ -1,89 +1,90 @@
-
 body {
     font-family: 'Montserrat', sans-serif;
 }
-    
-    /* Mengatur tabel agar memiliki jarak antar baris */
-    .table.custom-table {
-        border-collapse: separate; /* Memisahkan baris */
-        border-spacing: 0 15px; /* Jarak antar baris */
-    }
 
-    /* Mengatur header tabel */
-    .table-header th {
-        background-color: #091F5B; /* Warna biru header */
-        color: white;
-        padding: 12px 15px;
-        text-align: left;
-        border: none;
-    }
+/* Mengatur tabel agar memiliki jarak antar baris */
+.table.custom-table {
+    border-collapse: separate; /* Memisahkan baris */
+    border-spacing: 0 15px; /* Jarak antar baris */
+}
 
-    /* Kolom Nama Event */
-    .nama-event-column {
-        width: 180px; /* Ukuran kolom Nama Event */
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-        border-top-left-radius: 10px;
-        border-bottom-left-radius: 10px;
-    }
+/* Mengatur header tabel */
+.table-header th {
+    background-color: #091F5B; /* Warna biru header */
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    border: none;
+}
 
-    /* Kolom Status */
-    .status-column {
-        width: 180px;
-        border-top-right-radius: 10px;
-        border-bottom-right-radius: 10px;
-    }
+/* Kolom Nama Event */
+.nama-event-column {
+    width: 180px; /* Ukuran kolom Nama Event */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+.organisasi{
+    width: 100px;
+}
+/* Kolom Status */
+.status-column {
+    width: 150px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
 
-    /* Mengatur padding, shadow, dan border radius tiap baris */
-    .table-row {
-        background-color: #FBFCFF;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow tiap baris */
-        overflow: hidden;
 
-    }
-    
-    /* Mengatur padding di kolom */
-    .table td, .table th {
-        padding: 12px 15px;
-        vertical-align: middle;
-    }
+/* Mengatur padding, shadow, dan border radius tiap baris */
+.table-row {
+    background-color: #FBFCFF;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow tiap baris */
+    overflow: hidden;
+}
 
-    /* Kolom status badge */
-    .status-badge-Booked {
-        background-color: #6c757d;
-        padding: 15px;
-    }
+/* Mengatur padding di kolom */
+.table td, .table th {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
 
-    .status-badge-Check-in {
-        background-color: #4C74E1;
-        color: #22097c;
-        
-    }
+/* Kolom status badge */
+.status-badge-Booked {
+    background-color: #6c757d;
+    padding: 15px;
+}
 
-    .status-badge-Check-out {
-        background-color: #F35558;
-        color: #810616;
-    }
+.status-badge-Check-in {
+    background-color: #4C74E1;
+    color: #22097c;
+}
 
-    /* Style badge */
-    .badge {
-        font-size: 0.9rem;
-        padding: 12px 16px;
-        border-radius: 8px;
-        box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.1); /* Shadow tiap baris */
-    }
+.status-badge-Check-out {
+    background-color: #F35558;
+    color: #810616;
+}
 
-    /* Ukuran tombol kecil */
-    .btn-sm {
-        padding: 6px 12px;
-        font-size: 0.85rem;
-    }
+/* Style badge */
+.badge {
+    font-size: 0.9rem;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.1); /* Shadow tiap baris */
+}
 
-    /* Agar kolom dapat menyesuaikan konten */
-    .table td {
-        word-wrap: break-word;
-    }
+/* Ukuran tombol kecil */
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+/* Agar kolom dapat menyesuaikan konten */
+.table td {
+    word-wrap: break-word;
+}
+
 /* Styling untuk pagination */
 .pagination .page-item .page-link {
     color: black; /* Warna teks hitam */
@@ -103,5 +104,3 @@ body {
     width: auto;
     margin-right: 15px;
 }
-
-
