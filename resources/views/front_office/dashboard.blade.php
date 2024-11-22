@@ -34,20 +34,24 @@
         <!-- Filter and Search in a Single Row -->
         <div class="d-flex justify-content-between mb-3">
             <!-- Filter Form -->
-            <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3" style="margin: 8px">
+            <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3"
+                style="margin: 8px">
                 <select name="status" class="form-select width-select" style="width: 200px;" aria-label="Status Filter"
                     onchange="this.form.submit()">
                     <option value="">Semua Status</option>
                     <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Check-in</option>
                     <option value="Booked" {{ request('status') == 'Booked' ? 'selected' : '' }}>Booked</option>
-                    <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Check-out</option>
+                    <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Check-out
+                    </option>
                 </select>
             </form>
 
             <!-- Search Form -->
-            <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3" style="margin: 8px">
-                <input type="text" name="search" class="form-control" placeholder="Search by Event Name or Kode Booking"
-                    value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
+            <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3"
+                style="margin: 8px">
+                <input type="text" name="search" class="form-control"
+                    placeholder="Search by Event Name or Kode Booking" value="{{ old('search', request('search')) }}"
+                    onkeyup="this.form.submit()">
             </form>
 
 
@@ -60,21 +64,21 @@
                     <tr>
                         <th class="d-none">Kode Booking</th>
                         <th class="nama-event-column">Nama Event</th>
-                        <th >Nama Organisasi</th>
+                        <th>Nama Organisasi</th>
                         <th>Ruangan dan Waktu</th>
                         <th>Nama PIC</th>
-                        <th>Duty officer</th>
                         <th>User Check-in</th>
                         <th class="status-column">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($bookings ['data'] as $booking)
+                    @foreach ($bookings as $booking)
                         <tr class="table-row">
                             <td class="d-none">{{ $booking['booking_id'] }}</td>
-                           <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
-                                    class="fw-bold" style="color: #091F5B;">
+                            <td>
+                                <a href="#" data-bs-toggle="modal"
+                                    data-bs-target="#eventModal{{ $booking['id'] }}" class="fw-bold"
+                                    style="color: #091F5B;">
                                     {{ $booking['name'] }}
                                 </a>
                             </td>
@@ -83,30 +87,17 @@
                                 @foreach ($booking['ruangans'] as $ruangan)
                                     <p>{{ $ruangan['name'] }}<br>
                                         <span>{{ $ruangan['floor'] }}</span><br>
-                                        <span>{{ $booking['start_time'] ?? 'N/A' }} - {{ $booking['end_time'] ?? 'N/A' }} </span>
+                                        <span>{{ $booking['start_time'] ?? 'N/A' }} -
+                                            {{ $booking['end_time'] ?? 'N/A' }} </span>
                                     </p>
-                                @endforeach
-                                @foreach ($booking['booking_items'] as $bookingitems)
-                                <p> {{$bookingitems['booking_hour']}}</p>
                                 @endforeach
                             </td>
                             <td>{{ $booking['pic_name'] }}</td>
                             <td>
-                                {{-- <div class="form-group">
-                                    <select name="duty_officer" class="form-control" onchange="updateDutyOfficer(this)">
-                                        <option value="" disabled selected>--</option>
-                                        @foreach ($duty_officer as $duty)
-                                            <option value="{{ $duty->id }}">{{ $duty->nama_do }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </td> --}}
-                            
-                            
-                            <td>
                                 <!-- Check-in Badge (Jika diperlukan tetap tampilkan di kolom ini) -->
                                 @if (!empty($booking['absen']))
-                                    <span id="status-badge-{{ $booking['id'] }}" class="badge status-badge-{{ last($booking['absen'])['status'] }}">
+                                    <span id="status-badge-{{ $booking['id'] }}"
+                                        class="badge status-badge-{{ last($booking['absen'])['status'] }}">
                                         {{ last($booking['absen'])['status'] }}
                                     </span>
                                 @else
@@ -140,48 +131,12 @@
                 </select>
             </div>
             <!-- Pagination Section -->
-<<<<<<< HEAD
-            {{-- <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @for ($page = 1; $page <= $totalPages; $page++)
-            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
-                <a class="page-link" href="{{ url()->current() }}?page={{ $page }}&per_page={{ $perPage }}">
-                    {{ $page }}
-                </a>
-            </li>
-        @endfor
-    </ul>
-</nav> --}}
-
-
-        <!-- Modal for Event Details -->
-        @foreach($bookings ['data'] as $booking)
-            <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
-                aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
-                <!-- Mengatur ukuran modal agar lebih kecil -->
-                <div class="modal-dialog" style="max-width: 600px;"> <!-- Menyesuaikan ukuran -->
-                    <div class="modal-content p-0 rounded-3">
-                        <div class="modal-header"
-                            style="border: none; padding-bottom: 0px; display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="modal-title w-100 text-center" id="eventModalLabel{{ $booking['id'] }}"
-                                style="color: #091F5B; font-weight: 400;">
-                                Detail Acara
-                            </h3>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-
-                        <div class="modal-body" style="padding-top: 0px;">
-                            <!-- Nama Acara dengan garis bawah biru tebal -->
-                            <div class="text-center mb-2" style="border-bottom: 3px solid #091F5B; padding-bottom: 5px; justify-content: center;">
-                                <div style="font-size: 1.5rem;">
-                                    {{ $booking['name'] }}
-                                </div>
-=======
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                     @for ($page = 1; $page <= $totalPages; $page++)
                         <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
-                            <a class="page-link" href="{{ url()->current() }}?page={{ $page }}&per_page={{ $perPage }}">
+                            <a class="page-link"
+                                href="{{ url()->current() }}?page={{ $page }}&per_page={{ $perPage }}">
                                 {{ $page }}
                             </a>
                         </li>
@@ -191,7 +146,7 @@
 
 
             <!-- Modal for Event Details -->
-            @foreach($bookings as $booking)
+            @foreach ($bookings as $booking)
                 <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
                     aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
                     <!-- Mengatur ukuran modal agar lebih kecil -->
@@ -203,8 +158,8 @@
                                     style="color: #091F5B; font-weight: 400;">
                                     Detail Acara
                                 </h3>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
->>>>>>> 8aa96ad08bfa49a3ea9a72104ce56d4d934465ca
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
                             </div>
 
                             <div class="modal-body" style="padding-top: 0px;">
@@ -244,7 +199,10 @@
             <!-- JavaScript for Updating Booking Status -->
             <script>
                 function updateStatus(bookingId, newStatus) {
-                    fetch(`/bookings/${bookingId}/update-status`, {
+                    fetch(/bookings/$ {
+                            bookingId
+                        }
+                        /update-status, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -254,36 +212,31 @@
                             status: newStatus
                         })
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data); // Log data untuk debugging
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Status Updated',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload(); // Reload untuk menampilkan status terbaru
-                                });
-                            } else {
-                                Swal.fire('Error', 'Failed to update status', 'error');
-                            }
-                        })
-                        .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
+                .then(response => response.json())
+                    .then(data => {
+                        console.log(data); // Log data untuk debugging
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Status Updated',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload(); // Reload untuk menampilkan status terbaru
+                            });
+                        } else {
+                            Swal.fire('Error', 'Failed to update status', 'error');
+                        }
+                    })
+                    .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
                 }
 
                 function updatePerPage() {
-<<<<<<< HEAD
-                    var perPage = document.getElementById('per-page').value;
-                    var query = new URLSearchParams(window.location.search);
-                    query.set('per_page', perPage);
-                    window.location.href = '?' + query.toString(); // Mengarahkan kembali dengan query string per_page
-=======
                     const perPage = document.getElementById('per-page').value;
-                    window.location.href = `{{ url()->current() }}?per_page=${perPage}`;
->>>>>>> 8aa96ad08bfa49a3ea9a72104ce56d4d934465ca
+                    window.location.href = {{ url()->current() }} ? per_page = $ {
+                        perPage
+                    };
                 }
             </script>
         </div>

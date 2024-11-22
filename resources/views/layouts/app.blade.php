@@ -40,7 +40,7 @@
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-chevron-down" style="color: #091F5B;"></i>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end rounded-pill" aria-labelledby="dropdownUser">
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                                     <li>
                                         <form action="{{ route('logout') }}" method="POST">
                                             @csrf

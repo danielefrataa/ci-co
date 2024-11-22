@@ -2,31 +2,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Models\DutyOfficer;
 
 class BookingsController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
 
-<<<<<<< HEAD
-    public function index()
-    {
-        // Ambil data dari tabel duty_officer
-        // $duty_officer = DutyOfficer::all();
-
-        // URL dan parameter API
-        $url = "https://event.mcc.or.id/api/event";
-        $params = [
-            'limit' => 20,
-            'status' => 'booked',
-            'created_at' => '2024-11-17'
-        ];
-
-        // Permintaan ke API
-=======
-    /**
-     * Menampilkan daftar booking untuk hari ini
-     */
     public function index(Request $request)
 {
     $today = Carbon::now()->toDateString(); // Format: 2024-11-19
@@ -118,10 +101,10 @@ class BookingsController extends Controller
         }
 
         $apiUrl = "https://event.mcc.or.id/api/event";
->>>>>>> 8aa96ad08bfa49a3ea9a72104ce56d4d934465ca
+
         $response = Http::withHeaders([
             'X-API-KEY' => $this->apiKey,
-        ])->withoutVerifying()->get($url, $params);
+        ])->withoutVerifying()->get($apiUrl, $kode_booking);
 
         // Periksa apakah API berhasil
         if ($response->successful()) {

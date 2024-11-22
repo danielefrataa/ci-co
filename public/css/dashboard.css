@@ -19,7 +19,7 @@ body {
 
 /* Kolom Nama Event */
 .nama-event-column {
-    width: 180px; /* Ukuran kolom Nama Event */
+    width: 280px; /* Ukuran kolom Nama Event */
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -27,7 +27,7 @@ body {
     border-bottom-left-radius: 10px;
 }
 .organisasi{
-    width: 100px;
+    width: 200px;
 }
 /* Kolom Status */
 .status-column {
