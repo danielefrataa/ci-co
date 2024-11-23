@@ -12,6 +12,79 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <title>Booking List</title>
+    <style>
+       .custom-table {
+    table-layout: fixed; /* Mengatur agar lebar tabel sesuai dengan width yang diberikan */
+    width: 100%;
+    border-collapse: separate; /* Memisahkan baris */
+    border-spacing: 0 15px; /* Jarak antar baris */
+}
+
+.custom-table th,
+.custom-table td {
+    word-wrap: break-word; /* Memastikan teks yang panjang tidak merusak tata letak */
+    vertical-align: middle;
+}
+.table-row {
+    background-color: #FBFCFF;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow tiap baris */
+    overflow: hidden;
+}
+    .responsive-container {
+        overflow-x: auto; /* Pastikan tabel dapat digeser pada layar kecil */
+    }
+    .table-header th {
+    background-color: #091F5B; /* Warna biru header */
+    color: white;
+    padding: 8px;
+    text-align: left;
+    border: none;
+}
+/* Styling untuk pagination */
+.pagination .page-item .page-link {
+    color: black; /* Warna teks hitam */
+    border: 1px solid #ddd; /* Border ringan untuk pemisah */
+    margin: 0 4px; /* Jarak antar nomor halaman */
+}
+
+.pagination .page-item.active .page-link {
+    background-color: black; /* Warna latar hitam untuk halaman aktif */
+    color: white; /* Warna teks putih untuk halaman aktif */
+    border: 1px solid black;
+}
+.nama-event {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+.status {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+    /* Media Query untuk Responsivitas */
+    @media (max-width: 768px) {
+        .nama-event-column,
+        .status-column {
+            width: auto;
+        }
+
+        .table-responsive {
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table-responsive {
+            font-size: 0.75rem;
+        }
+
+        .d-none {
+            display: none !important; /* Sembunyikan kolom pada layar kecil */
+        }
+    }
+    </style>
 </head>
 
 <body>
@@ -53,26 +126,25 @@
                     placeholder="Search by Event Name or Kode Booking" value="{{ old('search', request('search')) }}"
                     onkeyup="this.form.submit()">
             </form>
-
-
         </div>
 
         <!-- Booking Table -->
-        <div class="table-responsive">
+        <div class="responsive-container">
             <table class="table custom-table">
                 <thead class="table-header">
-                    <tr>
-                        <th class="d-none">Kode Booking</th>
-                        <th class="nama-event-column">Nama Event</th>
-                        <th>Nama Organisasi</th>
-                        <th>Ruangan dan Waktu</th>
-                        <th>Nama PIC</th>
-                        <th>User Check-in</th>
-                        <th class="status-column">Status</th>
-                    </tr>
+                <tr>
+                    <th class="d-none">Kode Booking</th>
+                    <th style="width: 20%;">Nama Event</th>
+                    <th style="width: 20%;">Nama Organisasi</th>
+                    <th style="width: 20%;">Ruangan dan Waktu</th>
+                    <th style="width: 15%;">Nama PIC</th>
+                    <th style="width: 15%;">Duty Officer</th>
+                    <th style="width: 15%;">User Check-in</th>
+                    <th style="width: 10%;">Status</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach ($bookings as $booking)
+                    @foreach ($bookings  as $booking)
                         <tr class="table-row">
                             <td class="d-none">{{ $booking['booking_id'] }}</td>
                             <td>
@@ -92,7 +164,21 @@
                                     </p>
                                 @endforeach
                             </td>
-                            <td>{{ $booking['pic_name'] }}</td>
+                            <td>{{ $booking['pic_name'] }}</td> 
+
+                            <td>  
+                                
+                                <p>duty officer</p>
+                                {{-- <div class="form-group">
+                                    <select name="duty_officer" class="form-control" onchange="updateDutyOfficer(this)">
+                                        <option value="" disabled selected>--</option>
+                                        @foreach ($duty_officer as $duty)
+                                            <option value="{{ $duty->id }}">{{ $duty->nama_do }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                             --}}
+                        </td>
                             <td>
                                 <!-- Check-in Badge (Jika diperlukan tetap tampilkan di kolom ini) -->
                                 @if (!empty($booking['absen']))
@@ -122,7 +208,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <!-- Dropdown untuk memilih jumlah data per halaman -->
             <div class="mb-3">
-                <label for="per-page" class="form-label">Jumlah Data Per Halaman:</label>
+                <label for="per-page" class="form-label"></label>
                 <select id="per-page" class="form-select" onchange="updatePerPage()">
                     <option value="6" {{ request('per_page') == 6 ? 'selected' : '' }}>6</option>
                     <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
@@ -130,7 +216,6 @@
                     <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                 </select>
             </div>
-            <!-- Pagination Section -->
             <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                     @for ($page = 1; $page <= $totalPages; $page++)
@@ -158,8 +243,7 @@
                                     style="color: #091F5B; font-weight: 400;">
                                     Detail Acara
                                 </h3>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
                             <div class="modal-body" style="padding-top: 0px;">
@@ -233,6 +317,7 @@
                 }
 
                 function updatePerPage() {
+
                     const perPage = document.getElementById('per-page').value;
                     window.location.href = {{ url()->current() }} ? per_page = $ {
                         perPage

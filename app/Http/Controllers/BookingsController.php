@@ -2,14 +2,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
+use App\Models\DutyOfficer;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
-use App\Models\DutyOfficer;
-
 class BookingsController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
-
     public function index(Request $request)
 {
     $today = Carbon::now()->toDateString(); // Format: 2024-11-19
@@ -101,19 +99,39 @@ class BookingsController extends Controller
         }
 
         $apiUrl = "https://event.mcc.or.id/api/event";
-
         $response = Http::withHeaders([
             'X-API-KEY' => $this->apiKey,
-        ])->withoutVerifying()->get($apiUrl, $kode_booking);
+        ])->withoutVerifying()->get($apiUrl);
 
-        // Periksa apakah API berhasil
         if ($response->successful()) {
-            $bookings = $response->json(); // Ambil data API
-        } else {
-            $bookings = null; // Tetapkan null jika gagal
+            $data = collect($response->json()['data']);
+            $booking = $data->firstWhere('booking_code', $kode_booking);
+
+            if ($booking) {
+                $bookingItems = collect($booking['booking_items'] ?? []);
+
+                // Ambil ruangan dari key 'ruangans'
+                $room = collect($booking['ruangans'] ?? [])->first();
+
+                if (!$room) {
+                    return redirect()->route('front_office.dashboard')->with('error', 'Data ruangan tidak ditemukan.');
+                }
+
+                $roomDetails = [
+                    'room_name' => $room['name'] ?? 'Tidak Diketahui',
+                    'room_floor' => $room['floor'] ?? 'Tidak Diketahui',
+                    'room_description' => $room['description'] ?? '',
+                    'room_facility' => $room['facility'] ?? '',
+                ];
+
+                return view('booking.details', compact('booking', 'bookingItems', 'roomDetails'));
+            }
+
+            return redirect()->route('front_office.dashboard')->with('error', 'Data booking tidak ditemukan.');
         }
 
-        // Kirim data ke view
-        return view('front_office.dashboard', compact('bookings'));
+        return view('errors.generic', [
+            'error' => 'Tidak dapat mengambil data dari API. Silakan coba lagi nanti.',
+        ]);
     }
 }
