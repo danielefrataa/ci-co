@@ -52,6 +52,7 @@ Route::get('/front-office/roomlist', [RoomListController::class, 'filter'])->nam
 
 //marketing
 Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name('marketing.peminjaman');
+Route::post('/marketing/store', [MarketingController::class, 'store'])->name('marketing.store');
 //Route::get('/marketing/peminjaman', [BookingsController::class, 'index'])->name('front_office.dashboard');
 
 //peminjaman

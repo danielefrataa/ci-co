@@ -60,6 +60,28 @@
             background-color: #0b5ed7;
             border-color: #0a58ca;
         }
+
+        .btn-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 20px;
+        }
+
+        /* Modal Edit */
+        .main-card {
+            border-radius: 10px;
+            background-color: #fff;
+            border-color: #091F5B;
+            padding: 65px;
+            margin: auto;
+        }
+
+        .info-card {
+            border-radius: 15px;
+            border-color: #091F5B;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -120,7 +142,7 @@
                             {{ $booking['user_name'] }}
                         </div>
                         <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
-                            {{ $pesan['booking_items'][0]['booking_date'] ?? 'No booking date available' }}
+                            {{ $booking['booking_items'][0]['booking_date'] ?? 'No booking date available' }}
                         </div>
                         <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
                             @foreach ($booking['ruangans'] as $ruangan)
@@ -223,81 +245,112 @@
 
             <!-- Modal Edit-->
             @foreach ($bookings as $booking)
-                <div class="modal fade" id="editModal{{ $booking['id'] }}" tabindex="-1"
-                    aria-labelledby="editModalLabel{{ $booking['id'] }}" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" style="min-width: 900px;">
-                        <div class="modal-content p-4">
-                            <div class="modal-header border-0">
-                                <h5 class="modal-title fw-bold" id="editModalLabel">Formulir Peminjaman Barang</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <p><strong>Nama Event:</strong> {{ $booking['name'] }}</p>
-                                        <p><strong>Ruangan:</strong> {{ $ruangan['name'] }}</p>
+                <form method="POST" action="{{ route('marketing.store') }}">
+                    @csrf
+                    <div class="modal fade" id="editModal{{ $booking['id'] }}" tabindex="-1"
+                        aria-labelledby="editModalLabel{{ $booking['id'] }}" aria-hidden="true">
+                        <div class="modal-dialog" style="min-width: 900px;">
+                            <div class="modal-content">
+                                <div class="main-card border">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                    <h4 class="text-center mb-4 fw-bold" id="editModalLabel">Formulir Peminjaman
+                                        Barang</h4>
+                                    <div class="info-card border mb-2 p-3">
+                                        <div class="d-flex align-items-center">
+                                            <p class="mb-0">Nama Event</p>
+                                            <p class="mb-0" style="color: #091F5B; margin-left: 20px;">
+                                                <strong>{{ $booking['name'] }}</strong>
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <p><strong>PIC:</strong> {{ $booking['pic_name'] }}</p>
-                                        <p><strong>Jam:</strong> {{ $booking['start_time'] ?? 'N/A' }} -
-                                            {{ $booking['end_time'] ?? 'N/A' }}</p>
+                                    <div class="info-card border p-3 mb-3">
+                                        <div class="row">
+                                            <input type="hidden" name="kode_booking" value="{{ $booking['id'] }}">
+                                            <div class="col-md-6 d-flex align-items-center">
+                                                <p class="mb-0">Ruangan</p>
+                                                <p class="mb-0" style="color: #091F5B; margin-left: 40px;">
+                                                    {{ $ruangan['name'] }}</p>
+                                            </div>
+                                            <div class="col-md-6 d-flex align-items-center">
+                                                <p class="mb-0">PIC</p>
+                                                <p class="mb-0" style="color: #091F5B; margin-left: 25px;">
+                                                    {{ $booking['pic_name'] }}</p>
+                                            </div>
+                                            <div class="col-md-6 d-flex align-items-center mt-2">
+                                                <p class="mb-0">Tanggal</p>
+                                                <p class="mb-0 text-end" style="color: #091F5B; margin-left: 50px;">
+                                                    {{ $booking['booking_items'][0]['booking_date'] }}</p>
+                                            </div>
+                                            <div class="col-md-6 d-flex align-items-center mt-2">
+                                                <p class="mb-0">Jam</p>
+                                                <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">
+                                                    {{ $booking['start_time'] ?? 'N/A' }} -
+                                                    {{ $booking['end_time'] ?? 'N/A' }}</p>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <h6 class="fw-bold">List Barang yang Dipinjam</h6>
-                                <table class="table table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Nama Barang</th>
-                                            <th>Jumlah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php $no = 1; @endphp
-                                        <tr>
-                                            <td>{{ $no++ }}</td>
-                                            <td class="text-align-left" style="text-align: left;">
-                                                @if (!empty($booking['tools']))
-                                                    {{ $booking['tools'] }}
-                                                @else
-                                                    No tools
-                                                @endif
-                                            </td>
-                                            <td colspan="3" class="text-center">-</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <button class="btn btn-primary btn-sm">Tambah Barang</button>
-
-                            </div>
-                            <div class="modal-footer border-0">
-                                <div class="d-flex justify-content-between w-100">
-                                    <div class="signature-group mt-4 text-center">
-                                        <p class="signature-title">Mengetahui,<br> Marketing</p>
-                                        <p><img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
-                                                style="width: 80px; height: 80px;"></p>
-                                        <p>{{ $booking['history'][0]['pic_marketing'] }}</p>
+                                    <h6 class="fw-bold">List Barang yang Dipinjam</h6>
+                                    <table class="table table-bordered" id="barangList{{ $booking['id'] }}">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Nama Barang</th>
+                                                <th>Jumlah</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php $no = 1; @endphp
+                                            <tr>
+                                                <td>{{ $no++ }}</td>
+                                                <td class="text-align-left" style="text-align: left;">
+                                                    @if (!empty($booking['tools']))
+                                                        {{ $booking['tools'] }}
+                                                    @else
+                                                        No tools
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">-</td>
+                                                <td><button type="button" class="btn btn-danger removeItem"
+                                                        onclick="removeItem(this)">Hapus</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <button type="button" class="btn btn-primary btn-sm"
+                                        onclick="addItem({{ $booking['id'] }})">Tambah Barang</button>
+                                    <div class="text-center mt-4 mb-4">
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
-                                    <div class="text-center">
-                                        <p>Mengetahui Peminjam</p>
-                                        <p>Peminjam</p>
-                                    </div>
-                                    <div class="text-center">
-                                        <p>Mengetahui Front Office</p>
-                                        <p>Front Office</p>
+                                    <div class="modal-footer border-0">
+                                        <div class="d-flex justify-content-between w-100">
+                                            <div class="signature-group mt-4 text-center">
+                                                <p class="signature-title">Mengetahui,<br> Marketing</p>
+                                                <p><img src="{{ asset('images/marketing_ttd.png') }}"
+                                                        alt="Tanda Tangan" style="width: 80px; height: 80px;"></p>
+                                                <p>{{ $booking['history'][0]['pic_marketing'] }}</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p>Mengetahui Peminjam</p>
+                                                <p>Peminjam</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p>Mengetahui Front Office</p>
+                                                <p>Front Office</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
-
-
-
         </div>
+        </form>
+        @endforeach
+
+
+
+    </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -324,6 +377,24 @@
                 }, 500);
             });
         });
+
+        function addItem(bookingId) {
+            let table = document.getElementById('barangList' + bookingId);
+            let rowCount = table.rows.length;
+            let row = table.insertRow(rowCount);
+
+            row.innerHTML = `
+                <td>${rowCount}</td>
+                <td><input type="text" name="items[${rowCount}][nama_item]" class="form-control"></td>
+                <td><input type="number" name="items[${rowCount}][jumlah]" class="form-control"></td>
+                <td><button type="button" class="btn btn-danger removeItem" onclick="removeItem(this)">Hapus</button></td>
+            `;
+        }
+
+        function removeItem(button) {
+            let row = button.parentElement.parentElement;
+            row.remove();
+        }
     </script>
 </body>
 

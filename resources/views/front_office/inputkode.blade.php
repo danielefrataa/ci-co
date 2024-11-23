@@ -26,8 +26,8 @@
             border-radius: 25px;
             overflow: hidden;
             background-color: #e0e8ff;
-            margin-left: 29cm;
-            margin-top: 5px;
+            margin-left: 1244px;
+            margin-top: 8px;
             /* Center the toggle */
         }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
+use App\Models\PeminjamanBarang;
 use Carbon\Carbon;
 use App\Models\booking;
 
@@ -89,5 +90,22 @@ class MarketingController extends Controller
             'currentPage' => $currentPage,
             'perPage' => $perPage,
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        // Ambil kode booking dari form (no need to check the database)
+        $kode_booking = $request->input('kode_booking');
+
+        // Menyimpan beberapa item barang
+        foreach ($request->input('items') as $item) {
+            $newItem = new PeminjamanBarang;
+            $newItem->nama_item = $item['nama_item'];
+            $newItem->jumlah = $item['jumlah'];
+            $newItem->kode_booking = $kode_booking; // Set kode_booking
+            $newItem->save();
+        }
+
+        return redirect()->route('marketing.peminjaman')->with('success', 'Booking berhasil ditambahkan.');
     }
 }
