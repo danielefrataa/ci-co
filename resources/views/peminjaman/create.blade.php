@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Laravel</title>
+    <title>Marketing Edit</title>
 
     <!-- Fonts and Styles -->
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
@@ -191,6 +191,66 @@
             </label>
         </div>
 
+        <!-- Bagian Tanda Tangan -->
+        <div class="signature-wrapper d-flex justify-content-between mt-2">
+            <div class="signature-group mt-4 text-center">
+                <p class="signature-title">Mengetahui,<br> Marketing</p>
+                <p><img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
+                        style="width: 80px; height: 80px;"></p>
+                <p>{{ $peminjaman->marketing }}</p>
+            </div>
+            <div class="d-flex" style="flex-basis: 35%; justify-content: space-between;">
+                <div class="signature-group mt-4 text-center">
+                    <p class="signature-title">Mengetahui,<br> Peminjam</p>
+                    <p>
+                        @if (isset($signature) && $signature != 'Tidak Tersedia')
+                            <img src="{{ $signature }}" alt="Tanda Tangan"
+                                style="width: 180px; height: 80px; padding-left: 45px;">
+                        @else
+                            <p>Tanda tangan tidak tersedia.</p>
+                        @endif
+                    </p>
+                    <p>{{ $name }}</p>
+                </div>
+                <div class="signature-group mt-4 text-center">
+                    <p class="signature-title">Mengetahui,<br> FO</p>
+                    <p><img src="{{ asset('images/fo_ttd.png') }}" alt="Tanda Tangan"
+                            style=" width: 80px; height: 80px;"></p>
+                    <p>{{ $peminjaman->FO }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tombol Setuju -->
+    <div class="text-center mt-4 mb-4">
+        <a href="{{ route('bookings.index') }}" class="btn btn-primary">Setuju</a>
+    </div>
+
+    <!-- Modal Syarat dan Ketentuan -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="max-width: 500px;"> <!-- Mengatur ukuran modal menjadi 600px -->
+            <div class="modal-content">
+                <div class="modal-header text-center"
+                    style="border-bottom: none; display: flex; justify-content: center; width: 100%;">
+                    <h5 class="modal-title" id="termsModalLabel" style="color: #091F5B; text-align: center; margin: 0;">
+                        Syarat dan Ketentuan</h5>
+                </div>
+                <div class="modal-body ">
+                    <ul class="">
+                        <li>Peminjam setuju untuk mengembalikan semua pinjaman pada tanggal pengembalian di atas dalam
+                            keadaan baik atau lebih baik dari kondisi yang dipinjam </li>
+                        <li>Peminjam menyanggupi penggantian bila terjadi kehilangan dan kerusakan</li>
+                        <!-- Tambahkan syarat lainnya sesuai kebutuhan -->
+                    </ul>
+                </div>
+                <div class="modal-footer"
+                    style="border-top: none; display: flex; justify-content: center; width: 100%;">
+                    <!-- Menggunakan flexbox untuk memusatkan tombol -->
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Setuju</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>

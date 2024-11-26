@@ -1,17 +1,13 @@
 <?php
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-
+use App\Models\DutyOfficer;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
 class BookingsController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
-
-    /**
-     * Menampilkan daftar booking untuk hari ini
-     */
     public function index(Request $request)
 {
     $today = Carbon::now()->toDateString(); // Format: 2024-11-19

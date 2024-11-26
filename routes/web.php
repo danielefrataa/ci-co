@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AbsenController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\InputKodeController;
 use App\Http\Controllers\Auth\RegistrationController;
@@ -12,13 +11,9 @@ use App\Http\Middleware\RoleRedirect;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProductionController;
-use App\Http\Controllers\EventController;
 use App\Models\Absen;
-Route::get('/api/event', [EventController::class, 'index'])->name('events.index');
 
 // udah fix jangan kerubah 
-
-
 Route::get('/', function () {
     return view('welcome', [
         'absen' => Absen::all()
@@ -56,7 +51,9 @@ Route::get('/front-office/roomlist', [RoomListController::class, 'filter'])->nam
 // In routes/web.php
 
 //marketing
-Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name('bookings.index');
+Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name('marketing.peminjaman');
+Route::post('/marketing/store', [MarketingController::class, 'store'])->name('marketing.store');
+//Route::get('/marketing/peminjaman', [BookingsController::class, 'index'])->name('front_office.dashboard');
 
 //peminjaman
 // Route untuk update dan tambah barang
@@ -71,10 +68,5 @@ Route::post('/booking/complete-check-in/{kode_booking}', [InputKodeController::c
 
 // production 
 Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');
-
-
-// web.php
-Route::get('/events', [EventController::class, 'index'])->name('events.index');
-
 
 // Batas Terakhir dewinta yang ngerapihinnn
