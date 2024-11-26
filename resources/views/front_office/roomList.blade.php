@@ -43,7 +43,7 @@ use Carbon\Carbon;
         }
 
         .room-status {
-            padding: 5px 10px;
+            padding: 5px 8px;
             border-radius: 10px;
             font-weight: bold;
             font-size: 14px;
@@ -111,22 +111,32 @@ use Carbon\Carbon;
     <h1 class="text-center">Room List</h1>
 
     <div class="container">
-        <div class="d-flex justify-content-between">
+        <div class="d-flex justify-content-start">
             <form method="GET" action="{{ route('front_office.roomList') }}" class="d-inline">
                 <select name="lantai" class="form-select my-5 shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
                     <option value="">Semua Lantai</option>
-                    <option value="1" {{ request('lantai') == 'Lantai 1' ? 'selected' : '' }}>Lantai 1</option>
-                    <option value="2" {{ request('lantai') == 'Lantai 2' ? 'selected' : '' }}>Lantai 2</option>
-                    <option value="3" {{ request('lantai') == 'Lantai 3' ? 'selected' : '' }}>Lantai 3</option>
-                    <option value="4" {{ request('lantai') == 'Lantai 4' ? 'selected' : '' }}>Lantai 4</option>
-                    <option value="5" {{ request('lantai') == 'Lantai 5' ? 'selected' : '' }}>Lantai 5</option>
-                    <option value="6" {{ request('lantai') == 'Lantai 6' ? 'selected' : '' }}>Lantai 6</option>
-                    <option value="7" {{ request('lantai') == 'Lantai 7' ? 'selected' : '' }}>Lantai 7</option>
-                    <option value="8" {{ request('lantai') == 'Lantai 8' ? 'selected' : '' }}>Lantai 8</option>
+                    <option value="lantai 1" {{ request('lantai') == 'lantai 1' ? 'selected' : '' }}>Lantai 1</option>
+                    <option value="lantai 2" {{ request('lantai') == 'lantai 2' ? 'selected' : '' }}>Lantai 2</option>
+                    <option value="lantai 3" {{ request('lantai') == 'lantai 3' ? 'selected' : '' }}>Lantai 3</option>
+                    <option value="lantai 4" {{ request('lantai') == 'lantai 4' ? 'selected' : '' }}>Lantai 4</option>
+                    <option value="lantai 5" {{ request('lantai') == 'lantai 5' ? 'selected' : '' }}>Lantai 5</option>
+                    <option value="lantai 6" {{ request('lantai') == 'lantai 6' ? 'selected' : '' }}>Lantai 6</option>
+                    <option value="lantai 7" {{ request('lantai') == 'lantai 7' ? 'selected' : '' }}>Lantai 7</option>
+                    <option value="lantai 8" {{ request('lantai') == 'lantai 8' ? 'selected' : '' }}>Lantai 8</option>
                 </select>
             </form>
+            <form method="GET" action="{{ route('front_office.roomList') }}" class="d-inline" style="padding-left: 16px;">
+                <select name="status" class="form-select my-5 shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
+                    <option value="">Semua Status</option>
+                    <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Kosong</option>
+                    <option value="Booked" {{ request('status') == 'Booked' ? 'selected' : '' }}>Dipesan</option>
+                    <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Sedang Digunakan</option>
+                    <option value="unknown" {{ request('status') == 'unknown' ? 'selected' : '' }}>Unknown</option>
+                </select>
+
+            </form>
             <div class="mb-5">
-                <div class="mt-5" style="position: relative; display: inline-block; width: 100%;">
+                <div class="mt-5" style="position: relative; display: inline-block; width: 100%; padding-left: 716px;">
                     <input type="text" class="py-2 pl-3 pr-5 text-center" placeholder="Telusuri" name="search" value="{{ request('search') }}" style="width: 100%; border-radius: 21px; border: 1px solid #ccc;">
 
                     <button type="button" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
@@ -168,7 +178,7 @@ use Carbon\Carbon;
                 @for ($page = 1; $page <= $totalPages; $page++)
                     <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
                     <a class="page-link"
-                        href="{{ url()->current() }}?page={{ $page }}&search={{ request('search') }}&per_page={{ $perPage }}">
+                        href="{{ url()->current() }}?page={{ $page }}&search={{ request('search') }}&lantai={{ request('lantai') }}&status={{ request('status') }}&per_page={{ $perPage }}">
                         {{ $page }}
                     </a>
                     </li>

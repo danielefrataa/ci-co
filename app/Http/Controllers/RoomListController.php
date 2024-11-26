@@ -58,15 +58,42 @@ class RoomListController extends Controller
         // Fetch all data from API
         $apiRooms = $this->getAllApiData();
 
+        // Remove duplicates based on name and floor
+        $apiRooms = $apiRooms->unique(function ($room) {
+            return $room['name'] . $room['floor'];
+        });
+
         // Fetch status from database
         $dbStatuses = Room::all()->pluck('status', 'nama_ruangan');
 
+        // Check if search filter has been applied
+        $isSearchApplied = $request->has('search') && $request->search != '';
+
         // Apply search filter
-        if ($request->has('search') && $request->search != '') {
+        if ($isSearchApplied) {
             $search = $request->search;
 
             $apiRooms = $apiRooms->filter(function ($room) use ($search) {
                 return stripos($room['name'], $search) !== false || stripos($room['floor'], $search) !== false;
+            });
+        }
+
+        // Apply lantai (floor) filter
+        if ($request->has('lantai') && $request->lantai != '') {
+            $lantai = $request->lantai;
+
+            $apiRooms = $apiRooms->filter(function ($room) use ($lantai) {
+                return stripos($room['floor'], $lantai) !== false;
+            });
+        }
+
+        // Apply status filter
+        if ($request->has('status') && $request->status != '') {
+            $statusFilter = $request->status;
+
+            $apiRooms = $apiRooms->filter(function ($room) use ($dbStatuses, $statusFilter) {
+                $status = $dbStatuses[$room['name']] ?? 'Unknown';
+                return stripos($status, $statusFilter) !== false;
             });
         }
 
@@ -79,8 +106,10 @@ class RoomListController extends Controller
             ];
         });
 
+        // If search is applied, reset page to 1
+        $currentPage = $isSearchApplied ? 1 : $request->get('page', 1);
+
         // Pagination logic
-        $currentPage = $request->get('page', 1); // Current page from query or default to 1
         $perPage = $request->get('per_page', 9); // Items per page from query or default to 9
         $totalPages = ceil($rooms->count() / $perPage); // Total number of pages
         $paginatedRooms = $rooms->forPage($currentPage, $perPage); // Paginate rooms
@@ -91,6 +120,11 @@ class RoomListController extends Controller
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
             'perPage' => $perPage,
+            'lantai' => $request->lantai,
+            'status' => $request->status,
         ]);
+    }
+    public function getHour() {
+        
     }
 }
