@@ -45,7 +45,6 @@ Route::get('/booking/details/{kode_booking}', [BookingsController::class, 'showD
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
-
 Route::get('/front-office/roomlist', [RoomListController::class, 'index'])->name('front_office.index');
 Route::get('/front-office/roomlist', [RoomListController::class, 'filter'])->name('front_office.roomList');
 // In routes/web.php

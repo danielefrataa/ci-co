@@ -105,74 +105,94 @@
         .modal-header,
         .modal-footer {
             border: none;
-            /* Menghilangkan border */
         }
     </style>
 </head>
 
 <body>
     @include('layouts.app') <!-- Include navbar -->
+<div class="main-card border">
+    <h4 class="text-center mb-4" style="color: #091F5B;">Formulir Peminjaman Barang</h4>
 
-    <div class="main-card border">
-        <h4 class="text-center mb-4" style="color: #091F5B;">Formulir Peminjaman Barang</h4>
+    <!-- Info Card untuk Nama Event -->
+    <div class="info-card border mb-2 p-3">
+        <div class="d-flex align-items-center">
+            <p class="mb-0">Nama Event</p>
+            <p class="mb-0" style="color: #091F5B; margin-left: 20px;"><strong>{{ $booking['name'] }}</strong></p>
+        </div>
+    </div>
 
-        <!-- Info Card untuk Nama Event -->
-        <div class="info-card border mb-2 p-3">
-            <div class="d-flex align-items-center">
-                <p class="mb-0">Nama Event</p>
-                <p class="mb-0" style="color: #091F5B; margin-left: 20px;"><strong>{{ $nama_event }}</strong></p>
+    <!-- Card untuk Ruangan, PIC, Tanggal, dan Jam -->
+    <div class="info-card border p-3 mb-3">
+        <div class="row">
+            <div class="col-md-6 d-flex align-items-center">
+                <p class="mb-0">Ruangan</p>
+                <p class="mb-0" style="color: #091F5B; margin-left: 40px;">{{ $ruangan['name'] ?? 'Tidak Tersedia' }}</p>
+            </div>
+            <div class="col-md-6 d-flex align-items-center">
+                <p class="mb-0">PIC</p>
+                <p class="mb-0" style="color: #091F5B; margin-left: 25px;">{{ $booking['pic_name'] }}</p>
+            </div>
+            <div class="col-md-6 d-flex align-items-center mt-2">
+                <p class="mb-0">Tanggal</p>
+                <p class="mb-0 text-end" style="color: #091F5B; margin-left: 50px;">  {{ $booking['booking_items'][0]['booking_date'] }}</p>
+            </div>
+            <div class="col-md-6 d-flex align-items-center mt-2">
+                <p class="mb-0">Jam</p>
+                <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">{{ $booking['start_time'] }} - {{ $booking['end_time'] }}</p>
             </div>
         </div>
+    </div>
+    <!-- List Barang yang Dipinjam -->
+    <h5 class="section-title mt-4" style="color: #091F5B">List Barang yang Dipinjam</h5>
+    <table class="table table-striped">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Nama Item</th>
+            <th>Jumlah</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{-- Data dari database --}}
+        @forelse ($database_items as $item)
+            <tr>
+                <td>{{ $loop->iteration }}</td>
+                <td>{{ $item->nama_item }}</td>
+                <td>{{ $item->jumlah }}</td>
+            </tr>
+        @empty
+            <tr>
+            </tr>
+        @endforelse
 
-        <!-- Card untuk Ruangan, PIC, Tanggal, dan Jam -->
-        <div class="info-card border p-3 mb-3">
-            <div class="row">
-                <div class="col-md-6 d-flex align-items-center">
-                    <p class="mb-0">Ruangan</p>
-                    <p class="mb-0" style="color: #091F5B; margin-left: 40px;">{{ $ruangan }}</p>
-                </div>
-                <div class="col-md-6 d-flex align-items-center">
-                    <p class="mb-0">PIC</p>
-                    <p class="mb-0" style="color: #091F5B; margin-left: 25px;">{{ $pic }}</p>
-                </div>
-                <div class="col-md-6 d-flex align-items-center mt-2">
-                    <p class="mb-0">Tanggal</p>
-                    <p class="mb-0 text-end" style="color: #091F5B; margin-left: 50px;">{{ $tanggal }}</p>
-                </div>
-                <div class="col-md-6 d-flex align-items-center mt-2">
-                    <p class="mb-0">Jam</p>
-                    <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">{{ $jam }}</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tabel List Barang yang Dipinjam -->
-        <h5 class="section-title mt-4" style="color: #091F5B">List Barang yang Dipinjam</h5>
-        <table class="table table-striped table-custom text-center mb-4">
-            <thead>
+        {{-- Data dari API --}}
+        @if (!$tools->isEmpty())
+            @php
+                $counter = $database_items->count() + 1; // Lanjutkan nomor dari data database
+            @endphp
+            @foreach ($tools as $tool)
                 <tr>
-                    <th>No</th>
-                    <th>Kode Booking</th>
-                    <th>Nama Item</th>
-                    <th>Jumlah</th>
-                    <th>Lokasi</th>
+                    <td>{{ $counter++ }}</td>
+                    <td>{{ $tool }}</td>
+                    <td>Tidak ada jumlah spesifik</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach($peminjamans as $index => $peminjaman)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $peminjaman->kode_booking }}</td>
-                        <td>{{ $peminjaman->nama_item }}</td>
-                        <td>{{ $peminjaman->jumlah }}</td>
-                        <td>{{ $peminjaman->lokasi }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+            @endforeach
+        @else
+            @if ($database_items->isEmpty())
+                {{-- Tampilkan baris kosong hanya jika database juga kosong --}}
+                <tr>
+                    <td colspan="3">Tidak ada data tools di API.</td>
+                </tr>
+            @endif
+        @endif
+    </tbody>
+</table>
 
-        <!-- Checkbox Syarat dan Ketentuan -->
-        <div class="form-check mb-3">
+
+
+         <!-- Checkbox Syarat dan Ketentuan -->
+         <div class="form-check mb-3">
             <input type="checkbox" class="form-check-input" id="agree" name="agree" required>
             <label class="form-check-label" for="agree" style="color: #091F5B; font-weight:500;">
                 Syarat dan Ketentuan
@@ -185,33 +205,26 @@
                 <p class="signature-title">Mengetahui,<br> Marketing</p>
                 <p><img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
                         style="width: 80px; height: 80px;"></p>
-                <p>{{ $peminjaman->marketing }}</p>
             </div>
             <div class="d-flex" style="flex-basis: 35%; justify-content: space-between;">
                 <div class="signature-group mt-4 text-center">
                     <p class="signature-title">Mengetahui,<br> Peminjam</p>
                     <p>
-                        @if(isset($signature) && $signature != 'Tidak Tersedia')
-                            <img src="{{$signature}}" alt="Tanda Tangan"
-                                style="width: 180px; height: 80px; padding-left: 45px;">
-                        @else
-                            <p>Tanda tangan tidak tersedia.</p>
-                        @endif
+                        <img src="{{ $absen->signature }}" alt="Tanda Tangan" style="width: 180px; height: 80px; padding-left: 45px;">
                     </p>
-                    <p>{{ $name }}</p>
+                    <p>{{ $absen->name }}</p>
                 </div>
                 <div class="signature-group mt-4 text-center">
                     <p class="signature-title">Mengetahui,<br> FO</p>
                     <p><img src="{{ asset('images/fo_ttd.png') }}" alt="Tanda Tangan"
                             style=" width: 80px; height: 80px;"></p>
-                    <p>{{ $peminjaman->FO }}</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tombol Setuju -->
-    <div class="text-center mt-4 mb-4">
+   <!-- Tombol Setuju -->
+   <div class="text-center mt-4 mb-4">
         <a href="{{ route('dashboard') }}" class="btn btn-primary">Setuju</a>
     </div>
 

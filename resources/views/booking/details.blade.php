@@ -140,7 +140,7 @@
                 <div class="card detail p-3 bg-white mb-3">
                     <h4 class="text-center judul">{{ $booking['name'] }}</h4>
                     <p class="text-center">{{ $roomDetails['room_name'] }},  {{ $roomDetails['room_floor'] }}</p>
-                    <p class="text-center">Hari  {{ $dayOfWeek }},{{ $formattedDate }}</p>
+                    <p class="text-center">{{ $dayOfWeek }},{{ $formattedDate }}</p>
                     <p class="text-center">
                         <strong>{{ $startTime }} - {{ $endTime }}</strong>
                     </p>

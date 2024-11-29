@@ -19,48 +19,93 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-        }
+        <style>
+   body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    overflow-x: hidden; /* Hindari scroll horizontal */
+}
 
-        .toggle-button {
-            display: flex;
-            width: 18%;
-            border-radius: 25px;
-            overflow: hidden;
-            background-color: #e0e8ff;
-            margin-left: 1244px;
-            margin-top: 8px;
-            /* Center the toggle */
-        }
+html, body {
+    height: 100%; /* Pastikan halaman hanya setinggi layar */
+}
 
-        .toggle-button div {
-            flex: 1;
-            text-align: center;
-            padding: 10px 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+.toggle-button {
+    position: absolute; /* Tetap di kanan atas saat scroll */
+    top: 80px;
+    right: 10px;
+    display: flex;
+    width: 180px;
+    border-radius: 25px;
+    overflow: hidden;
+    background-color: #e0e8ff;
+    z-index: 1000; /* Pastikan berada di atas elemen lainnya */
+}
 
-        .toggle-button .active {
-            background-color: #002855;
-            color: #fff;
-            font-weight: bold;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-        }
+.toggle-button div {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
-        .toggle-button .inactive {
-            background-color: #e0e8ff;
-            color: #002855;
-            font-weight: bold;
-        }
+.toggle-button .active {
+    background-color: #002855;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
 
-        .toggle-button div:hover {
-            opacity: 0.9;
-            /* Slight effect on hover */
-        }
-    </style>
+.toggle-button .inactive {
+    background-color: #e0e8ff;
+    color: #002855;
+    font-weight: bold;
+}
+
+video {
+    width: 100%;
+    max-height: 50vh; /* Sesuaikan tinggi maksimal video */
+    height: auto;
+    border-radius: 10px;
+}
+
+.container {
+    max-height: 100vh; /* Batasi tinggi container */
+    overflow: hidden;
+}
+
+h4, h5 {
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .toggle-button {
+        width: 50%;
+        top: 85px;
+        right: 25%; /* Sesuaikan margin pada layar kecil */
+    }
+
+    .toggle-button div {
+        padding: 10px;
+    }
+
+    h4 {
+        font-size: 24px;
+    }
+
+    h5 {
+        font-size: 12px;
+    }
+
+    .container {
+        width: 100%;
+        padding: 15px;
+    }
+}
+
+</style>
+
 
 
 </head>

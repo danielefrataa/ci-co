@@ -16,7 +16,6 @@ class PeminjamanBarang extends Model
         'kode_booking',
         'nama_item',
         'jumlah',
-        'lokasi',
         'marketing',
         'FO'
     ];

@@ -22,67 +22,105 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
         rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
+        <style>
+    body {
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .modal-content {
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin: 10px;
+    }
+
+    .modal-header {
+        border-bottom: none;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .table-light {
+        background-color: #e9ecef;
+    }
+
+    .table-bordered {
+        border-color: #dee2e6;
+    }
+
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+
+    .btn-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 20px;
+    }
+
+    /* Modal Edit */
+    .main-card {
+        border-radius: 10px;
+        background-color: #fff;
+        border-color: #091F5B;
+        padding: 65px;
+        margin: auto;
+    }
+
+    .info-card {
+        border-radius: 15px;
+        border-color: #091F5B;
+        font-size: 14px;
+    }
+
+    /* Make the layout responsive for smaller screens */
+    @media (max-width: 768px) {
+        .modal-dialog {
+            max-width: 100%;
+            margin: 0;
         }
 
         .modal-content {
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
 
-        .modal-header {
-            background-color: #f8f9fa;
-            border-bottom: none;
-        }
-
-        .table th,
-        .table td {
-            vertical-align: middle;
-            text-align: center;
-        }
-
-        .table-light {
-            background-color: #e9ecef;
-        }
-
-        .table-bordered {
-            border-color: #dee2e6;
-        }
-
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-
-        .btn-primary:hover {
-            background-color: #0b5ed7;
-            border-color: #0a58ca;
-        }
-
-        .btn-close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 20px;
-        }
-
-        /* Modal Edit */
         .main-card {
-            border-radius: 10px;
-            background-color: #fff;
-            border-color: #091F5B;
-            padding: 65px;
-            margin: auto;
+            padding: 30px;
         }
 
-        .info-card {
-            border-radius: 15px;
-            border-color: #091F5B;
-            font-size: 14px;
+        .table th, .table td {
+            font-size: 12px;
         }
-    </style>
+
+        .col-md-3, .col-md-2, .col-md-1 {
+            font-size: 12px;
+        }
+
+        .d-flex {
+            flex-wrap: wrap;
+        }
+
+        .d-flex > .col-md-3,
+        .d-flex > .col-md-2 {
+            flex: 1 1 100%; /* Make columns stack on small screens */
+            margin-bottom: 10px;
+        }
+
+        .modal-body {
+            padding: 0px;
+        }
+    }
+</style>
+
 </head>
 
 <body class="bg-light">
@@ -266,7 +304,7 @@
                                     </div>
                                     <div class="info-card border p-3 mb-3">
                                         <div class="row">
-                                            <input type="hidden" name="kode_booking" value="{{ $booking['id'] }}">
+                                            <input type="hidden" name="kode_booking" value="{{ $booking['booking_code'] }}">
                                             <div class="col-md-6 d-flex align-items-center">
                                                 <p class="mb-0">Ruangan</p>
                                                 <p class="mb-0" style="color: #091F5B; margin-left: 40px;">
@@ -302,6 +340,7 @@
                                         </thead>
                                         <tbody>
                                             @php $no = 1; @endphp
+                                            
                                             <tr>
                                                 <td>{{ $no++ }}</td>
                                                 <td class="text-align-left" style="text-align: left;">
@@ -315,6 +354,16 @@
                                                 <td><button type="button" class="btn btn-danger removeItem"
                                                         onclick="removeItem(this)">Hapus</button></td>
                                             </tr>
+                                            @foreach ($booking['database_items'] as $dbItem)
+                                    <tr>
+                                        <td>{{ $no++ }}</td>
+                                        <td class="text-align-left" style="text-align: left;">
+                                            {{ $dbItem->nama_item }}
+                                        </td>
+                                        <td class="text-center">{{ $dbItem->jumlah }}</td>
+                                        <td><button type="button" class="btn btn-danger removeItem" onclick="removeItem(this)">Hapus</button></td>
+                                    </tr>
+                                @endforeach
                                         </tbody>
                                     </table>
                                     <button type="button" class="btn btn-primary btn-sm"
@@ -330,11 +379,11 @@
                                                         alt="Tanda Tangan" style="width: 80px; height: 80px;"></p>
                                                 <p>{{ $booking['history'][0]['pic_marketing'] }}</p>
                                             </div>
-                                            <div class="text-center">
+                                            <div class="signature-group mt-4 text-center">
                                                 <p>Mengetahui Peminjam</p>
                                                 <p>Peminjam</p>
                                             </div>
-                                            <div class="text-center">
+                                            <div class="signature-group mt-4 text-center">
                                                 <p>Mengetahui Front Office</p>
                                                 <p>Front Office</p>
                                             </div>
