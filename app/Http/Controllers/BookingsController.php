@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\DutyOfficer;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Absen;
 class BookingsController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
@@ -53,7 +54,16 @@ class BookingsController extends Controller
             ->toArray();
 
         $item['booking_items'] = $bookingItems->toArray();
+        
+        // Ambil data absen berdasarkan id_booking
+        $absenData = Absen::where('id_booking', $item['booking_code'])->first();  // Menggunakan 'booking_code' untuk ambil data absen
+        if ($absenData) {
+            $item['absen'] = [
+                'name' => $absenData->name, // Asumsi ada kolom 'nama' di tabel absen
 
+                'status' => $absenData->status, // Ambil status dari absen
+            ];
+        }
         return $item;
     })->filter(function ($item) use ($today, $searchTerm) {
         if (empty($item['booking_items'])) {

@@ -201,5 +201,31 @@ class InputKodeController extends Controller
     return redirect()->route('inputkode.show')->with('success', 'Check-in berhasil. Terima kasih!');
 }
 
-    
+public function checkout(Request $request)
+{
+    // Validasi input
+    $request->validate([
+        'kode_booking' => 'required|string',
+    ]);
+
+    $kodeBooking = strtolower(trim($request->kode_booking));
+
+    // Cari data absen berdasarkan kode_booking
+    $absen = Absen::where('id_booking', $kodeBooking)->first();
+
+    if (!$absen) {
+        return redirect()->back()->with('gagal', 'Data booking tidak ditemukan.');
+    }
+
+    try {
+        // Update status menjadi Check-out
+        $absen->update(['status' => 'Check-out']);
+
+        return redirect()->back()->with('sukses', 'Status berhasil diubah menjadi Check-out.');
+    } catch (\Exception $e) {
+        Log::error('Error saat check-out: ' . $e->getMessage());
+        return redirect()->back()->with('gagal', 'Terjadi kesalahan saat mengubah status.');
+    }
+}
+
 }

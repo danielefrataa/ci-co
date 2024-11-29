@@ -62,8 +62,9 @@ Route::get('/peminjaman/create/{nama_event}', [PeminjamanController::class, 'sho
 Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
 
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('inputkode.show');
-Route::post('/front-office/match', [InputKodeController::class, 'match'])->name('inputkode.match');
+Route::match(['get', 'post'], '/front-office/match', [InputKodeController::class, 'match'])->name('inputkode.match');
 Route::post('/booking/complete-check-in/{kode_booking}', [InputKodeController::class, 'completeCheckIn'])->name('booking.completeCheckIn');
+Route::post('/checkout', [InputKodeController::class, 'checkout'])->name('inputkode.checkout');
 
 // production 
 Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');

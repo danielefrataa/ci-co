@@ -82,7 +82,7 @@ class AbsenController extends Controller
 
         // Ambil kode_booking dari sesi
         $kode_booking = $request->session()->get('kode_booking');
-
+   
         // Pastikan booking ada di API
         $apiUrl = "https://event.mcc.or.id/api/event?status=booked";
         $response = Http::withHeaders([
