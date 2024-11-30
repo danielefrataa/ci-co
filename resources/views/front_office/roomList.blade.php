@@ -165,8 +165,15 @@ use Carbon\Carbon;
                             @endphp
                             <span class="room-status  shadow-sm" value="{{ $status }}">{{ $status }}</span>
                         </div>
-                        <p>{{ $room['floor'] }}</p>
 
+                        <p>{{ $room['floor'] }}</p>
+                        <p>
+                            @if (!empty($room['start_time']) && !empty($room['end_time']))
+                            {{ $room['start_time'] }} - {{ $room['end_time'] }}
+                            @else
+                            Not Available
+                            @endif
+                        </p>
                     </div>
                 </div>
                 @endforeach

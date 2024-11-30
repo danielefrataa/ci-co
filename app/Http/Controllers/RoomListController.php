@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 class RoomListController extends Controller
 {
@@ -37,15 +38,21 @@ class RoomListController extends Controller
         // Fetch all data from API
         $apiRooms = $this->getAllApiData();
 
+        // Fetch booking times grouped by room
+        $timeRanges = $this->getBookingTimes();
+
         // Fetch status from database
         $dbStatuses = Room::all()->pluck('status', 'nama_ruangan');
 
-        // Combine API data with database status
-        $rooms = $apiRooms->map(function ($room) use ($dbStatuses) {
+        // Combine API data with database status and booking times
+        $rooms = $apiRooms->map(function ($room) use ($dbStatuses, $timeRanges) {
+            $bookingTime = $timeRanges[$room['name']] ?? ['start_time' => null, 'end_time' => null];
             return [
                 'name' => $room['name'],
                 'floor' => $room['floor'],
                 'status' => $dbStatuses[$room['name']] ?? 'Unknown',
+                'start_time' => $bookingTime['start_time'],
+                'end_time' => $bookingTime['end_time'],
             ];
         });
 
@@ -62,6 +69,9 @@ class RoomListController extends Controller
         $apiRooms = $apiRooms->unique(function ($room) {
             return $room['name'] . $room['floor'];
         });
+
+        // Fetch booking times grouped by room
+        $timeRanges = $this->getBookingTimes();
 
         // Fetch status from database
         $dbStatuses = Room::all()->pluck('status', 'nama_ruangan');
@@ -97,12 +107,15 @@ class RoomListController extends Controller
             });
         }
 
-        // Combine API data with database status
-        $rooms = $apiRooms->map(function ($room) use ($dbStatuses) {
+        // Combine API data with database status and booking times
+        $rooms = $apiRooms->map(function ($room) use ($dbStatuses, $timeRanges) {
+            $bookingTime = $timeRanges[$room['name']] ?? ['start_time' => null, 'end_time' => null];
             return [
                 'name' => $room['name'],
                 'floor' => $room['floor'],
                 'status' => $dbStatuses[$room['name']] ?? 'Unknown',
+                'start_time' => $bookingTime['start_time'],
+                'end_time' => $bookingTime['end_time'],
             ];
         });
 
@@ -124,7 +137,52 @@ class RoomListController extends Controller
             'status' => $request->status,
         ]);
     }
-    public function getHour() {
-        
+
+    private function getBookingTimes()
+    {
+        $today = Carbon::now()->toDateString(); // Today's date
+        $allBookings = collect();
+        $page = 1;
+        $maxPages = 10;
+
+        do {
+            $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
+            $response = Http::withHeaders([
+                'X-API-KEY' => $this->apiKey,
+            ])->withoutVerifying()->get($url);
+
+            if ($response->successful()) {
+                $data = collect($response->json()['data'] ?? []);
+                $allBookings = $allBookings->merge($data);
+                $page++;
+            } else {
+                report('Error accessing API: ' . $response->status());
+                break;
+            }
+        } while ($data->isNotEmpty() && $page <= $maxPages);
+
+        // Map booking times to rooms
+        return $allBookings->flatMap(function ($item) {
+            $bookingItems = collect($item['booking_items'] ?? []);
+            $ruangans = collect($item['ruangans'] ?? []);
+
+            return $ruangans->mapWithKeys(function ($ruangan) use ($bookingItems) {
+                $ruanganId = $ruangan['id'];
+                $ruanganName = $ruangan['name'];
+
+                // Filter bookings for this room
+                $roomBookings = $bookingItems->where('ruangan_id', $ruanganId);
+
+                $startTime = $roomBookings->min('booking_hour');
+                $endTime = $roomBookings->max('booking_hour');
+
+                return [
+                    $ruanganName => [
+                        'start_time' => $startTime !== null ? Carbon::createFromTime($startTime, 0)->format('H:i') : null,
+                        'end_time' => $endTime !== null ? Carbon::createFromTime($endTime, 0)->format('H:i') : null,
+                    ],
+                ];
+            });
+        });
     }
 }
