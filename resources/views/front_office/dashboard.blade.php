@@ -75,7 +75,7 @@
             overflow: hidden;
             border-top-left-radius: 10px;
             border-bottom-left-radius: 10px;
-        }
+        }   
 
         .status {
             border-top-right-radius: 10px;
@@ -105,6 +105,12 @@
                 /* Sembunyikan kolom pada layar kecil */
             }
         }
+        .btn:hover {
+    background-color: #0056b3; /* Warna latar belakang saat hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Efek bayangan */
+    transform: scale(1.05); /* Efek pembesaran */
+}
+
     </style>
 </head>
 
@@ -184,18 +190,42 @@
                             <td>{{ $booking['pic_name'] }}</td>
 
                             <td>
-
-                                <p>duty officer</p>
-                                {{-- <div class="form-group">
-                                    <select name="duty_officer" class="form-control" onchange="updateDutyOfficer(this)">
-                                        <option value="" disabled selected>--</option>
-                                        @foreach ($duty_officer as $duty)
-                                        <option value="{{ $duty->id }}">{{ $duty->nama_do }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                --}}
+                                <!--Duty Officer-->
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#dutyOfficerModal" 
+                                        data-booking-id="{{ $booking['booking_code'] }}" 
+                                        data-current-officer="{{ $booking['duty_officer'] ?? '--' }}">
+                                        Pilih Duty Officer
+                                    </button>
                             </td>
+                            
+                            <div class="modal fade" id="dutyOfficerModal" tabindex="-1" aria-labelledby="dutyOfficerModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form id="dutyOfficerForm">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="dutyOfficerModalLabel">Pilih Duty Officer</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <input type="hidden" id="bookingId" name="booking_id" value="">
+                                                <div class="mb-3">
+                                                    <label for="dutyOfficerSelect" class="form-label">Duty Officer</label>
+                                                    <select class="form-select" id="dutyOfficerSelect" name="duty_officer_id">
+                                                        @foreach ($dutyOfficers as $officer)
+                                                            <option value="{{ $officer->id }}">{{ $officer->nama_do }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
                             <td>
                                 @if (!empty($booking['absen']))
                                     {{ $booking['absen']['name'] }} <!-- Menampilkan nama user -->
@@ -205,16 +235,20 @@
                             </td>
                             <td>
                                 @if (!empty($booking['absen']))
-                                    @if ($booking['absen']['status'] === 'Check-in')
-                                        <button class="btn" style="background-color: #4C74E1; color: #fff;" data-bs-toggle="modal"
-                                            data-bs-target="#checkoutModal{{ $booking['id'] }}">
-                                            Check-In
-                                        </button>
-                                    @elseif ($booking['absen']['status'] === 'Check-out')
-                                        <span class="btn" style="background-color: #F35558; color: #fff; pointer-events: none">
-                                            Check-Out
-                                        </span>
-                                    @endif
+                                @if ($booking['absen']['status'] === 'Check-in')
+    <button class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center custom-shadow fw-bold" data-bs-toggle="modal" data-bs-target="#checkoutModal{{ $booking['id'] }}" style="font-weight: bold;">
+         Check-In
+    </button>
+@elseif ($booking['absen']['status'] === 'Check-out')
+    <span class="btn btn-danger btn-sm custom-shadow fw-bold" style="pointer-events: none; border: 2px solid white;">
+        <i class="fas fa-times-circle me-2"></i> Check-Out
+    </span>
+@endif
+
+                            
+                            
+
+                            
                                 @else
                                     <a href="{{ route('inputkode.match', ['id_booking' => $booking['booking_code']]) }}"
                                         class="btn" style="background-color: #969696; color: #fff;">
@@ -373,6 +407,64 @@
                         perPage
                     };
                 }
+
+                document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('dutyOfficerModal');
+
+    // Ketika modal ditampilkan
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Tombol yang memicu modal
+        const bookingId = button.getAttribute('data-booking-id');
+        const currentOfficer = button.getAttribute('data-current-officer');
+
+        // Isi data ke dalam modal form
+        modal.querySelector('#bookingId').value = bookingId;
+        modal.querySelector('#dutyOfficerSelect').value = currentOfficer || '';
+    });
+
+    // Tangani submit form
+    document.getElementById('dutyOfficerForm').addEventListener('submit', function (e) {
+        e.preventDefault(); // Cegah form submit default
+
+        // Ambil data dari form
+        const formData = new FormData(this);
+        const bookingId = formData.get('booking_id');
+        const officerId = formData.get('duty_officer_id');
+
+        // Kirim data ke server menggunakan fetch
+        fetch('/update-duty-officer', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                booking_id: bookingId,
+                duty_officer_id: officerId,
+            }),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // Update nama Duty Officer di tabel
+                    const officerName = data.officer_name || '--';
+                    document.querySelector(`#officer-name-${bookingId}`).textContent = officerName;
+
+                    // Tutup modal
+                    const bsModal = bootstrap.Modal.getInstance(modal);
+                    bsModal.hide();
+                } else {
+                    alert(data.message || 'Gagal memperbarui Duty Officer.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim data.');
+            });
+    });
+});
+
+
             </script>
         </div>
 </body>

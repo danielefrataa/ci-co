@@ -17,7 +17,7 @@ class BookingsController extends Controller
     $maxPages = 10; // Batasi maksimal 10 halaman untuk mencegah infinite loop
 
     $searchTerm = strtolower($request->get('search', ''));
-
+    $dutyOfficers = DutyOfficer::all();
     do {
         $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
         $response = Http::withHeaders([
@@ -95,8 +95,35 @@ class BookingsController extends Controller
         'totalPages' => ceil($filteredBookings->count() / $perPage),
         'currentPage' => $currentPage,
         'perPage' => $perPage,
+        'dutyOfficers' => $dutyOfficers,
     ]);
 }
+public function updateDutyOfficer(Request $request)
+{
+    $validated = $request->validate([
+        'booking_id' => 'required|string',
+        'duty_officer_id' => 'required|exists:duty_officers,id',
+    ]);
+
+    $booking = Absen::where('id_booking', $validated['booking_id'])->first();
+
+    if ($booking) {
+        $dutyOfficer = DutyOfficer::find($validated['duty_officer_id']);
+        $booking->duty_officer_id = $dutyOfficer->id;
+        $booking->save();
+
+        return response()->json([
+            'success' => true,
+            'officer_name' => $dutyOfficer->nama_do,
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Booking tidak ditemukan.',
+    ], 404);
+}
+
 
 
     /**

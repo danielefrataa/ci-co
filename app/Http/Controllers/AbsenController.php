@@ -82,7 +82,6 @@ class AbsenController extends Controller
 
         // Ambil kode_booking dari sesi
         $kode_booking = $request->session()->get('kode_booking');
-   
         // Pastikan booking ada di API
         $apiUrl = "https://event.mcc.or.id/api/event?status=booked";
         $response = Http::withHeaders([
@@ -104,12 +103,13 @@ class AbsenController extends Controller
 
         if (!$absen) {
             Absen::create([
-                'id_booking' => $kode_booking,
-                'name' => $request->input('name'),
-                'phone' => $request->input('phone'),
-                'signature' => $request->input('signatureData'),
-                'tanggal' => now()->toDateString(),
-                'status' => 'Check-in',
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'signature' => $request->signature,
+                'id_booking' => $request->id_booking,
+                'tanggal' => $request->tanggal,
+                'duty_officer_id' => $request->duty_officer_id, // Ensure this is being passed
+                'status' => $request->status,
             ]);
         } else {
             $absen->update([

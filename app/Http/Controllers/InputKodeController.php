@@ -162,6 +162,7 @@ class InputKodeController extends Controller
         'phone' => $request->input('phone'),
         'signature' => $signatureData, // Simpan langsung base64 signature di database
         'status' => 'Check-in',
+        'duty_officer_id' => $request->duty_officer_id,
     ]);
 
     Log::info('Check-in berhasil untuk kode: ' . $kode_booking);

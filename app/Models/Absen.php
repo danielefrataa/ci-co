@@ -12,6 +12,11 @@ class Absen extends Model
     protected $guarded = ['id'];
 
 // In Absen model
+public function dutyOfficer()
+{
+    return $this->belongsTo(DutyOfficer::class, 'duty_officer_id');
+}
+
 
 public function booking()
 {

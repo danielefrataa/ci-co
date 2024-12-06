@@ -31,6 +31,12 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/front-office/dashboard', [LoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
 Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
 Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
+Route::post('/update-duty-officer', [BookingsController::class, 'updateDutyOfficer'])
+    ->middleware('auth') // Tambahkan middleware di sini
+    ->name('update-duty-officer');
+
+
+
 
 Route::get('/bookings', [BookingsController::class, 'getBookingData']);
 
