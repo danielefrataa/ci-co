@@ -13,7 +13,13 @@ use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProductionController;
 use App\Models\Absen;
 use App\Http\Controllers\QRCodeController;
-use App\Http\Controllers\DutyOfficerController;
+use App\Http\Controllers\DutyOfficerController;use App\Exports\BookingsExport;
+use Maatwebsite\Excel\Facades\Excel;
+
+Route::get('export-bookings', function () {
+    return Excel::download(new BookingsExport(request()->all()), 'bookings.xlsx');
+})->name('bookings.export');
+
 
 // udah fix jangan kerubah 
 Route::get('/', function () {
@@ -35,6 +41,9 @@ Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateS
 Route::post('/update-duty-officer', [BookingsController::class, 'updateDutyOfficer'])
     ->middleware('auth') // Tambahkan middleware di sini
     ->name('update-duty-officer');
+    // Yang ini buat impor ya ngab
+// Route::get('/export-bookings', [BookingsController::class, 'exportBookings'])->name('bookings.export');
+    
 
 
 

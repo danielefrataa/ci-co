@@ -10,10 +10,7 @@ class Absen extends Model
     use HasFactory;
     protected $table = 'absen'; // Tambahkan ini jika nama tabel kamu tanpa 's'
     protected $guarded = ['id'];
-    protected $fillable = [
-        'id_booking', 'duty_officer', 'status', 'ruangan', 'tanggal',
-        // kolom lainnya yang perlu diisi
-    ];
+    
 // In Absen model
 public function dutyOfficer()
 {

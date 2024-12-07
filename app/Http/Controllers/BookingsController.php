@@ -6,7 +6,10 @@ use App\Models\DutyOfficer;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Absen;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BookingsExport;
 class BookingsController extends Controller
+
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
     public function index(Request $request)
@@ -66,6 +69,7 @@ class BookingsController extends Controller
                 'name' => $absenData->name,
                 'status' => $absenData->status,
                 'duty_officer' => $absenData->duty_officer, // Tambahkan data Duty Officer
+                'phone' => $absenData->phone, // Menambahkan data phone
 
             ];
         }
@@ -112,6 +116,13 @@ class BookingsController extends Controller
         'perPage' => $perPage,
         'dutyOfficers' => $dutyOfficers,
     ]);
+}
+public function exportBookings(Request $request)
+{
+    $filters = $request->all(); // Ambil semua parameter filter
+
+    // Menyiapkan ekspor dengan filter
+    return Excel::download(new BookingsExport($filters), 'bookings.xlsx');
 }
 public function updateDutyOfficer(Request $request)
 {
