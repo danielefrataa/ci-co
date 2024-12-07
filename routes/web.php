@@ -12,6 +12,8 @@ use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProductionController;
 use App\Models\Absen;
+use App\Http\Controllers\QRCodeController;
+use App\Http\Controllers\DutyOfficerController;
 
 // udah fix jangan kerubah 
 Route::get('/', function () {
@@ -28,7 +30,6 @@ Route::post('/login', [LoginController::class, 'login'])->middleware(RoleRedirec
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // front_office
-Route::get('/front-office/dashboard', [LoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
 Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
 Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
 Route::post('/update-duty-officer', [BookingsController::class, 'updateDutyOfficer'])
@@ -76,3 +77,8 @@ Route::post('/checkout', [InputKodeController::class, 'checkout'])->name('inputk
 Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');
 
 // Batas Terakhir dewinta yang ngerapihinnn
+
+
+Route::get('/generate-qrcode/{bookingCode}', [QRCodeController::class, 'generateQRCode']);
+// Route::get('/generate-qrcode/{bookingCode}', [QRCodeController::class, 'sendQRCode']);
+Route::post('/duty-officer/store', [DutyOfficerController::class, 'storeDutyOfficer'])->name('dutyofficer.store');

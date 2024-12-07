@@ -75,7 +75,7 @@
             overflow: hidden;
             border-top-left-radius: 10px;
             border-bottom-left-radius: 10px;
-        }   
+        }
 
         .status {
             border-top-right-radius: 10px;
@@ -105,12 +105,15 @@
                 /* Sembunyikan kolom pada layar kecil */
             }
         }
-        .btn:hover {
-    background-color: #0056b3; /* Warna latar belakang saat hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Efek bayangan */
-    transform: scale(1.05); /* Efek pembesaran */
-}
 
+        .btn:hover {
+            background-color: #0056b3;
+            /* Warna latar belakang saat hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* Efek bayangan */
+            transform: scale(1.05);
+            /* Efek pembesaran */
+        }
     </style>
 </head>
 
@@ -127,9 +130,20 @@
 
     <!-- Main Content -->
     <div class="container my-4">
+        @if (session('sukses'))
+            <div class="alert alert-success">
+                {{ session('sukses') }}
+            </div>
+        @endif
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-            <h2>Booking List</h2>
+        @if (session('gagal'))
+            <div class="alert alert-danger">
+                {{ session('gagal') }}
+            </div>
+        @endif
+
+        <div class="display-4 flex-column flex-md-row text-center mb-4">
+            <h1 class="display-4 mb-4 text-center">Booking List</h1>
         </div>
         <!-- Filter and Search in a Single Row -->
         <div class="d-flex justify-content-between mb-3">
@@ -178,6 +192,7 @@
                                 </a>
                             </td>
                             <td class="fw-semibold">{{ $booking['user_name'] }}</td>
+
                             <td>
                                 @foreach ($booking['ruangans'] as $ruangan)
                                     <p>{{ $ruangan['name'] }}<br>
@@ -187,45 +202,65 @@
                                     </p>
                                 @endforeach
                             </td>
-                            <td>{{ $booking['pic_name'] }}</td>
-
+                            <td>{{ $booking['pic_name'] }}<br>
+                                <a href="https://wa.me/{{ $booking['pic_phone_number'] }}" target="_blank"
+                                    style="color: #25D366;">
+                                    <span>{{ $booking['pic_phone_number'] }}</span>
+                                </a>
+                            </td>
                             <td>
-                                <!--Duty Officer-->
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#dutyOfficerModal" 
-                                        data-booking-id="{{ $booking['booking_code'] }}" 
-                                        data-current-officer="{{ $booking['duty_officer'] ?? '--' }}">
+                                @if (!empty($booking['absen']['duty_officer']))
+                                    <!-- Tampilkan nama Duty Officer -->
+                                    <span class="badge bg-success">
+                                        {{ $booking['absen']['duty_officer'] }}
+                                    </span>
+                                @else
+                                    <!-- Tombol untuk memilih Duty Officer -->
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#dutyOfficerModal" data-booking-id="{{ $booking['booking_code'] }}">
                                         Pilih Duty Officer
                                     </button>
+                                @endif
                             </td>
-                            
-                            <div class="modal fade" id="dutyOfficerModal" tabindex="-1" aria-labelledby="dutyOfficerModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <form id="dutyOfficerForm">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="dutyOfficerModalLabel">Pilih Duty Officer</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <input type="hidden" id="bookingId" name="booking_id" value="">
-                                                <div class="mb-3">
-                                                    <label for="dutyOfficerSelect" class="form-label">Duty Officer</label>
-                                                    <select class="form-select" id="dutyOfficerSelect" name="duty_officer_id">
-                                                        @foreach ($dutyOfficers as $officer)
-                                                            <option value="{{ $officer->id }}">{{ $officer->nama_do }}</option>
-                                                        @endforeach
-                                                    </select>
+
+
+                            @if (empty($booking['absen']['duty_officer']))
+                                <div class="modal fade" id="dutyOfficerModal" tabindex="-1"
+                                    aria-labelledby="dutyOfficerModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form id="dutyOfficerForm" method="POST" action="{{ route('dutyofficer.store') }}">
+                                                @csrf
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="dutyOfficerModalLabel">Pilih Duty Officer</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
                                                 </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Simpan</button>
-                                            </div>
-                                        </form>
+                                                <div class="modal-body">
+                                                    <input type="hidden" id="bookingId" name="id_booking"
+                                                        value="{{ $booking['booking_code'] }}">
+                                                    <div class="mb-3">
+                                                        <label for="dutyOfficerSelect" class="form-label">Duty Officer</label>
+                                                        <select class="form-select" id="dutyOfficerSelect"
+                                                            name="duty_officer_id" required>
+                                                            @foreach ($dutyOfficers as $officer)
+                                                                <option value="{{ $officer->id }}">{{ $officer->nama_do }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
+                            @endif
+
+
                             <td>
                                 @if (!empty($booking['absen']))
                                     {{ $booking['absen']['name'] }} <!-- Menampilkan nama user -->
@@ -235,28 +270,25 @@
                             </td>
                             <td>
                                 @if (!empty($booking['absen']))
-                                @if ($booking['absen']['status'] === 'Check-in')
-    <button class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center custom-shadow fw-bold" data-bs-toggle="modal" data-bs-target="#checkoutModal{{ $booking['id'] }}" style="font-weight: bold;">
-         Check-In
-    </button>
-@elseif ($booking['absen']['status'] === 'Check-out')
-    <span class="btn btn-danger btn-sm custom-shadow fw-bold" style="pointer-events: none; border: 2px solid white;">
-        <i class="fas fa-times-circle me-2"></i> Check-Out
-    </span>
-@endif
-
-                            
-                            
-
-                            
+                                    @if ($booking['absen']['status'] === 'Check-in')
+                                        <button
+                                            class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center custom-shadow fw-bold"
+                                            data-bs-toggle="modal" data-bs-target="#checkoutModal{{ $booking['id'] }}"
+                                            style="font-weight: bold;">
+                                            Check-In
+                                        </button>
+                                    @elseif ($booking['absen']['status'] === 'Check-out')
+                                        <span class="btn btn-danger btn-sm custom-shadow fw-bold"
+                                            style="pointer-events: none; border: 2px solid white;">
+                                            <i class="fas fa-times-circle me-2"></i> Check-Out
+                                        </span>
+                                    @endif
                                 @else
                                     <a href="{{ route('inputkode.match', ['id_booking' => $booking['booking_code']]) }}"
                                         class="btn" style="background-color: #969696; color: #fff;">
                                         Booked
                                     </a>
                                 @endif
-
-
                             </td>
                         </tr>
                     @endforeach
@@ -362,111 +394,65 @@
                     </div>
                 </div>
             @endforeach
-
-
-            <!-- JavaScript for Updating Booking Status -->
-            <script>
-                function updateStatus(bookingId, newStatus) {
-                    fetch(/bookings/$ {
-                        bookingId
-                    }
-                        / update - status, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            status: newStatus
-                        })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data); // Log data untuk debugging
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Status Updated',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload(); // Reload untuk menampilkan status terbaru
-                                });
-                            } else {
-                                Swal.fire('Error', 'Failed to update status', 'error');
-                            }
-                        })
-                        .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
-                }
-
-                function updatePerPage() {
-
-                    const perPage = document.getElementById('per-page').value;
-                    window.location.href = {{ url()->current() }} ? per_page = $ {
-                        perPage
-                    };
-                }
-
-                document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('dutyOfficerModal');
-
-    // Ketika modal ditampilkan
-    modal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget; // Tombol yang memicu modal
-        const bookingId = button.getAttribute('data-booking-id');
-        const currentOfficer = button.getAttribute('data-current-officer');
-
-        // Isi data ke dalam modal form
-        modal.querySelector('#bookingId').value = bookingId;
-        modal.querySelector('#dutyOfficerSelect').value = currentOfficer || '';
-    });
-
-    // Tangani submit form
-    document.getElementById('dutyOfficerForm').addEventListener('submit', function (e) {
-        e.preventDefault(); // Cegah form submit default
-
-        // Ambil data dari form
-        const formData = new FormData(this);
-        const bookingId = formData.get('booking_id');
-        const officerId = formData.get('duty_officer_id');
-
-        // Kirim data ke server menggunakan fetch
-        fetch('/update-duty-officer', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                booking_id: bookingId,
-                duty_officer_id: officerId,
-            }),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    // Update nama Duty Officer di tabel
-                    const officerName = data.officer_name || '--';
-                    document.querySelector(`#officer-name-${bookingId}`).textContent = officerName;
-
-                    // Tutup modal
-                    const bsModal = bootstrap.Modal.getInstance(modal);
-                    bsModal.hide();
-                } else {
-                    alert(data.message || 'Gagal memperbarui Duty Officer.');
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat mengirim data.');
-            });
-    });
-});
-
-
-            </script>
         </div>
+
+        <!-- JavaScript for Updating Booking Status -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Ambil semua tombol dengan atribut data-bs-target="#dutyOfficerModal"
+                const modalButtons = document.querySelectorAll('[data-bs-target="#dutyOfficerModal"]');
+
+                modalButtons.forEach(button => {
+                    button.addEventListener('click', function () {
+                        // Ambil booking ID dari data attribute tombol
+                        const bookingId = this.getAttribute('data-booking-id');
+                        // Cari input hidden di dalam modal
+                        const hiddenInput = document.getElementById('bookingId');
+                        if (hiddenInput) {
+                            hiddenInput.value = bookingId; // Set nilai booking ID
+                        }
+                    });
+                });
+            });
+            function updateStatus(bookingId, newStatus) {
+                fetch(`/bookings/${bookingId}/update-status`, { // Gunakan backticks untuk URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        status: newStatus
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data); // Log data untuk debugging
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Status Updated',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload(); // Reload untuk menampilkan status terbaru
+                            });
+                        } else {
+                            Swal.fire('Error', 'Failed to update status', 'error');
+                        }
+                    })
+                    .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
+            }
+
+            function updatePerPage() {
+                const perPage = document.getElementById('per-page').value;
+                const currentUrl = "{{ url()->current() }}";
+                window.location.href = `${currentUrl}?per_page=${perPage}`;
+            }
+
+
+        </script>
 </body>
 
 </html>

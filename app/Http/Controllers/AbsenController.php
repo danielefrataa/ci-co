@@ -7,70 +7,124 @@ use App\Models\Absen;
 use App\Models\PeminjamanBarang;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Carbon\Carbon;
 
 class AbsenController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
 
+    // Proses input kode booking
     public function store(Request $request)
     {
         // Validasi input
         $request->validate([
             'id_booking' => 'required|string',
         ]);
-
+    
         $id_booking = strtolower(trim($request->id_booking));
-
-        // Panggil API
-        $apiUrl = "https://event.mcc.or.id/api/event?status=booked";
-        $response = Http::withHeaders([
-            'X-API-KEY' => $this->apiKey,
-        ])->withoutVerifying()->get($apiUrl);
-
-        if (!$response->successful()) {
-            return redirect('/')->with('gagal', 'Gagal mengambil data booking dari API.');
-        }
-
-        // Ambil data booking berdasarkan 'booking_code'
-        $bookingData = collect($response->json()['data'])->firstWhere('booking_code', $id_booking);
-
-        if (!$bookingData) {
-            return redirect('/')->with('gagal', 'Booking tidak ditemukan.');
-        }
-
-        // Log data untuk debugging
-        Log::info('Data Booking dari API: ', $bookingData);
-
-        // Cek apakah user sudah check-in
-        $absen = Absen::where('id_booking', $id_booking)->first();
-
-        if ($absen) {
-            if ($absen->status == 'Check-in') {
-                return redirect('/')->with('gagal', 'Anda sudah check-in sebelumnya.');
+        Log::info('Kode Booking Diterima: ' . $id_booking);
+    
+        // Inisialisasi variabel untuk API
+        $today = Carbon::now()->toDateString(); // Format: 2024-11-19
+        Carbon::setLocale('id');
+        $allBookings = collect();
+        $page = 1;
+        $maxPages = 2; // Batasi maksimal 2 halaman untuk mencegah infinite loop
+    
+        // Iterasi API untuk mengambil semua data
+        do {
+            Log::info("Mengakses halaman: {$page}");
+    
+            $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
+            $response = Http::withHeaders([
+                'X-API-KEY' => $this->apiKey,
+            ])->withoutVerifying()->get($url);
+    
+            if ($response->successful()) {
+                $data = collect($response->json()['data'] ?? []);
+                $allBookings = $allBookings->merge($data);
+                $page++;
+            } else {
+                Log::error("Gagal mengambil data dari halaman: {$page} dengan status: {$response->status()}");
+                Log::error('Error accessing API: ' . $response->body());  // Log respons lengkap untuk debugging
+                return redirect()->route('inputkode.show')->with('gagal', 'Gagal mengambil data dari API.');
             }
-
-            $absen->update([
-                'status' => 'Check-in',
-                'tanggal' => now()->toDateString(),
-            ]);
-        } else {
-            Absen::create([
-                'id_booking' => $id_booking,
-                'tanggal' => now()->toDateString(),
-                'status' => 'Check-in',
-            ]);
+    
+        } while ($data->isNotEmpty() && $page <= $maxPages);
+    
+        // Cari booking berdasarkan kode_booking
+        $bookingData = $allBookings->first(function ($item) use ($id_booking) {
+            return strtolower($item['booking_code']) === $id_booking;
+        });
+    
+        if (!$bookingData) {
+            Log::warning('Booking tidak ditemukan untuk kode: ' . $id_booking);
+            return redirect()->route('dashboard')->with('gagal', 'Booking tidak ditemukan.');
         }
-
-        // Simpan kode_booking ke sesi
-        $request->session()->put('kode_booking', $id_booking);
-
-        // Cek apakah ada peminjaman barang
-        $peminjaman = PeminjamanBarang::where('kode_booking', $id_booking)->first();
-
-        return redirect()->route('booking.details', ['kode_booking' => $id_booking])
-            ->with('success', 'Check-in berhasil.');
+    
+        Log::info('Data Booking ditemukan: ', $bookingData);
+    
+        // Cek apakah booking sudah check-in
+        $checkin = \App\Models\Absen::where('id_booking', $id_booking)->first();
+    
+        if ($checkin) {
+            // Jika sudah check-in, tampilkan pesan dan berhenti
+            return redirect()->route('dashboard')->with('gagal', 'Anda sudah melakukan check-in dengan kode booking ini.');
+        }
+    
+        // Format tanggal dan hari dari API
+        $apiBookingDate = Carbon::parse($bookingData['date'] ?? '');
+        $formattedDate = $apiBookingDate->toDateString();  // Format tanggal YYYY-MM-DD
+        $dayOfWeek = $apiBookingDate->isoFormat('dddd');  // Nama hari dalam minggu (misalnya: Senin, Selasa, dll)
+    
+        // Ambil data booking_items yang terkait dengan booking_id dan tanggal yang sesuai
+        $bookingItems = collect($bookingData['booking_items'] ?? [])
+            ->filter(function ($item) use ($formattedDate) {
+                return isset($item['booking_date']) && $item['booking_date'] === $formattedDate;
+            });
+    
+        if ($bookingItems->isEmpty()) {
+            Log::warning('Tidak ada booking_items untuk kode: ' . $id_booking);
+            return redirect()->route('inputkode.show')->with('gagal', 'Tidak ada item booking untuk tanggal ini.');
+        }
+    
+        Log::info('Data Booking Items ditemukan: ', $bookingItems->toArray());
+    
+        // Pemrosesan detail booking
+        try {
+            $ruangan = collect($bookingData['ruangans'] ?? [])->first();
+    
+            if (!$ruangan) {
+                return redirect()->route('inputkode.show')->with('gagal', 'Data ruangan tidak ditemukan.');
+            }
+    
+            $startTime = $bookingItems->min('booking_hour');
+            $endTime = $bookingItems->max('booking_hour');
+    
+            $roomDetails = [
+                'room_name' => $ruangan['name'] ?? 'Tidak Diketahui',
+                'room_floor' => $ruangan['floor'] ?? 'Tidak Diketahui',
+                'room_description' => $ruangan['description'] ?? '',
+                'room_facility' => $ruangan['facility'] ?? '',
+            ];
+    
+            // Tampilkan halaman booking.details
+            return view('booking.details', [
+                'booking' => $bookingData,
+                'roomDetails' => $roomDetails,
+                'bookingItems' => $bookingItems,
+                'formattedDate' => $formattedDate,
+                'dayOfWeek' => $dayOfWeek,
+                'startTime' => $startTime ? Carbon::createFromTime($startTime)->format('H:i') : null,
+                'endTime' => $endTime ? Carbon::createFromTime($endTime)->format('H:i') : null,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Kesalahan saat memproses data booking: ' . $e->getMessage());
+            return redirect()->route('inputkode.show')->with('gagal', 'Terjadi kesalahan saat memproses data booking.');
+        }
     }
-
+    
+    // Fungsi check-in dengan form
     public function checkinstore(Request $request)
     {
         // Validasi input form check-in
@@ -83,22 +137,41 @@ class AbsenController extends Controller
         // Ambil kode_booking dari sesi
         $kode_booking = $request->session()->get('kode_booking');
         // Pastikan booking ada di API
-        $apiUrl = "https://event.mcc.or.id/api/event?status=booked";
-        $response = Http::withHeaders([
-            'X-API-KEY' => $this->apiKey,
-        ])->withoutVerifying()->get($apiUrl);
+        $today = Carbon::now()->toDateString();
+        $allBookings = collect();
+        $page = 1;
+        $maxPages = 2; // Batasi maksimal 2 halaman untuk mencegah infinite loop
 
-        if (!$response->successful()) {
-            return redirect('/')->with('gagal', 'Gagal mengambil data booking dari API.');
-        }
+        // Iterasi API untuk mengambil semua data
+        do {
+            Log::info("Mengakses halaman: {$page}");
 
-        $bookingData = collect($response->json()['data'])->firstWhere('booking_code', $kode_booking);
+            $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
+            $response = Http::withHeaders([
+                'X-API-KEY' => $this->apiKey,
+            ])->withoutVerifying()->get($url);
+
+            if ($response->successful()) {
+                $data = collect($response->json()['data'] ?? []);
+                $allBookings = $allBookings->merge($data);
+                $page++;
+            } else {
+                Log::error("Gagal mengambil data dari halaman: {$page} dengan status: {$response->status()}");
+                Log::error('Error accessing API: ' . $response->body());  // Log respons lengkap untuk debugging
+                return redirect()->route('inputkode.show')->with('gagal', 'Gagal mengambil data dari API.');
+            }
+
+        } while ($data->isNotEmpty() && $page <= $maxPages);
+
+        $bookingData = $allBookings->first(function ($item) use ($kode_booking) {
+            return strtolower($item['booking_code']) === $kode_booking;
+        });
 
         if (!$bookingData) {
             return redirect('/')->with('gagal', 'Booking tidak ditemukan.');
         }
 
-        // Cek apakah absen sudah ada
+        // Simpan atau update data check-in
         $absen = Absen::where('id_booking', $kode_booking)->first();
 
         if (!$absen) {
@@ -124,10 +197,8 @@ class AbsenController extends Controller
         $peminjaman = PeminjamanBarang::where('kode_booking', $kode_booking)->first();
 
         if ($peminjaman) {
-            Log::info('Peminjaman ditemukan: ', $peminjaman->toArray());
             return redirect()->route('peminjaman.show', $peminjaman->kode_booking);
         } else {
-            Log::info('Tidak ada peminjaman untuk kode_booking: ' . $kode_booking);
             return redirect()->route('dashboard')->with('success', 'Check-in berhasil tanpa peminjaman barang.');
         }
     }

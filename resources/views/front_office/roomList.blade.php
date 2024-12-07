@@ -155,12 +155,12 @@ use Carbon\Carbon;
                             <span class="fw-bold mt-1">{{ $room['name'] }}</span>
                             @php
                             $status = $room['status'];
-                            if ($status == 'Booked') {
-                            $status = 'dipesan';
-                            } elseif ($status == 'Check-out') {
+                            if($status == 'Check-out') {
                             $status = 'kosong';
                             } elseif ($status == 'Check-in') {
                             $status = 'sedang digunakan';
+                            } else {
+                            $status = 'dipesan';
                             }
                             @endphp
                             <span class="room-status  shadow-sm" value="{{ $status }}">{{ $status }}</span>
