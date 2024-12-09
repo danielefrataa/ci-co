@@ -180,7 +180,6 @@ use Carbon\Carbon;
                     </div>
                 </div>
                 @endforeach
-
             </div>
         </div>
 

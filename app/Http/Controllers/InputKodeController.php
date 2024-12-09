@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Absen;
@@ -9,7 +8,6 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PeminjamanBarang;
-
 class InputKodeController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
@@ -30,6 +28,7 @@ class InputKodeController extends Controller
 
     $id_booking = strtolower(trim($request->id_booking));
     Log::info('Kode Booking Diterima: ' . $id_booking);
+    
 
     // Pengecekan apakah kode booking sudah check-in
     $checkIn = \App\Models\Absen::where('id_booking', $id_booking)->first(); // Sesuaikan dengan model dan kolom yang digunakan untuk check-in
@@ -44,28 +43,48 @@ class InputKodeController extends Controller
     Carbon::setLocale('id');
     $allBookings = collect();
     $page = 1;
-    $maxPages = 2; // Batasi maksimal 2 halaman untuk mencegah infinite loop
+    $maxPages = rand(2, 5); // Atur secara acak antara 3 hingga 5 halaman
 
     // Iterasi API untuk mengambil semua data
     do {
         Log::info("Mengakses halaman: {$page}");
+        Log::info('Tanggal yang digunakan untuk API: ' . $today);
+        Log::info('Waktu sekarang: ' . Carbon::now()->toDateTimeString());
 
         $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
         $response = Http::withHeaders([
             'X-API-KEY' => $this->apiKey,
         ])->withoutVerifying()->get($url);
-
+    
         if ($response->successful()) {
             $data = collect($response->json()['data'] ?? []);
             $allBookings = $allBookings->merge($data);
+    
+            // Periksa apakah kode booking ditemukan
+            $bookingData = $data->first(function ($item) use ($id_booking) {
+                return strtolower($item['booking_code']) === $id_booking;
+            });
+    
+            if ($bookingData) {
+                Log::info('Data Booking ditemukan pada halaman: ' . $page);
+                break; // Hentikan iterasi jika data ditemukan
+            }
+    
             $page++;
         } else {
             Log::error("Gagal mengambil data dari halaman: {$page} dengan status: {$response->status()}");
-            Log::error('Error accessing API: ' . $response->body());  // Log respons lengkap untuk debugging
+            Log::error('Error accessing API: ' . $response->body());
+    
+            // Jika respons 400 dengan pesan "data not found", anggap data habis
+            if ($response->status() === 400 && str_contains($response->body(), '"data not found"')) {
+                break; // Hentikan iterasi jika data tidak ditemukan
+            }
+    
+            // Jika error lainnya, kembalikan error
             return redirect()->route('inputkode.show')->with('gagal', 'Gagal mengambil data dari API.');
         }
-
-    } while ($data->isNotEmpty() && $page <= $maxPages);
+    } while ($page <= $maxPages);
+    
 
     // Cari booking berdasarkan kode_booking
     $bookingData = $allBookings->first(function ($item) use ($id_booking) {
@@ -181,16 +200,28 @@ class InputKodeController extends Controller
             return back()->with('error', 'Booking tidak ditemukan.');
         }
 
-        // Simpan data check-in ke tabel Absen
-        Absen::create([
-            'id_booking' => $kode_booking,
-            'tanggal' => $today,
-            'name' => $request->input('name'),
-            'phone' => $request->input('phone'),
-            'signature' => $signatureData,
-            'status' => 'Check-in',
-            'ruangan' => $booking['ruangans'][0]['name'], // Jika ada ruangan terkait
-        ]);
+        $validRuanganIds = collect($booking['booking_items'] ?? [])
+        ->filter(function ($item) use ($today) {
+            return isset($item['booking_date'], $item['ruangan_id']) && $item['booking_date'] === $today;
+        })
+        ->pluck('ruangan_id') // Hanya ambil ruangan_id
+        ->unique(); // Pastikan tidak ada duplikasi
+    // 2. Loop melalui ruangans dan cocokkan dengan validRuanganIds
+    foreach ($booking['ruangans'] as $ruangan) {
+        if ($validRuanganIds->contains($ruangan['id'])) {
+            // 3. Jika cocok, insert ke database
+            Absen::create([
+                'id_booking' => $kode_booking, // ID booking
+                'tanggal' => $today,           // Tanggal hari ini
+                'name' => $request->input('name'),
+                'phone' => $request->input('phone'),
+                'signature' => $signatureData,
+                'status' => 'Check-in',
+                'ruangan' => $ruangan['name'], // Nama ruangan
+                'lantai' => $ruangan['floor'], // Lantai ruangan
+            ]);
+        }
+    }
 
         Log::info("Check-in berhasil untuk kode: {$kode_booking} pada tanggal: {$today}");
 

@@ -6,6 +6,7 @@ use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class RoomListController extends Controller
@@ -61,53 +62,34 @@ class RoomListController extends Controller
             });
 
         // Initialize processed counts
-        $processedCounts = $request->session()->get('processedCounts', [
-            'day' => Carbon::now()->toDateString(),
-            'counts' => [],
-        ]);
-
-        $currentDay = Carbon::now()->toDateString();
-
-        // Reset counts if the day has changed
-        if ($processedCounts['day'] !== $currentDay) {
-            $processedCounts['day'] = $currentDay;
-            $processedCounts['counts'] = [];
-        }
-
-        $rooms = $allRooms->map(function ($room) use ($timeRanges, $dbStatuses, &$processedCounts) {
+        $rooms = $allRooms->map(function ($room) use ($timeRanges, $dbStatuses) {
             $roomId = $room['id'];
+            $cacheKey = "processed_count_{$roomId}";
 
-            // Ensure count is initialized
-            if (!isset($processedCounts['counts'][$roomId])) {
-                $processedCounts['counts'][$roomId] = 0;
-            }
+            // Get the current count from the cache
+            $currentCount = Cache::get($cacheKey, 0);
 
             $key = strtolower(trim("{$room['name']}|{$room['floor']}"));
             $status = $dbStatuses->get($key, 'unknown');
-
             // Get all bookings for this room
             $allBookings = $timeRanges
                 ->where('ruangan_id', $roomId)
                 ->sortBy('start_time')
                 ->values();
-
             if ($status === 'Check-out') {
-                // Get the next booking after the current count
-                $currentCount = $processedCounts['counts'][$roomId];  // Store the current count temporarily
-                $nextBooking = $allBookings->get($currentCount);
-
-                if ($nextBooking) {
-                    $processedCounts['counts'][$roomId]++;
-                    Log::info("Room ID: {$roomId} - Next Booking Found, Incremented to: {$processedCounts['counts'][$roomId]}");
-
-                    return [
-                        'name' => $room['name'],
-                        'floor' => $room['floor'],
-                        'status' => 'unknown',
-                        'start' => $nextBooking['start_time'],
-                        'end' => $nextBooking['end_time'],
-                        'booking_code' => $nextBooking['booking_code'] ?? null,
-                    ];
+                Cache::put($cacheKey, ++$currentCount);
+                if ($currentCount < $allBookings->count()) {
+                    $nextBooking = $allBookings->get($currentCount);
+                    if ($nextBooking) {
+                        return [
+                            'name' => $room['name'],
+                            'floor' => $room['floor'],
+                            'status' => 'unknown',
+                            'start' => $nextBooking['start_time'],
+                            'end' => $nextBooking['end_time'],
+                            'booking_code' => $nextBooking['booking_code'] ?? null,
+                        ];
+                    }
                 } else {
                     return [
                         'name' => $room['name'],
@@ -120,8 +102,7 @@ class RoomListController extends Controller
                 }
             } else {
                 // For Check-in or unknown, get the current booking
-                $currentBooking = $allBookings->get($processedCounts['counts'][$roomId]);
-
+                $currentBooking = $allBookings->get($currentCount);
                 if ($currentBooking) {
                     return [
                         'name' => $room['name'],
@@ -131,6 +112,7 @@ class RoomListController extends Controller
                         'end' => $currentBooking['end_time'],
                         'booking_code' => $currentBooking['booking_code'] ?? null,
                     ];
+                    
                 } else {
                     return [
                         'name' => $room['name'],
@@ -143,12 +125,9 @@ class RoomListController extends Controller
                 }
             }
         });
-        $request->session()->put('processedCounts', $processedCounts);
+
         return view('front_office.roomList', compact('rooms'));
     }
-
-
-
 
     public function filter(Request $request)
     {
@@ -182,26 +161,13 @@ class RoomListController extends Controller
                 return strtolower($room['floor']) === $lantai;
             });
         }
-        $processedCounts = $request->session()->get('processedCounts', [
-            'day' => Carbon::now()->toDateString(),
-            'counts' => [],
-        ]);
-
-        $currentDay = Carbon::now()->toDateString();
-
         // Reset counts if the day has changed
-        if ($processedCounts['day'] !== $currentDay) {
-            $processedCounts['day'] = $currentDay;
-            $processedCounts['counts'] = [];
-        }
-
-        $rooms = $apiRooms->map(function ($room) use ($timeRanges, $dbStatuses, &$processedCounts) {
+        $rooms = $apiRooms->map(function ($room) use ($timeRanges, $dbStatuses) {
             $roomId = $room['id'];
+            $cacheKey = "processed_count_{$roomId}";
 
-            // Ensure count is initialized
-            if (!isset($processedCounts['counts'][$roomId])) {
-                $processedCounts['counts'][$roomId] = 0;
-            }
+            // Get the current count from the cache
+            $currentCount = Cache::get($cacheKey, 0);
 
             $key = strtolower(trim("{$room['name']}|{$room['floor']}"));
             $status = $dbStatuses->get($key, 'unknown');
@@ -213,23 +179,19 @@ class RoomListController extends Controller
                 ->values();
 
             if ($status === 'Check-out') {
-                
-                // Get the next booking after the current count
-                $currentCount = $processedCounts['counts'][$roomId];  // Store the current count temporarily
-                $nextBooking = $allBookings->get($currentCount);
-
-                if ($nextBooking) {
-                    $processedCounts['counts'][$roomId]++;
-                    Log::info("Room ID: {$roomId} - Next Booking Found, Incremented to: {$processedCounts['counts'][$roomId]}");
-                    return [
-                        'name' => $room['name'],
-                        'floor' => $room['floor'],
-                        'status' => 'unknown',
-                        'start' => $nextBooking['start_time'],
-                        'end' => $nextBooking['end_time'],
-                        'booking_code' => $nextBooking['booking_code'] ?? null,
-                    ];
-
+                Cache::put($cacheKey, ++$currentCount);
+                if ($currentCount < $allBookings->count()) {
+                    $nextBooking = $allBookings->get($currentCount);
+                    if ($nextBooking) {
+                        return [
+                            'name' => $room['name'],
+                            'floor' => $room['floor'],
+                            'status' => 'unknown',
+                            'start' => $nextBooking['start_time'],
+                            'end' => $nextBooking['end_time'],
+                            'booking_code' => $nextBooking['booking_code'] ?? null,
+                        ];
+                    }
                 } else {
                     return [
                         'name' => $room['name'],
@@ -242,8 +204,7 @@ class RoomListController extends Controller
                 }
             } else {
                 // For Check-in or unknown, get the current booking
-                $currentBooking = $allBookings->get($processedCounts['counts'][$roomId]);
-
+                $currentBooking = $allBookings->get($currentCount);
                 if ($currentBooking) {
                     return [
                         'name' => $room['name'],
@@ -253,6 +214,7 @@ class RoomListController extends Controller
                         'end' => $currentBooking['end_time'],
                         'booking_code' => $currentBooking['booking_code'] ?? null,
                     ];
+                    
                 } else {
                     return [
                         'name' => $room['name'],
@@ -265,8 +227,6 @@ class RoomListController extends Controller
                 }
             }
         });
-        $request->session()->put('processedCounts', $processedCounts);
-        Log::info('Final Processed Counts:', $processedCounts);
 
 
         if ($request->filled('status')) {
@@ -294,13 +254,18 @@ class RoomListController extends Controller
     }
 
 
+
     private function getBookingTimes()
     {
         $allBookings = $this->fetchApiData('bookings');
 
         return $allBookings->flatMap(function ($item) {
             // Filter booking items by today's date
-            $bookingItems = collect($item['booking_items'] ?? [])->sortBy('booking_hour');
+            $today = Carbon::now()->toDateString();
+
+            $bookingItems = collect($item['booking_items'] ?? [])
+                ->filter(fn($bookingItem) => $bookingItem['booking_date'] === $today)
+                ->sortBy('booking_hour');
 
             $ruangans = collect($item['ruangans'] ?? []);
 
