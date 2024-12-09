@@ -129,9 +129,9 @@ use Carbon\Carbon;
                 <select name="status" class="form-select my-5 shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
                     <option value="">Semua Status</option>
                     <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Kosong</option>
-                    <option value="Booked" {{ request('status') == 'Booked' ? 'selected' : '' }}>Dipesan</option>
+                    <option value="unknown" {{ request('status') == 'unknown' ? 'selected' : '' }}>Dipesan</option>
                     <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Sedang Digunakan</option>
-                    <option value="unknown" {{ request('status') == 'unknown' ? 'selected' : '' }}>Unknown</option>
+
                 </select>
 
             </form>
@@ -155,12 +155,12 @@ use Carbon\Carbon;
                             <span class="fw-bold mt-1">{{ $room['name'] }}</span>
                             @php
                             $status = $room['status'];
-                            if ($status == 'Booked') {
-                            $status = 'dipesan';
-                            } elseif ($status == 'Check-out') {
+                            if($status == 'Check-out') {
                             $status = 'kosong';
                             } elseif ($status == 'Check-in') {
                             $status = 'sedang digunakan';
+                            } else {
+                            $status = 'dipesan';
                             }
                             @endphp
                             <span class="room-status  shadow-sm" value="{{ $status }}">{{ $status }}</span>
@@ -168,15 +168,20 @@ use Carbon\Carbon;
 
                         <p>{{ $room['floor'] }}</p>
                         <p>
-                            @if (!empty($room['start_time']) && !empty($room['end_time']))
-                            {{ $room['start_time'] }} - {{ $room['end_time'] }}
+                            @if ($room['status'] == 'Check-out')
+
+                            @elseif (!empty($room['start']) && !empty($room['end']))
+                            {{ $room['start'] }} - {{ $room['end'] }}
+
                             @else
-                            Not Available
+
                             @endif
                         </p>
                     </div>
                 </div>
                 @endforeach
+                    <?php 
+                    dd($room); ?>
             </div>
         </div>
 

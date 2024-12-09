@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 
@@ -11,175 +12,315 @@ class RoomListController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
 
-    public function getAllApiData()
+    private function fetchApiData($apiType)
     {
         $allData = collect();
         $page = 1;
 
         do {
-            $response = Http::withHeaders([
-                'X-API-KEY' => $this->apiKey,
-            ])->withoutVerifying()->get("https://event.mcc.or.id/api/ruangan?page={$page}");
-
-            if ($response->successful()) {
-                $data = collect($response->json()['data'] ?? []);
-                $allData = $allData->merge($data);
-                $page++;
+            if ($apiType === 'rooms') {
+                $url = "https://event.mcc.or.id/api/ruangan?page={$page}";
+            } elseif ($apiType === 'bookings') {
+                $today = Carbon::now()->toDateString();
+                $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
             } else {
-                break;
             }
-        } while ($data->isNotEmpty());
 
-        return collect($allData);
-    }
-
-    public function index()
-    {
-        // Fetch all data from API
-        $apiRooms = $this->getAllApiData();
-
-        // Fetch booking times grouped by room
-        $timeRanges = $this->getBookingTimes();
-
-        // Fetch status from database
-        $dbStatuses = Room::all()->pluck('status', 'nama_ruangan');
-
-        // Combine API data with database status and booking times
-        $rooms = $apiRooms->map(function ($room) use ($dbStatuses, $timeRanges) {
-            $bookingTime = $timeRanges[$room['name']] ?? ['start_time' => null, 'end_time' => null];
-            return [
-                'name' => $room['name'],
-                'floor' => $room['floor'],
-                'status' => $dbStatuses[$room['name']] ?? 'Unknown',
-                'start_time' => $bookingTime['start_time'],
-                'end_time' => $bookingTime['end_time'],
-            ];
-        });
-
-        // Pass data to view
-        return view('front_office.roomList', compact('rooms'));
-    }
-
-    public function filter(Request $request)
-    {
-        // Fetch all data from API
-        $apiRooms = $this->getAllApiData();
-
-        // Remove duplicates based on name and floor
-        $apiRooms = $apiRooms->unique(function ($room) {
-            return $room['name'] . $room['floor'];
-        });
-
-        // Fetch booking times grouped by room
-        $timeRanges = $this->getBookingTimes();
-
-        // Fetch status from database
-        $dbStatuses = Room::all()->pluck('status', 'nama_ruangan');
-
-        // Check if search filter has been applied
-        $isSearchApplied = $request->has('search') && $request->search != '';
-
-        // Apply search filter
-        if ($isSearchApplied) {
-            $search = $request->search;
-
-            $apiRooms = $apiRooms->filter(function ($room) use ($search) {
-                return stripos($room['name'], $search) !== false || stripos($room['floor'], $search) !== false;
-            });
-        }
-
-        // Apply lantai (floor) filter
-        if ($request->has('lantai') && $request->lantai != '') {
-            $lantai = $request->lantai;
-
-            $apiRooms = $apiRooms->filter(function ($room) use ($lantai) {
-                return stripos($room['floor'], $lantai) !== false;
-            });
-        }
-
-        // Apply status filter
-        if ($request->has('status') && $request->status != '') {
-            $statusFilter = $request->status;
-
-            $apiRooms = $apiRooms->filter(function ($room) use ($dbStatuses, $statusFilter) {
-                $status = $dbStatuses[$room['name']] ?? 'Unknown';
-                return stripos($status, $statusFilter) !== false;
-            });
-        }
-
-        // Combine API data with database status and booking times
-        $rooms = $apiRooms->map(function ($room) use ($dbStatuses, $timeRanges) {
-            $bookingTime = $timeRanges[$room['name']] ?? ['start_time' => null, 'end_time' => null];
-            return [
-                'name' => $room['name'],
-                'floor' => $room['floor'],
-                'status' => $dbStatuses[$room['name']] ?? 'Unknown',
-                'start_time' => $bookingTime['start_time'],
-                'end_time' => $bookingTime['end_time'],
-            ];
-        });
-
-        // If search is applied, reset page to 1
-        $currentPage = $isSearchApplied ? 1 : $request->get('page', 1);
-
-        // Pagination logic
-        $perPage = $request->get('per_page', 9); // Items per page from query or default to 9
-        $totalPages = ceil($rooms->count() / $perPage); // Total number of pages
-        $paginatedRooms = $rooms->forPage($currentPage, $perPage); // Paginate rooms
-
-        // Pass data to view
-        return view('front_office.roomList', [
-            'rooms' => $paginatedRooms,
-            'totalPages' => $totalPages,
-            'currentPage' => $currentPage,
-            'perPage' => $perPage,
-            'lantai' => $request->lantai,
-            'status' => $request->status,
-        ]);
-    }
-
-    private function getBookingTimes()
-    {
-        $today = Carbon::now()->toDateString(); // Today's date
-        $allBookings = collect();
-        $page = 1;
-        $maxPages = 10;
-
-        do {
-            $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
             $response = Http::withHeaders([
                 'X-API-KEY' => $this->apiKey,
             ])->withoutVerifying()->get($url);
 
             if ($response->successful()) {
-                $data = collect($response->json()['data'] ?? []);
-                $allBookings = $allBookings->merge($data);
+                $data = collect($response->json('data') ?? []);
+                $allData = $allData->merge($data);
                 $page++;
             } else {
-                report('Error accessing API: ' . $response->status());
+                report("Error accessing {$apiType} API: " . $response->status());
                 break;
             }
-        } while ($data->isNotEmpty() && $page <= $maxPages);
+        } while ($data->isNotEmpty());
 
-        // Map booking times to rooms
+        return $allData;
+    }
+
+    public function index($request)
+    {
+        $allRooms = $this->fetchApiData('rooms');
+        $timeRanges = $this->getBookingTimes();
+
+        // Database statuses, keyed by room
+        $dbStatuses = Room::query()
+            ->select('ruangan', 'lantai', 'status')
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->unique(function ($room) {
+                return strtolower(trim("{$room->ruangan}|{$room->lantai}"));
+            })
+            ->mapWithKeys(function ($room) {
+                return [strtolower(trim("{$room->ruangan}|{$room->lantai}")) => $room->status];
+            });
+
+        // Initialize processed counts
+        $processedCounts = $request->session()->get('processedCounts', [
+            'day' => Carbon::now()->toDateString(),
+            'counts' => [],
+        ]);
+
+        $currentDay = Carbon::now()->toDateString();
+
+        // Reset counts if the day has changed
+        if ($processedCounts['day'] !== $currentDay) {
+            $processedCounts['day'] = $currentDay;
+            $processedCounts['counts'] = [];
+        }
+
+        $rooms = $allRooms->map(function ($room) use ($timeRanges, $dbStatuses, &$processedCounts) {
+            $roomId = $room['id'];
+
+            // Ensure count is initialized
+            if (!isset($processedCounts['counts'][$roomId])) {
+                $processedCounts['counts'][$roomId] = 0;
+            }
+
+            $key = strtolower(trim("{$room['name']}|{$room['floor']}"));
+            $status = $dbStatuses->get($key, 'unknown');
+
+            // Get all bookings for this room
+            $allBookings = $timeRanges
+                ->where('ruangan_id', $roomId)
+                ->sortBy('start_time')
+                ->values();
+
+            if ($status === 'Check-out') {
+                // Get the next booking after the current count
+                $currentCount = $processedCounts['counts'][$roomId];  // Store the current count temporarily
+                $nextBooking = $allBookings->get($currentCount);
+
+                if ($nextBooking) {
+                    $processedCounts['counts'][$roomId]++;
+                    Log::info("Room ID: {$roomId} - Next Booking Found, Incremented to: {$processedCounts['counts'][$roomId]}");
+
+                    return [
+                        'name' => $room['name'],
+                        'floor' => $room['floor'],
+                        'status' => 'unknown',
+                        'start' => $nextBooking['start_time'],
+                        'end' => $nextBooking['end_time'],
+                        'booking_code' => $nextBooking['booking_code'] ?? null,
+                    ];
+                } else {
+                    return [
+                        'name' => $room['name'],
+                        'floor' => $room['floor'],
+                        'status' => $status,
+                        'start' => null,
+                        'end' => null,
+                        'booking_code' => null,
+                    ];
+                }
+            } else {
+                // For Check-in or unknown, get the current booking
+                $currentBooking = $allBookings->get($processedCounts['counts'][$roomId]);
+
+                if ($currentBooking) {
+                    return [
+                        'name' => $room['name'],
+                        'floor' => $room['floor'],
+                        'status' => $status,
+                        'start' => $currentBooking['start_time'],
+                        'end' => $currentBooking['end_time'],
+                        'booking_code' => $currentBooking['booking_code'] ?? null,
+                    ];
+                } else {
+                    return [
+                        'name' => $room['name'],
+                        'floor' => $room['floor'],
+                        'status' => $status,
+                        'start' => null,
+                        'end' => null,
+                        'booking_code' => null,
+                    ];
+                }
+            }
+        });
+        $request->session()->put('processedCounts', $processedCounts);
+        return view('front_office.roomList', compact('rooms'));
+    }
+
+
+
+
+    public function filter(Request $request)
+    {
+        // Fetch data from the API
+        $apiRooms = $this->fetchApiData('rooms');
+        $timeRanges = $this->getBookingTimes();
+
+        // Fetch room statuses from the database
+        $dbStatuses = Room::query()
+            ->select('ruangan', 'lantai', 'status')
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->unique(function ($room) {
+                return strtolower(trim("{$room->ruangan}|{$room->lantai}"));
+            })
+            ->mapWithKeys(function ($room) {
+                return [strtolower(trim("{$room->ruangan}|{$room->lantai}")) => $room->status];
+            });
+
+        // Apply filters
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $apiRooms = $apiRooms->filter(function ($room) use ($search) {
+                return stripos(strtolower($room['name']), $search) !== false || stripos(strtolower($room['floor']), $search) !== false;
+            });
+        }
+
+        if ($request->filled('lantai')) {
+            $lantai = strtolower($request->lantai);
+            $apiRooms = $apiRooms->filter(function ($room) use ($lantai) {
+                return strtolower($room['floor']) === $lantai;
+            });
+        }
+        $processedCounts = $request->session()->get('processedCounts', [
+            'day' => Carbon::now()->toDateString(),
+            'counts' => [],
+        ]);
+
+        $currentDay = Carbon::now()->toDateString();
+
+        // Reset counts if the day has changed
+        if ($processedCounts['day'] !== $currentDay) {
+            $processedCounts['day'] = $currentDay;
+            $processedCounts['counts'] = [];
+        }
+
+        $rooms = $apiRooms->map(function ($room) use ($timeRanges, $dbStatuses, &$processedCounts) {
+            $roomId = $room['id'];
+
+            // Ensure count is initialized
+            if (!isset($processedCounts['counts'][$roomId])) {
+                $processedCounts['counts'][$roomId] = 0;
+            }
+
+            $key = strtolower(trim("{$room['name']}|{$room['floor']}"));
+            $status = $dbStatuses->get($key, 'unknown');
+
+            // Get all bookings for this room
+            $allBookings = $timeRanges
+                ->where('ruangan_id', $roomId)
+                ->sortBy('start_time')
+                ->values();
+
+            if ($status === 'Check-out') {
+                
+                // Get the next booking after the current count
+                $currentCount = $processedCounts['counts'][$roomId];  // Store the current count temporarily
+                $nextBooking = $allBookings->get($currentCount);
+
+                if ($nextBooking) {
+                    $processedCounts['counts'][$roomId]++;
+                    Log::info("Room ID: {$roomId} - Next Booking Found, Incremented to: {$processedCounts['counts'][$roomId]}");
+                    return [
+                        'name' => $room['name'],
+                        'floor' => $room['floor'],
+                        'status' => 'unknown',
+                        'start' => $nextBooking['start_time'],
+                        'end' => $nextBooking['end_time'],
+                        'booking_code' => $nextBooking['booking_code'] ?? null,
+                    ];
+
+                } else {
+                    return [
+                        'name' => $room['name'],
+                        'floor' => $room['floor'],
+                        'status' => $status,
+                        'start' => null,
+                        'end' => null,
+                        'booking_code' => null,
+                    ];
+                }
+            } else {
+                // For Check-in or unknown, get the current booking
+                $currentBooking = $allBookings->get($processedCounts['counts'][$roomId]);
+
+                if ($currentBooking) {
+                    return [
+                        'name' => $room['name'],
+                        'floor' => $room['floor'],
+                        'status' => $status,
+                        'start' => $currentBooking['start_time'],
+                        'end' => $currentBooking['end_time'],
+                        'booking_code' => $currentBooking['booking_code'] ?? null,
+                    ];
+                } else {
+                    return [
+                        'name' => $room['name'],
+                        'floor' => $room['floor'],
+                        'status' => $status,
+                        'start' => null,
+                        'end' => null,
+                        'booking_code' => null,
+                    ];
+                }
+            }
+        });
+        $request->session()->put('processedCounts', $processedCounts);
+        Log::info('Final Processed Counts:', $processedCounts);
+
+
+        if ($request->filled('status')) {
+            $statusFilter = strtolower($request->status);
+            $rooms = $rooms->filter(function ($room) use ($statusFilter) {
+
+                $status = strtolower($room['status']);
+                return $status === $statusFilter;
+            });
+        }
+        // Pagination
+        $perPage = $request->get('per_page', 9);
+        $currentPage = $request->get('page', 1);
+        $paginatedRooms = $rooms->forPage($currentPage, $perPage);
+
+        // Return the view with paginated results
+        return view('front_office.roomList', [
+            'rooms' => $paginatedRooms,
+            'currentPage' => $currentPage,
+            'perPage' => $perPage,
+            'totalPages' => ceil($rooms->count() / $perPage),
+            'lantai' => $request->lantai,
+            'status' => $request->status,
+        ]);
+    }
+
+
+    private function getBookingTimes()
+    {
+        $allBookings = $this->fetchApiData('bookings');
+
         return $allBookings->flatMap(function ($item) {
-            $bookingItems = collect($item['booking_items'] ?? []);
+            // Filter booking items by today's date
+            $bookingItems = collect($item['booking_items'] ?? [])->sortBy('booking_hour');
+
             $ruangans = collect($item['ruangans'] ?? []);
 
-            return $ruangans->mapWithKeys(function ($ruangan) use ($bookingItems) {
+            // Map and flip the keys to make ruangan_id the key
+            return $ruangans->mapWithKeys(function ($ruangan) use ($bookingItems, $item) {
                 $ruanganId = $ruangan['id'];
-                $ruanganName = $ruangan['name'];
 
-                // Filter bookings for this room
-                $roomBookings = $bookingItems->where('ruangan_id', $ruanganId);
+                // Calculate the start and end times
+                $startTime = $bookingItems->where('ruangan_id', $ruanganId)->min('booking_hour');
+                $endTime = $bookingItems->where('ruangan_id', $ruanganId)->max('booking_hour');
 
-                $startTime = $roomBookings->min('booking_hour');
-                $endTime = $roomBookings->max('booking_hour');
+                // Add booking_code only if booking_items exist
+                $bookingCode = $bookingItems->isNotEmpty() ? $item['booking_code'] ?? null : null;
 
                 return [
-                    $ruanganName => [
-                        'start_time' => $startTime !== null ? Carbon::createFromTime($startTime, 0)->format('H:i') : null,
-                        'end_time' => $endTime !== null ? Carbon::createFromTime($endTime, 0)->format('H:i') : null,
+                    $ruanganId => [
+                        'ruangan_id' => $ruanganId,
+                        'start_time' => $startTime !== null ? Carbon::createFromTime($startTime)->format('H:i') : null,
+                        'end_time' => $endTime !== null ? Carbon::createFromTime($endTime)->format('H:i') : null,
+                        'booking_code' => $bookingCode,
                     ],
                 ];
             });

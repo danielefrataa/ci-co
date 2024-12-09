@@ -6,21 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Room extends Model
 {
-    protected $table = 'roomlist';
+    protected $table = 'absen';
 
     protected $fillable = [
-        'nama_ruangan',
-        'lantai',
-        'waktu_mulai',
-        'waktu_selesai',
         'status',
+        'id_booking',
+        'ruangan',
+        'lantai'
     ];
 
 
-    public function bookingAbsen()
-    {
-        return $this->hasMany(Booking::class, 'room_id', 'id');
-    }
+
     // Accessor to get combined data
 
 }
