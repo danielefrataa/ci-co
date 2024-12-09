@@ -23,5 +23,9 @@ class DutyOfficer extends Model
 
     // Jika tabel tidak memiliki kolom timestamps (created_at, updated_at)
     public $timestamps = false;
+    public function absens()
+    {
+        return $this->hasMany(Absen::class, 'duty_officer', 'nama_do'); // Menggunakan 'duty_officer' dan 'nama_do'
+    }
 }
     

@@ -17,6 +17,10 @@
         body {
             font-family: 'Montserrat', sans-serif;
         }
+        .btn[disabled] {
+    pointer-events: none;
+    opacity: 0.6;
+}
 
         .main-card {
             border-radius: 10px;
@@ -106,6 +110,7 @@
         .modal-footer {
             border: none;
         }
+        
     </style>
 </head>
 
@@ -225,8 +230,8 @@
 
    <!-- Tombol Setuju -->
    <div class="text-center mt-4 mb-4">
-        <a href="{{ route('dashboard') }}" class="btn btn-primary">Setuju</a>
-    </div>
+   <a href="{{ route('dashboard') }}" class="btn btn-primary" id="agreeButton" disabled>Setuju</a>
+   </div>
 
     <!-- Modal Syarat dan Ketentuan -->
     <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
@@ -260,15 +265,40 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 
     <script>
-        // Menangani acara saat checkbox diubah
-        document.getElementById('agree').addEventListener('change', function () {
-            if (this.checked) {
-                // Tampilkan modal saat checkbox dicentang
-                var modal = new bootstrap.Modal(document.getElementById('termsModal'));
-                modal.show();
-            }
-        });
-    </script>
+    // Ambil elemen checkbox, tombol, dan modal
+    const agreeCheckbox = document.getElementById('agree');
+    const agreeButton = document.getElementById('agreeButton');
+    const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+
+    // Tambahkan event listener untuk perubahan pada checkbox
+    agreeCheckbox.addEventListener('change', function () {
+        if (this.checked) {
+            // Tampilkan modal syarat dan ketentuan
+            termsModal.show();
+        } else {
+            // Nonaktifkan tombol jika checkbox tidak dicentang
+            agreeButton.setAttribute('disabled', 'true');
+        }
+    });
+
+    // Tambahkan event listener pada tombol "Setuju" di modal
+    document.querySelector('#termsModal .btn-primary').addEventListener('click', function () {
+        termsModal.hide(); // Sembunyikan modal
+
+        // Aktifkan tombol jika checkbox tetap dicentang
+        if (agreeCheckbox.checked) {
+            agreeButton.removeAttribute('disabled');
+        }
+    });
+
+    // Reset tombol jika modal ditutup tanpa menyetujui
+    document.getElementById('termsModal').addEventListener('hidden.bs.modal', function () {
+        if (!agreeCheckbox.checked) {
+            agreeButton.setAttribute('disabled', 'true');
+        }
+    });
+</script>
+
 </body>
 
 </html>

@@ -13,6 +13,14 @@ use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProductionController;
 
 use App\Models\Absen;
+use App\Http\Controllers\QRCodeController;
+use App\Http\Controllers\DutyOfficerController;use App\Exports\BookingsExport;
+use Maatwebsite\Excel\Facades\Excel;
+
+Route::get('export-bookings', function () {
+    return Excel::download(new BookingsExport(request()->all()), 'bookings.xlsx');
+})->name('bookings.export');
+
 
 // udah fix jangan kerubah 
 Route::get('/', function () {
@@ -29,9 +37,17 @@ Route::post('/login', [LoginController::class, 'login'])->middleware(RoleRedirec
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // front_office
-Route::get('/front-office/dashboard', [LoginController::class, 'showFoDashboard'])->name('front_office.dashboard');
 Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
 Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
+Route::post('/update-duty-officer', [BookingsController::class, 'updateDutyOfficer'])
+    ->middleware('auth') // Tambahkan middleware di sini
+    ->name('update-duty-officer');
+    // Yang ini buat impor ya ngab
+// Route::get('/export-bookings', [BookingsController::class, 'exportBookings'])->name('bookings.export');
+    
+
+
+
 
 Route::get('/bookings', [BookingsController::class, 'getBookingData']);
 
@@ -71,3 +87,8 @@ Route::post('/checkout', [InputKodeController::class, 'checkout'])->name('inputk
 Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');
 
 // Batas Terakhir dewinta yang ngerapihinnn
+
+
+Route::get('/generate-qrcode/{bookingCode}', [QRCodeController::class, 'generateQRCode']);
+// Route::get('/generate-qrcode/{bookingCode}', [QRCodeController::class, 'sendQRCode']);
+Route::post('/duty-officer/store', [DutyOfficerController::class, 'storeDutyOfficer'])->name('dutyofficer.store');

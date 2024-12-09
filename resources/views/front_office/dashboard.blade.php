@@ -11,101 +11,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+    <script src="{{ asset('js/app.js') }}"></script>
+
     <title>Booking List</title>
-    <style>
-        .custom-table {
-            table-layout: fixed;
-            /* Mengatur agar lebar tabel sesuai dengan width yang diberikan */
-            width: 100%;
-            border-collapse: separate;
-            /* Memisahkan baris */
-            border-spacing: 0 15px;
-            /* Jarak antar baris */
-        }
-
-        .custom-table th,
-        .custom-table td {
-            word-wrap: break-word;
-            /* Memastikan teks yang panjang tidak merusak tata letak */
-            vertical-align: middle;
-        }
-
-        .table-row {
-            background-color: #FBFCFF;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            /* Shadow tiap baris */
-            overflow: hidden;
-        }
-
-        .responsive-container {
-            overflow-x: auto;
-            /* Pastikan tabel dapat digeser pada layar kecil */
-        }
-
-        .table-header th {
-            background-color: #091F5B;
-            /* Warna biru header */
-            color: white;
-            padding: 8px;
-            text-align: left;
-            border: none;
-        }
-
-        /* Styling untuk pagination */
-        .pagination .page-item .page-link {
-            color: black;
-            /* Warna teks hitam */
-            border: 1px solid #ddd;
-            /* Border ringan untuk pemisah */
-            margin: 0 4px;
-            /* Jarak antar nomor halaman */
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: black;
-            /* Warna latar hitam untuk halaman aktif */
-            color: white;
-            /* Warna teks putih untuk halaman aktif */
-            border: 1px solid black;
-        }
-
-        .nama-event {
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-            border-top-left-radius: 10px;
-            border-bottom-left-radius: 10px;
-        }
-
-        .status {
-            border-top-right-radius: 10px;
-            border-bottom-right-radius: 10px;
-        }
-
-        /* Media Query untuk Responsivitas */
-        @media (max-width: 768px) {
-
-            .nama-event-column,
-            .status-column {
-                width: auto;
-            }
-
-            .table-responsive {
-                font-size: 0.8rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .table-responsive {
-                font-size: 0.75rem;
-            }
-
-            .d-none {
-                display: none !important;
-                /* Sembunyikan kolom pada layar kecil */
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -121,31 +29,53 @@
 
     <!-- Main Content -->
     <div class="container my-4">
+        @if (session('sukses'))
+            <div class="alert alert-success">
+                {{ session('sukses') }}
+            </div>
+        @endif
 
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
-            <h2>Booking List</h2>
+        @if (session('gagal'))
+            <div class="alert alert-danger">
+                {{ session('gagal') }}
+            </div>
+        @endif
+
+        <div class="display-4 flex-column flex-md-row text-center mb-4">
+            <h1 class="display-4 mb-4 text-center">Booking List</h1>
         </div>
         <!-- Filter and Search in a Single Row -->
-        <div class="d-flex justify-content-between mb-3">
-            <!-- Filter Form -->
-            <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3" style="margin: 8px">
-                <select name="status" class="form-select width-select" style="width: 200px;" aria-label="Status Filter"
-                    onchange="this.form.submit()">
-                    <option value="">Semua Status</option>
-                    <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Check-in</option>
-                    <option value="Booked" {{ request('status') == 'Booked' ? 'selected' : '' }}>Booked</option>
-                    <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Check-out
-                    </option>
-                </select>
-            </form>
-
-            <!-- Search Form -->
-            <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline mb-3" style="margin: 8px">
-                <input type="text" name="search" class="form-control" placeholder="Search by Event Name or Kode Booking"
-                    value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
-            </form>
+        <div class="row align-items-center mb-3" style="margin-top: -10px;">
+            <!-- Filter -->
+            <div class="col-md-3">
+                <form method="GET" action="{{ route('front_office.dashboard') }}">
+                    <select name="status" class="form-select" style="width: 100%;" aria-label="Status Filter" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Check-in</option>
+                        <option value="Booked" {{ request('status') == 'Booked' ? 'selected' : '' }}>Booked</option>
+                        <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Check-out</option>
+                    </select>
+                </form>
+            </div>
+        
+            <!-- Search (Tengah) -->
+            <div class="col-md-6 text-center">
+                <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline-block" style="width: 100%;">
+                    <input type="text" name="search" class="form-control" placeholder="Search by Event Name or Kode Booking"
+                        value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
+                </form>
+            </div>
+        
+            <!-- Export -->
+            <div class="col-md-3 text-end">
+                <form method="GET" action="{{ route('bookings.export') }}">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </form>
+            </div>
         </div>
-
+        
         <!-- Booking Table -->
         <div class="responsive-container">
             <table class="table custom-table">
@@ -172,6 +102,7 @@
                                 </a>
                             </td>
                             <td class="fw-semibold">{{ $booking['user_name'] }}</td>
+
                             <td>
                                 @foreach ($booking['ruangans'] as $ruangan)
                                     <p>{{ $ruangan['name'] }}<br>
@@ -181,38 +112,91 @@
                                     </p>
                                 @endforeach
                             </td>
-                            <td>{{ $booking['pic_name'] }}</td>
-
                             <td>
+                                {{ $booking['pic_name'] }}<br>
 
-                                <p>duty officer</p>
-                                {{-- <div class="form-group">
-                                    <select name="duty_officer" class="form-control" onchange="updateDutyOfficer(this)">
-                                        <option value="" disabled selected>--</option>
-                                        @foreach ($duty_officer as $duty)
-                                        <option value="{{ $duty->id }}">{{ $duty->nama_do }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                --}}
                             </td>
                             <td>
-                                @if (!empty($booking['absen']))
-                                    {{ $booking['absen']['name'] }} <!-- Menampilkan nama user -->
+                                @if (!empty($booking['absen']['duty_officer']))
+                                    <!-- Tampilkan nama Duty Officer -->
+                                    
+                                        {{ $booking['absen']['duty_officer'] }}
+                                    
                                 @else
-                                    <span class="text-warning">Belum Check-in</span>
+                                    <!-- Tombol untuk memilih Duty Officer -->
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#dutyOfficerModal" data-booking-id="{{ $booking['booking_code'] }}">
+                                        Pilih Duty Officer
+                                    </button>
                                 @endif
                             </td>
+
+
+                            @if (empty($booking['absen']['duty_officer']))
+                                <div class="modal fade" id="dutyOfficerModal" tabindex="-1"
+                                    aria-labelledby="dutyOfficerModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form id="dutyOfficerForm" method="POST" action="{{ route('dutyofficer.store') }}">
+                                                @csrf
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="dutyOfficerModalLabel">Pilih Duty Officer</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <input type="hidden" id="bookingId" name="id_booking"
+                                                        value="{{ $booking['booking_code'] }}">
+                                                    <div class="mb-3">
+                                                        <label for="dutyOfficerSelect" class="form-label">Duty Officer</label>
+                                                        <select class="form-select" id="dutyOfficerSelect"
+                                                            name="duty_officer_id" required>
+                                                            @foreach ($dutyOfficers as $officer)
+                                                                <option value="{{ $officer->id }}">{{ $officer->nama_do }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <td>
+                            @if (!empty($booking['absen']))
+                            {{ $booking['absen']['name'] }}<br>
+                            {{-- Display the cleaned phone number --}}
+                            @php
+                                $phone = preg_replace('/\D/', '', $booking['absen']['phone']);  // Remove any non-numeric characters
+                            @endphp
+                        
+                            {{-- Display the phone number --}}
+                            <a href="https://wa.me/{{ $phone }}" target="_blank" style="color: #25D366;">
+                                {{ $phone }}
+                            </a>
+                            @else
+                                <span class="text-warning">Belum Check-in</span>
+                            @endif
+                            </td>                        
                             <td>
                                 @if (!empty($booking['absen']))
                                     @if ($booking['absen']['status'] === 'Check-in')
-                                        <button class="btn" style="background-color: #4C74E1; color: #fff;" data-bs-toggle="modal"
-                                            data-bs-target="#checkoutModal{{ $booking['id'] }}">
+                                        <button
+                                            class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center custom-shadow fw-bold"
+                                            data-bs-toggle="modal" data-bs-target="#checkoutModal{{ $booking['id'] }}"
+                                            style="font-weight: bold;">
                                             Check-In
                                         </button>
                                     @elseif ($booking['absen']['status'] === 'Check-out')
-                                        <span class="btn" style="background-color: #F35558; color: #fff; pointer-events: none">
-                                            Check-Out
+                                        <span class="btn btn-danger btn-sm custom-shadow fw-bold"
+                                            style="pointer-events: none; border: 2px solid white;">
+                                            <i class="fas fa-times-circle me-2"></i> Check-Out
                                         </span>
                                     @endif
                                 @else
@@ -221,8 +205,6 @@
                                         Booked
                                     </a>
                                 @endif
-
-
                             </td>
                         </tr>
                     @endforeach
@@ -308,7 +290,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <p><strong>Nama PIC:</strong></p>
-                                        <p>{{ $booking['pic_name'] }}</p>
+                                        <p><strong style="font-weight: bold; font-size: 18px;">{{ $booking['pic_name'] }}</strong></p>
 
                                         <p><strong>Kategori Ekraf:</strong></p>
                                         <p>{{ $booking['kategori_ekraf'] }}</p>
@@ -318,7 +300,10 @@
                                     </div>
                                     <div class="col-md-6">
                                         <p><strong>No Telp:</strong></p>
-                                        <p>{{ $booking['pic_phone_number'] }}</p>
+                                        <p><a href="https://wa.me/{{ $booking['pic_phone_number'] }}" target="_blank"
+                                            style="color: #25D366;">
+                                            <span>{{ $booking['pic_phone_number'] }}</span>
+                                        </a></p>
                                         <p><strong>Kategori Event:</strong></p>
                                         <p>{{ $booking['kategori_event'] }}</p>
                                     </div>
@@ -328,53 +313,6 @@
                     </div>
                 </div>
             @endforeach
-
-
-            <!-- JavaScript for Updating Booking Status -->
-            <script>
-                function updateStatus(bookingId, newStatus) {
-                    fetch(/bookings/$ {
-                        bookingId
-                    }
-                        / update - status, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            status: newStatus
-                        })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log(data); // Log data untuk debugging
-                            if (data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Status Updated',
-                                    text: data.message,
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    location.reload(); // Reload untuk menampilkan status terbaru
-                                });
-                            } else {
-                                Swal.fire('Error', 'Failed to update status', 'error');
-                            }
-                        })
-                        .catch(error => Swal.fire('Error', 'An error occurred while updating the status.', 'error'));
-                }
-
-                function updatePerPage() {
-
-                    const perPage = document.getElementById('per-page').value;
-                    window.location.href = {{ url()->current() }} ? per_page = $ {
-                        perPage
-                    };
-                }
-            </script>
         </div>
 </body>
-
 </html>

@@ -132,8 +132,9 @@
                 </div>
                 <div>
                     <label for="phone" class="form-label">No Telepon</label>
-                    <input type="text" class="form-control" id="phone" name="phone" required>
+                    <input type="tel" class="form-control" id="phone" name="phone" required maxlength="12" oninput="this.value=this.value.replace(/[^0-9]/g,'')" title="Nomor telepon harus terdiri dari 12 angka">
                 </div>
+
 
                 <!-- Detail Booking -->
                 <h5 class="mb-4 mt-4 text-center" style="font-weight: 800; font-size: 18px;">Detail Booking</h5>

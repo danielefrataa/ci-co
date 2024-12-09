@@ -14,107 +14,127 @@ class MarketingController extends Controller
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
 
     public function index(Request $request)
-{
-    $today = Carbon::now()->toDateString(); // Format: 2024-11-19
-    $allBookings = collect();
-    $page = 1;
-    $maxPages = 10; // Batasi maksimal 10 halaman untuk mencegah infinite loop
+    {
+        // Get the date from the request or default to today
+        $filterDate = Carbon::parse($request->get('date', Carbon::now()->toDateString()));
 
-    $searchTerm = strtolower($request->get('search', ''));
+        $allBookings = collect();
+        $searchTerm = strtolower($request->get('search', ''));
 
-    do {
-        $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
-        $response = Http::withHeaders([
-            'X-API-KEY' => $this->apiKey,
-        ])->withoutVerifying()->get($url);
+        $page = 1;
+        $maxPages = 5; // Limit the number of pages per date
 
-        if ($response->successful()) {
-            $data = collect($response->json()['data'] ?? []);
-            $allBookings = $allBookings->merge($data);
-            $page++;
-        } else {
-            report('Error accessing API: ' . $response->status());
-            break;
-        }
-    } while ($data->isNotEmpty() && $page <= $maxPages);
+        do {
+            $url = "https://event.mcc.or.id/api/event?status=booked&date={$filterDate->toDateString()}&page={$page}";
+            $response = Http::withHeaders([
+                'X-API-KEY' => $this->apiKey,
+            ])->withoutVerifying()->get($url);
 
-    $filteredBookings = $allBookings->map(function ($item) use ($today) {
-        $bookingItems = collect($item['booking_items'] ?? [])
-            ->filter(fn($bookingItem) => $bookingItem['booking_date'] === $today)
-            ->values();
+            if ($response->successful()) {
+                $data = collect($response->json()['data'] ?? []);
+                $allBookings = $allBookings->merge($data);
+                $page++;
+            } else {
+                report("Error accessing API for date {$filterDate->toDateString()}: " . $response->status());
+                break;
+            }
+        } while ($data->isNotEmpty() && $page <= $maxPages);
 
-        // Hitung waktu mulai dan selesai
-        $startTime = $bookingItems->min('booking_hour');
-        $endTime = $bookingItems->max('booking_hour');
+        // Process and filter the data
+        $filteredBookings = $allBookings->map(function ($item) {
+            $bookingItems = collect($item['booking_items'] ?? []);
 
-        $item['start_time'] = $startTime ? Carbon::createFromTime($startTime, 0)->format('H:i') : null;
-        $item['end_time'] = $endTime ? Carbon::createFromTime($endTime, 0)->format('H:i') : null;
+            // Calculate start and end times
+            $startTime = $bookingItems->min('booking_hour');
+            $endTime = $bookingItems->max('booking_hour');
 
-        $ruanganIds = $bookingItems->pluck('ruangan_id')->unique();
-        $item['ruangans'] = collect($item['ruangans'] ?? [])
-            ->filter(fn($ruangan) => $ruanganIds->contains($ruangan['id']))
-            ->values()
-            ->toArray();
+            $item['start_time'] = $startTime ? Carbon::createFromTime($startTime, 0)->format('H:i') : null;
+            $item['end_time'] = $endTime ? Carbon::createFromTime($endTime, 0)->format('H:i') : null;
 
-        $item['booking_items'] = $bookingItems->toArray();
-        // Ambil data dari database berdasarkan kode_booking
-        $item['database_items'] = PeminjamanBarang::where('kode_booking', $item['booking_code'])->get();
+            $ruanganIds = $bookingItems->pluck('ruangan_id')->unique();
+            $item['ruangans'] = collect($item['ruangans'] ?? [])
+                ->filter(fn($ruangan) => $ruanganIds->contains($ruangan['id']))
+                ->values()
+                ->toArray();
 
-        return $item;
-    })->filter(function ($item) use ($today, $searchTerm) {
-        if (empty($item['booking_items'])) {
-            return false;
-        }
+            $item['booking_items'] = $bookingItems->toArray();
 
-        if ($searchTerm) {
-            $eventName = strtolower($item['name'] ?? '');
-            $picName = strtolower($item['pic_name'] ?? '');
+            // Fetch related database items based on booking code
+            $item['database_items'] = PeminjamanBarang::where('kode_booking', $item['booking_code'])->get();
 
-            return strpos($eventName, $searchTerm) !== false || strpos($picName, $searchTerm) !== false;
-        }
+            return $item;
+        })->filter(function ($item) use ($searchTerm) {
+            if (empty($item['booking_items'])) {
+                return false;
+            }
 
-        return true;
-    });
- // Tambahkan data database hanya untuk booking_code yang ada di database
- $filteredBookings->each(function ($item) {
-    // Menambahkan items dari database berdasarkan booking_code
-    $item['database_items'] = PeminjamanBarang::where('kode_booking', $item['booking_code'])->get();
-});
-    // Sorting dan pagination
-    $filteredBookings = $filteredBookings->sortBy(function ($item) {
-        $floor = $item['ruangans'][0]['floor'] ?? '0';
-        $startTime = $item['start_time'] ?? '00:00';
-        return [$floor, $startTime];
-    });
+            if ($searchTerm) {
+                $eventName = strtolower($item['name'] ?? '');
+                $picName = strtolower($item['pic_name'] ?? '');
 
-    $currentPage = (int) $request->get('page', 1);
-    $perPage = (int) $request->get('per_page', 6);
-    $paginatedBookings = $filteredBookings->forPage($currentPage, $perPage);
+                return strpos($eventName, $searchTerm) !== false || strpos($picName, $searchTerm) !== false;
+            }
 
-    return view('marketing.peminjaman', [
-        'bookings' => $paginatedBookings,
-        'totalPages' => ceil($filteredBookings->count() / $perPage),
-        'currentPage' => $currentPage,
-        'perPage' => $perPage,
-    ]);
-}
+            return true;
+        });
+
+        // Sort by start time
+        $filteredBookings = $filteredBookings->sortBy([
+            ['start_time', 'asc']
+        ]);
+
+        // Pagination
+        $currentPage = (int) $request->get('page', 1);
+        $perPage = (int) $request->get('per_page', 6);
+        $paginatedBookings = $filteredBookings->forPage($currentPage, $perPage);
+
+        return view('marketing.peminjaman', [
+            'bookings' => $paginatedBookings,
+            'totalPages' => ceil($filteredBookings->count() / $perPage),
+            'currentPage' => $currentPage,
+            'perPage' => $perPage,
+            'filterDate' => $filterDate->toDateString(),
+        ]);
+    }
 
 
     public function store(Request $request)
     {
-        // Ambil kode booking dari form (no need to check the database)
-        $kode_booking = $request->input('kode_booking');
+        // Validasi input
+        $validated = $request->validate([
+            'kode_booking' => 'nullable|string', // kode_booking boleh null
+            'items' => 'nullable|array',        // items boleh null, tapi jika ada harus berupa array
+            'items.*.nama_item' => 'required_with:items|string', // Validasi untuk setiap item
+            'items.*.jumlah' => 'required_with:items|integer|min:1',
+        ]);
+
+        // Ambil kode booking dari form (jika ada, gunakan; jika tidak, simpan sebagai null)
+        $kode_booking = $validated['kode_booking'] ?? null;
+
+        // Pastikan items selalu array
+        $items = $validated['items'] ?? [];
 
         // Menyimpan beberapa item barang
-        foreach ($request->input('items') as $item) {
-            $newItem = new PeminjamanBarang;
-            $newItem->nama_item = $item['nama_item'];
-            $newItem->jumlah = $item['jumlah'];
-            $newItem->kode_booking = $kode_booking; // Set kode_booking
-            $newItem->save();
+        foreach ($items as $item) {
+            PeminjamanBarang::create([
+                'nama_item' => $item['nama_item'],
+                'jumlah' => $item['jumlah'],
+                'kode_booking' => $kode_booking, // Set kode_booking (null jika tidak ada)
+            ]);
         }
 
         return redirect()->route('marketing.peminjaman')->with('success', 'Booking berhasil ditambahkan.');
     }
-  
+
+    public function destroy($id)
+    {
+        try {
+            $item = PeminjamanBarang::findOrFail($id);
+            $item->delete();
+
+            return response()->json(['success' => true, 'message' => 'Item berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus item'], 500);
+        }
+    }
 }

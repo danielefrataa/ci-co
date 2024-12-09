@@ -6,18 +6,23 @@ use App\Models\DutyOfficer;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Absen;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BookingsExport;
 class BookingsController extends Controller
+
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
     public function index(Request $request)
 {
-    $today = Carbon::now()->toDateString(); // Format: 2024-11-19
+    
+    $today = Carbon::now()->toDateString();
     $allBookings = collect();
     $page = 1;
-    $maxPages = 10; // Batasi maksimal 10 halaman untuk mencegah infinite loop
+    $maxPages = 10;
 
     $searchTerm = strtolower($request->get('search', ''));
-
+    $statusFilter = $request->get('status', ''); // Ambil nilai status dari request
+    $dutyOfficers = DutyOfficer::all();
     do {
         $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
         $response = Http::withHeaders([
@@ -32,60 +37,74 @@ class BookingsController extends Controller
             report('Error accessing API: ' . $response->status());
             break;
         }
-
     } while ($data->isNotEmpty() && $page <= $maxPages);
 
     $filteredBookings = $allBookings->map(function ($item) use ($today) {
         $bookingItems = collect($item['booking_items'] ?? [])
             ->filter(fn($bookingItem) => $bookingItem['booking_date'] === $today)
             ->values();
-
-        // Hitung waktu mulai dan selesai
+    
         $startTime = $bookingItems->min('booking_hour');
         $endTime = $bookingItems->max('booking_hour');
-
+    
         $item['start_time'] = $startTime ? Carbon::createFromTime($startTime, 0)->format('H:i') : null;
         $item['end_time'] = $endTime ? Carbon::createFromTime($endTime, 0)->format('H:i') : null;
-
+    
         $ruanganIds = $bookingItems->pluck('ruangan_id')->unique();
         $item['ruangans'] = collect($item['ruangans'] ?? [])
             ->filter(fn($ruangan) => $ruanganIds->contains($ruangan['id']))
             ->values()
             ->toArray();
-
+    
         $item['booking_items'] = $bookingItems->toArray();
         
-        // Ambil data absen berdasarkan id_booking
-        $absenData = Absen::where('id_booking', $item['booking_code'])->first();  // Menggunakan 'booking_code' untuk ambil data absen
+        // Tambahkan data absen terbaru berdasarkan tanggal hari ini
+        $absenData = Absen::where('id_booking', $item['booking_code'])
+            ->whereDate('tanggal', $today) // Pastikan hanya tanggal hari ini
+            ->latest('updated_at') // Ambil data terbaru jika ada perubahan
+            ->first();
+    
         if ($absenData) {
             $item['absen'] = [
-                'name' => $absenData->name, // Asumsi ada kolom 'nama' di tabel absen
+                'name' => $absenData->name,
+                'status' => $absenData->status,
+                'duty_officer' => $absenData->duty_officer, // Tambahkan data Duty Officer
+                'phone' => $absenData->phone, // Menambahkan data phone
 
-                'status' => $absenData->status, // Ambil status dari absen
             ];
         }
+    
         return $item;
-    })->filter(function ($item) use ($today, $searchTerm) {
+    })->filter(function ($item) use ($today, $searchTerm, $statusFilter) {
         if (empty($item['booking_items'])) {
             return false;
         }
-
+    
         if ($searchTerm) {
             $eventName = strtolower($item['name'] ?? '');
             $picName = strtolower($item['pic_name'] ?? '');
-
-            return strpos($eventName, $searchTerm) !== false || strpos($picName, $searchTerm) !== false;
+    
+            if (strpos($eventName, $searchTerm) === false && strpos($picName, $searchTerm) === false) {
+                return false;
+            }
         }
-
+    
+        if ($statusFilter) {
+            $currentStatus = $item['absen']['status'] ?? 'Booked'; // Default jika tidak ada data absen
+            return $currentStatus === $statusFilter;
+        }
+    
         return true;
     });
-    $filteredBookings = $filteredBookings->sortBy(function ($item) {
-        // Urutkan berdasarkan lantai terlebih dahulu (ascending)
-        $floor = $item['ruangans'][0]['floor'] ?? '0'; // Ambil lantai dari ruangan pertama
-        $startTime = $item['start_time'] ?? '00:00'; // Jika start_time kosong, beri nilai default
     
+
+    $filteredBookings = $filteredBookings->sortBy(function ($item) {
+        $floor = $item['ruangans'][0]['floor'] ?? '0';
+        $startTime = $item['start_time'] ?? '00:00';
+
         return [$floor, $startTime];
     });
+
     $currentPage = (int) $request->get('page', 1);
     $perPage = (int) $request->get('per_page', 6);
     $paginatedBookings = $filteredBookings->forPage($currentPage, $perPage);
@@ -95,8 +114,42 @@ class BookingsController extends Controller
         'totalPages' => ceil($filteredBookings->count() / $perPage),
         'currentPage' => $currentPage,
         'perPage' => $perPage,
+        'dutyOfficers' => $dutyOfficers,
     ]);
 }
+public function exportBookings(Request $request)
+{
+    $filters = $request->all(); // Ambil semua parameter filter
+
+    // Menyiapkan ekspor dengan filter
+    return Excel::download(new BookingsExport($filters), 'bookings.xlsx');
+}
+public function updateDutyOfficer(Request $request)
+{
+    $validated = $request->validate([
+        'booking_id' => 'required|string',
+        'duty_officer_id' => 'required|exists:duty_officers,id',
+    ]);
+
+    $booking = Absen::where('id_booking', $validated['booking_id'])->first();
+
+    if ($booking) {
+        $dutyOfficer = DutyOfficer::find($validated['duty_officer_id']);
+        $booking->duty_officer_id = $dutyOfficer->id;
+        $booking->save();
+
+        return response()->json([
+            'success' => true,
+            'officer_name' => $dutyOfficer->nama_do,
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Booking tidak ditemukan.',
+    ], 404);
+}
+
 
 
     /**
