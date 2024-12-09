@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use App\Models\PeminjamanBarang;
+use App\Models\list_barang;
 use Carbon\Carbon;
 use App\Models\booking;
 
@@ -17,6 +18,9 @@ class MarketingController extends Controller
     {
         // Get the date from the request or default to today
         $filterDate = Carbon::parse($request->get('date', Carbon::now()->toDateString()));
+
+        // get data from list_barang
+        $listBarang = list_barang::all();
 
         $allBookings = collect();
         $searchTerm = strtolower($request->get('search', ''));
@@ -41,23 +45,36 @@ class MarketingController extends Controller
         } while ($data->isNotEmpty() && $page <= $maxPages);
 
         // Process and filter the data
-        $filteredBookings = $allBookings->map(function ($item) {
+        $filteredBookings = $allBookings->map(function ($item) use ($filterDate) {
             $bookingItems = collect($item['booking_items'] ?? []);
 
+            // Filter booking items to only include items with a matching booking_date
+            $matchingBookingItems = $bookingItems->filter(function ($bookingItem) use ($filterDate) {
+                return $bookingItem['booking_date'] == $filterDate->toDateString();
+            });
+
+            // If no booking items match the filtered date, return null
+            if ($matchingBookingItems->isEmpty()) {
+                return null;
+            }
+
             // Calculate start and end times
-            $startTime = $bookingItems->min('booking_hour');
-            $endTime = $bookingItems->max('booking_hour');
+            $startTime = $matchingBookingItems->min('booking_hour');
+            $endTime = $matchingBookingItems->max('booking_hour');
 
             $item['start_time'] = $startTime ? Carbon::createFromTime($startTime, 0)->format('H:i') : null;
             $item['end_time'] = $endTime ? Carbon::createFromTime($endTime, 0)->format('H:i') : null;
 
-            $ruanganIds = $bookingItems->pluck('ruangan_id')->unique();
+            // Extract ruangan IDs from the filtered booking items
+            $ruanganIds = $matchingBookingItems->pluck('ruangan_id')->unique();
+
+            // Filter ruangans to only include those matching the IDs
             $item['ruangans'] = collect($item['ruangans'] ?? [])
                 ->filter(fn($ruangan) => $ruanganIds->contains($ruangan['id']))
                 ->values()
                 ->toArray();
 
-            $item['booking_items'] = $bookingItems->toArray();
+            $item['booking_items'] = $matchingBookingItems->toArray();
 
             // Fetch related database items based on booking code
             $item['database_items'] = PeminjamanBarang::where('kode_booking', $item['booking_code'])->get();
@@ -90,6 +107,7 @@ class MarketingController extends Controller
 
         return view('marketing.peminjaman', [
             'bookings' => $paginatedBookings,
+            'listBarang' => $listBarang,
             'totalPages' => ceil($filteredBookings->count() / $perPage),
             'currentPage' => $currentPage,
             'perPage' => $perPage,

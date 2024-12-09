@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketing</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.7/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
@@ -185,8 +187,7 @@
                 </div>
                 <!-- Search Filter -->
                 <div>
-                    <input type="text" name="search" class="form-control"
-                        placeholder="Search by Event Name"
+                    <input type="text" name="search" class="form-control" placeholder="Search by Event Name"
                         value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
                 </div>
             </form>
@@ -223,14 +224,14 @@
                             {{ $booking['user_name'] }}
                         </div>
                         <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
-                            {{ $booking['booking_items'][0]['booking_date'] ?? 'No booking date available' }}
+                            {{ $filterDate ?? 'No booking date available' }}
                         </div>
                         <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
                             @foreach ($booking['ruangans'] as $ruangan)
                                 <p>{{ $ruangan['name'] }}<br>
                                     <span>{{ $ruangan['floor'] }}</span><br>
-                                    <span>{{ $booking['start_time'] ?? 'N/A' }} - {{ $booking['end_time'] ?? 'N/A' }}
-                                    </span>
+                                    <span>{{ $booking['start_time'] ?? 'N/A' }} -
+                                        {{ $booking['end_time'] ?? 'N/A' }}</span>
                                 </p>
                             @endforeach
                         </div>
@@ -329,7 +330,7 @@
 
         <!-- Modal Edit-->
         @foreach ($bookings as $booking)
-            <form method="POST" action="{{ route('marketing.store') }}">
+            <form id="pinjamForm" method="POST" action="{{ route('marketing.store') }}">
                 @csrf
                 <div class="modal fade" id="editModal{{ $booking['id'] }}" tabindex="-1"
                     aria-labelledby="editModalLabel{{ $booking['id'] }}" aria-hidden="true">
@@ -350,33 +351,77 @@
                                 </div>
                                 <div class="info-card border p-3 mb-3">
                                     <div class="row">
+                                        <!-- Hidden booking code -->
                                         <input type="hidden" name="kode_booking"
                                             value="{{ $booking['booking_code'] }}">
+
+                                        <!-- Ruangan Section -->
                                         <div class="col-md-6 d-flex align-items-center">
-                                            <p class="mb-0">Ruangan</p>
-                                            <p class="mb-0" style="color: #091F5B; margin-left: 40px;">
-                                                {{ $ruangan['name'] }}</p>
+                                            <p class="mb-0 fw-bold flex-shrink-0" style="width: 100px;">Ruangan</p>
+                                            <p class="mb-0" style="color: #091F5B;">
+                                                @foreach ($booking['ruangans'] as $ruangan)
+                                                    {{ $ruangan['name'] }} <br>
+                                                @endforeach
+                                            </p>
                                         </div>
+
+                                        <!-- PIC Section -->
                                         <div class="col-md-6 d-flex align-items-center">
-                                            <p class="mb-0">PIC</p>
-                                            <p class="mb-0" style="color: #091F5B; margin-left: 25px;">
-                                                {{ $booking['pic_name'] }}</p>
+                                            <p class="mb-0 fw-bold flex-shrink-0" style="width: 100px;">PIC</p>
+                                            <p class="mb-0" style="color: #091F5B;">
+                                                {{ $booking['pic_name'] }}
+                                            </p>
                                         </div>
+
+                                        <!-- Tanggal Section -->
                                         <div class="col-md-6 d-flex align-items-center mt-2">
-                                            <p class="mb-0">Tanggal</p>
-                                            <p class="mb-0 text-end" style="color: #091F5B; margin-left: 50px;">
-                                                {{ $booking['booking_items'][0]['booking_date'] }}</p>
+                                            <p class="mb-0 fw-bold flex-shrink-0" style="width: 100px;">Tanggal</p>
+                                            <p class="mb-0 text-end ms-3" style="color: #091F5B;">
+                                                @php
+                                                    // Filter booking_items to match the filtered date
+                                                    $matchingBookingItem = collect(
+                                                        $booking['booking_items'],
+                                                    )->firstWhere('booking_date', $filterDate);
+                                                @endphp
+
+                                                {{ $matchingBookingItem['booking_date'] ?? 'N/A' }}
+                                            </p>
                                         </div>
+
+
+                                        <!-- Jam Section -->
                                         <div class="col-md-6 d-flex align-items-center mt-2">
-                                            <p class="mb-0">Jam</p>
-                                            <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">
+                                            <p class="mb-0 fw-bold flex-shrink-0" style="width: 100px;">Jam</p>
+                                            <p class="mb-0 text-end" style="color: #091F5B;">
                                                 {{ $booking['start_time'] ?? 'N/A' }} -
-                                                {{ $booking['end_time'] ?? 'N/A' }}</p>
+                                                {{ $booking['end_time'] ?? 'N/A' }}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
-                                <h6 class="fw-bold">List Barang yang Dipinjam</h6>
+                                <h6 class="fw-bold">List Barang yang Tersedia</h6>
                                 <table class="table table-bordered" id="barangList{{ $booking['id'] }}">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Barang</th>
+                                            <th>Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="availableItems">
+                                        @php $no = 1; @endphp
+                                        @foreach ($listBarang as $barang)
+                                            <tr id="row-available-{{ $barang->id }}">
+                                                <td>{{ $no++ }}</td>
+                                                <td class="text-align-left">{{ $barang->nama_barang }}</td>
+                                                <td class="text-center">{{ $barang->jumlah }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+
+                                <h6 class="fw-bold">List Barang yang Dipinjam</h6>
+                                <table class="table table-bordered" id="borrowedList{{ $booking['id'] }}">
                                     <thead class="table-light">
                                         <tr>
                                             <th>No</th>
@@ -385,7 +430,7 @@
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="borrowedItems">
                                         @php $no = 1; @endphp
 
                                         <tr>
@@ -417,10 +462,11 @@
                                         @endforeach
                                     </tbody>
                                 </table>
+
                                 <button type="button" class="btn btn-primary btn-sm"
                                     onclick="addItem({{ $booking['id'] }})">Tambah Barang</button>
                                 <div class="text-center mt-4 mb-4">
-                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                    <button type="submit" class="btn btn-primary" id="simpanButton">Simpan</button>
                                 </div>
                                 <div class="modal-footer border-0">
                                     <div class="d-flex justify-content-between w-100">
@@ -455,6 +501,72 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.7/dist/sweetalert2.all.min.js"></script>
+    {{-- Move barang logic --}}
+    <script>
+        let borrowedCount = 1; // Counter for borrowed items
+
+        function addItemToBorrowed(button) {
+            // Extract data attributes
+            const id = button.getAttribute("data-id");
+            const nama = button.getAttribute("data-nama");
+            const jumlah = button.getAttribute("data-jumlah");
+            const rowId = button.getAttribute("data-row-id");
+
+            // Find the row in the available table
+            const row = document.getElementById(rowId);
+
+            // Create a new row for the borrowed table
+            const newRow = document.createElement("tr");
+            newRow.id = "row-borrowed-" + id;
+            newRow.innerHTML = `
+                <td>${borrowedCount++}</td>
+                <td class="text-align-left">${nama}</td>
+                <td class="text-center">${jumlah}</td>
+                <td>
+                    <button type="button" class="btn btn-danger removeItem"
+                        onclick="removeItemFromBorrowed(this)" 
+                        data-id="${id}" 
+                        data-original-row-id="${rowId}">
+                        Hapus
+                    </button>
+                </td>
+            `;
+
+            // Append the new row to the borrowed table
+            document.getElementById("borrowedItems").appendChild(newRow);
+
+            // Remove the row from the available table
+            row.remove();
+        }
+
+        function removeItemFromBorrowed(button) {
+            // Extract data attributes
+            const id = button.getAttribute("data-id");
+            const originalRowId = button.getAttribute("data-original-row-id");
+
+            // Find and remove the borrowed row
+            const borrowedRow = button.closest("tr");
+            borrowedRow.remove();
+
+            // Restore the row back to the available table
+            const originalRow = document.getElementById(originalRowId);
+            document.getElementById("availableItems").appendChild(originalRow);
+
+            // Update the numbering in the borrowed table
+            updateBorrowedTableNumbers();
+        }
+
+        function updateBorrowedTableNumbers() {
+            const borrowedItems = document.querySelectorAll("#borrowedItems tr");
+            borrowedItems.forEach((row, index) => {
+                row.children[0].innerText = index + 1; // Update the row number
+            });
+            borrowedCount = borrowedItems.length + 1;
+        }
+    </script>
+
     <script>
         function fetchData(page = 1) {
             const search = document.getElementById('searchInput').value;
@@ -531,7 +643,7 @@
 
 
         function addItem(bookingId) {
-            let table = document.getElementById('barangList' + bookingId);
+            let table = document.getElementById('borrowedList' + bookingId);
             let rowCount = table.rows.length;
             let row = table.insertRow(rowCount);
 
