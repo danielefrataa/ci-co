@@ -180,8 +180,7 @@ use Carbon\Carbon;
                     </div>
                 </div>
                 @endforeach
-                    <?php 
-                    dd($room); ?>
+
             </div>
         </div>
 

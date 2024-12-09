@@ -122,7 +122,7 @@ public function exportBookings(Request $request)
     $filters = $request->all(); // Ambil semua parameter filter
 
     // Menyiapkan ekspor dengan filter
-    return Excel::download(new BookingsExport($filters), 'bookings.xlsx');
+  return Excel::download(new BookingsExport($filters), 'bookings.xlsx');
 }
 public function updateDutyOfficer(Request $request)
 {
