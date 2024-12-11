@@ -46,6 +46,8 @@ class RoomListController extends Controller
 
     public function index($request)
     {
+        //EDIT THE FILTER ONE THIS INDEX IS NOT WORKING??, BUT EDIT BOTH OF THEM OR JUST DELETE/FIXED THE INDEX ONE
+
         $allRooms = $this->fetchApiData('rooms');
         $timeRanges = $this->getBookingTimes();
 
@@ -62,22 +64,63 @@ class RoomListController extends Controller
             });
 
         // Initialize processed counts
-        $rooms = $allRooms->map(function ($room) use ($timeRanges, $dbStatuses) {
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $apiRooms = $allRooms->filter(function ($room) use ($search) {
+                return stripos(strtolower($room['name']), $search) !== false || stripos(strtolower($room['floor']), $search) !== false;
+            });
+        }
+
+        if ($request->filled('lantai')) {
+            $lantai = strtolower($request->lantai);
+            $apiRooms = $apiRooms->filter(function ($room) use ($lantai) {
+                return strtolower($room['floor']) === $lantai;
+            });
+        }
+        // Reset counts if the day has changed
+        $rooms = $apiRooms->map(function ($room) use ($timeRanges, $dbStatuses) {
             $roomId = $room['id'];
             $cacheKey = "processed_count_{$roomId}";
+            $statusLockKey = "status_lock_{$roomId}";
+            $dateKey = "cache_last_date";
 
+            $currentDate = now()->toDateString(); // e.g., '2024-12-11'
+            $lastDate = Cache::get($dateKey);
+            $previousDate = Cache::get("status_date_{$roomId}", null); // Cached date of the previous status
+            $previousStatus = Cache::get("status_{$roomId}", null);
+
+            if ($lastDate !== $currentDate) {
+                Cache::forget($cacheKey);
+                Cache::forget($statusLockKey); // Reset lock for a new day
+                Cache::put($dateKey, $currentDate);
+                Cache::forget("status_{$roomId}");
+                Cache::forget("status_date_{$roomId}");
+                $previousStatus = null;
+            }
             // Get the current count from the cache
             $currentCount = Cache::get($cacheKey, 0);
 
             $key = strtolower(trim("{$room['name']}|{$room['floor']}"));
             $status = $dbStatuses->get($key, 'unknown');
+            $statusLock = Cache::get($statusLockKey, false);
+
             // Get all bookings for this room
             $allBookings = $timeRanges
                 ->where('ruangan_id', $roomId)
                 ->sortBy('start_time')
                 ->values();
+
             if ($status === 'Check-out') {
-                Cache::put($cacheKey, ++$currentCount);
+                if ($previousStatus === 'Check-in' && !$statusLock) {
+                    // Increment logic only if transitioning from Check-in to Check-out today
+                    Cache::put($cacheKey, (++$currentCount));
+                    Cache::put($statusLockKey, true); // Lock the status to prevent re-execution
+                }
+
+                // Update the cached status and date to Check-out
+                Cache::put("status_{$roomId}", 'Check-out');
+                Cache::put("status_date_{$roomId}", $currentDate);
+
                 if ($currentCount < $allBookings->count()) {
                     $nextBooking = $allBookings->get($currentCount);
                     if ($nextBooking) {
@@ -103,6 +146,12 @@ class RoomListController extends Controller
             } else {
                 // For Check-in or unknown, get the current booking
                 $currentBooking = $allBookings->get($currentCount);
+
+                // Clear the lock and update the cached status and date
+                Cache::forget($statusLockKey);
+                Cache::put("status_{$roomId}", $status);
+                Cache::put("status_date_{$roomId}", $currentDate);
+
                 if ($currentBooking) {
                     return [
                         'name' => $room['name'],
@@ -112,7 +161,6 @@ class RoomListController extends Controller
                         'end' => $currentBooking['end_time'],
                         'booking_code' => $currentBooking['booking_code'] ?? null,
                     ];
-                    
                 } else {
                     return [
                         'name' => $room['name'],
@@ -165,12 +213,28 @@ class RoomListController extends Controller
         $rooms = $apiRooms->map(function ($room) use ($timeRanges, $dbStatuses) {
             $roomId = $room['id'];
             $cacheKey = "processed_count_{$roomId}";
+            $statusLockKey = "status_lock_{$roomId}";
+            $dateKey = "cache_last_date";
 
+            $currentDate = now()->toDateString(); // e.g., '2024-12-11'
+            $lastDate = Cache::get($dateKey);
+            $previousDate = Cache::get("status_date_{$roomId}", null); // Cached date of the previous status
+            $previousStatus = Cache::get("status_{$roomId}", null);
+
+            if ($lastDate !== $currentDate) {
+                Cache::forget($cacheKey);
+                Cache::forget($statusLockKey); // Reset lock for a new day
+                Cache::put($dateKey, $currentDate);
+                Cache::forget("status_{$roomId}");
+                Cache::forget("status_date_{$roomId}");
+                $previousStatus = null;
+            }
             // Get the current count from the cache
             $currentCount = Cache::get($cacheKey, 0);
 
             $key = strtolower(trim("{$room['name']}|{$room['floor']}"));
             $status = $dbStatuses->get($key, 'unknown');
+            $statusLock = Cache::get($statusLockKey, false);
 
             // Get all bookings for this room
             $allBookings = $timeRanges
@@ -179,7 +243,16 @@ class RoomListController extends Controller
                 ->values();
 
             if ($status === 'Check-out') {
-                Cache::put($cacheKey, ++$currentCount);
+                if ($previousStatus === 'Check-in' && !$statusLock) {
+                    // Increment logic only if transitioning from Check-in to Check-out today
+                    Cache::put($cacheKey, (++$currentCount));
+                    Cache::put($statusLockKey, true); // Lock the status to prevent re-execution
+                }
+
+                // Update the cached status and date to Check-out
+                Cache::put("status_{$roomId}", 'Check-out');
+                Cache::put("status_date_{$roomId}", $currentDate);
+
                 if ($currentCount < $allBookings->count()) {
                     $nextBooking = $allBookings->get($currentCount);
                     if ($nextBooking) {
@@ -205,6 +278,12 @@ class RoomListController extends Controller
             } else {
                 // For Check-in or unknown, get the current booking
                 $currentBooking = $allBookings->get($currentCount);
+
+                // Clear the lock and update the cached status and date
+                Cache::forget($statusLockKey);
+                Cache::put("status_{$roomId}", $status);
+                Cache::put("status_date_{$roomId}", $currentDate);
+
                 if ($currentBooking) {
                     return [
                         'name' => $room['name'],
@@ -214,7 +293,6 @@ class RoomListController extends Controller
                         'end' => $currentBooking['end_time'],
                         'booking_code' => $currentBooking['booking_code'] ?? null,
                     ];
-                    
                 } else {
                     return [
                         'name' => $room['name'],
@@ -237,6 +315,25 @@ class RoomListController extends Controller
                 return $status === $statusFilter;
             });
         }
+
+        $rooms = $rooms->sortBy(function ($room) {
+            $statusOrder = [
+                'Check-in' => 1,
+                'unknown' => 2,
+                'Check-out' => 3,
+            ];
+        
+            $statusRank = $statusOrder[$room['status']] ?? 4;
+
+            $isNullStartEnd = is_null($room['start']) && is_null($room['end']) ? 1 : 0;
+        
+            return [
+                $statusRank,
+                $isNullStartEnd,
+                $room['start'],
+                $room['end'],
+            ];
+        })->values();
         // Pagination
         $perPage = $request->get('per_page', 9);
         $currentPage = $request->get('page', 1);
