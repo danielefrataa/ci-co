@@ -51,6 +51,7 @@ class RoomListController extends Controller
         $allRooms = $this->fetchApiData('rooms');
         $timeRanges = $this->getBookingTimes();
 
+
         // Database statuses, keyed by room
         $dbStatuses = Room::query()
             ->select('ruangan', 'lantai', 'status')
@@ -184,7 +185,7 @@ class RoomListController extends Controller
         // Fetch data from the API
         $apiRooms = $this->fetchApiData('rooms');
         $timeRanges = $this->getBookingTimes();
-
+        dd($timeRanges);
         // Fetch room statuses from the database
         $dbStatuses = Room::query()
             ->select('ruangan', 'lantai', 'status')
@@ -379,14 +380,19 @@ class RoomListController extends Controller
                 // Add booking_code only if booking_items exist
                 $bookingCode = $bookingItems->isNotEmpty() ? $item['booking_code'] ?? null : null;
 
-                return [
-                    $ruanganId => [
-                        'ruangan_id' => $ruanganId,
-                        'start_time' => $startTime !== null ? Carbon::createFromTime($startTime)->format('H:i') : null,
-                        'end_time' => $endTime !== null ? Carbon::createFromTime($endTime)->format('H:i') : null,
-                        'booking_code' => $bookingCode,
-                    ],
-                ];
+                if ($startTime !== null && $endTime !== null) {
+                    return [
+                        $ruanganId => [
+                            'ruangan_id' => $ruanganId,
+                            'start_time' => Carbon::createFromTime($startTime)->format('H:i'),
+                            'end_time' => Carbon::createFromTime($endTime)->format('H:i'),
+                            'booking_code' => $bookingCode,
+                        ],
+                    ];
+                }
+
+                // Skip the room if no events are found
+                return [];
             });
         });
     }
