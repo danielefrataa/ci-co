@@ -46,7 +46,7 @@ class RoomListController extends Controller
 
     public function index($request)
     {
-        //EDIT THE FILTER ONE THIS INDEX IS NOT WORKING??, BUT EDIT BOTH OF THEM OR JUST DELETE/FIXED THE INDEX ONE
+        //EDIT THE FILTER FUNCTION ONE, THIS INDEX IS NOT WORKING??, BUT EDIT BOTH OF THEM OR JUST DELETE/FIXED THE INDEX ONE
 
         $allRooms = $this->fetchApiData('rooms');
         $timeRanges = $this->getBookingTimes();
@@ -179,6 +179,8 @@ class RoomListController extends Controller
 
     public function filter(Request $request)
     {
+        //EDIT THIS FILTER FUNCTION ONE, THIS FUNCTION ONE IS THE WORKING ONE, BUT EDIT BOTH OF THEM OR JUST DELETE/FIXED THE INDEX ONE
+
         // Fetch data from the API
         $apiRooms = $this->fetchApiData('rooms');
         $timeRanges = $this->getBookingTimes();
@@ -315,18 +317,18 @@ class RoomListController extends Controller
                 return $status === $statusFilter;
             });
         }
-
+        //sorting for view blade
         $rooms = $rooms->sortBy(function ($room) {
             $statusOrder = [
                 'Check-in' => 1,
                 'unknown' => 2,
                 'Check-out' => 3,
             ];
-        
+
             $statusRank = $statusOrder[$room['status']] ?? 4;
 
             $isNullStartEnd = is_null($room['start']) && is_null($room['end']) ? 1 : 0;
-        
+
             return [
                 $statusRank,
                 $isNullStartEnd,
