@@ -86,14 +86,15 @@ class MarketingController extends Controller
             }
 
             if ($searchTerm) {
-                $eventName = strtolower($item['name'] ?? '');
-                $picName = strtolower($item['pic_name'] ?? '');
+                // Convert the entire $item to a single string to search all fields
+                $itemText = strtolower(json_encode($item));
 
-                return strpos($eventName, $searchTerm) !== false || strpos($picName, $searchTerm) !== false;
+                return strpos($itemText, $searchTerm) !== false;
             }
 
             return true;
         });
+
 
         // Sort by start time
         $filteredBookings = $filteredBookings->sortBy([

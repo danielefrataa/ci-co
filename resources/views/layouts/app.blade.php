@@ -34,22 +34,37 @@
                         </div>
 
                         <!-- Dropdown Arrow for Logout -->
-                        <div class="ms-2">
-                            <div class="dropdown">
-                                <a href="#" class="d-flex align-items-center text-decoration-none" id="dropdownUser"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-chevron-down" style="color: #091F5B;"></i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none" id="dropdownUser"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chevron-down ms-2" style="color: #091F5B;"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser"
+                                style="font-family: 'Montserrat', sans-serif; font-size: 14px; min-width: 200px;">
+                                @if (auth()->user()->role === 'frontoffice')
                                     <li>
-                                        <form action="{{ route('logout') }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">Logout</button>
-                                        </form>
+                                        <a class="dropdown-item py-2" href="{{ route('front_office.roomList') }}">
+                                            <i class="fas fa-door-open me-2"></i> Room List
+                                        </a>
                                     </li>
-                                </ul>
-                            </div>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ route('front_office.dashboard') }}">
+                                            <i class="fas fa-calendar-alt me-2"></i> Booking List
+                                        </a>
+                                    </li>
+                                    <hr class="dropdown-divider my-1">
+                                @endif
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item py-2">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
                         </div>
+
                     </div>
                 @endauth
             </div>

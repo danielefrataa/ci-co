@@ -477,12 +477,10 @@
                                             <p>{{ $booking['history'][0]['pic_marketing'] }}</p>
                                         </div>
                                         <div class="signature-group mt-4 text-center">
-                                            <p>Mengetahui Peminjam</p>
-                                            <p>Peminjam</p>
-                                        </div>
-                                        <div class="signature-group mt-4 text-center">
-                                            <p>Mengetahui Front Office</p>
-                                            <p>Front Office</p>
+                                            <p class="signature-title">Mengetahui,<br> Peminjam</p>
+                                            <p><img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
+                                                style="width: 80px; height: 80px;"></p>
+                                            <p>{{ $booking['pic_name'] }}</p>
                                         </div>
                                     </div>
                                 </div>
