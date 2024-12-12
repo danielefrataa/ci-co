@@ -185,7 +185,6 @@ class RoomListController extends Controller
         // Fetch data from the API
         $apiRooms = $this->fetchApiData('rooms');
         $timeRanges = $this->getBookingTimes();
-        dd($timeRanges);
         // Fetch room statuses from the database
         $dbStatuses = Room::query()
             ->select('ruangan', 'lantai', 'status')
