@@ -238,10 +238,10 @@ class InputKodeController extends Controller
         Log::info("Tidak ada peminjaman barang untuk kode: {$kode_booking}");
 
         // Redirect berdasarkan role pengguna
-        // if (auth()->user()->role === 'frontoffice') {
-        //     return redirect()->route('front_office.dashboard')
-        //         ->with('success', 'Check-in berhasil. Terima kasih!');
-        // }
+        if (auth()->user()->role === 'frontoffice') {
+            return redirect()->route('front_office.dashboard')
+                ->with('success', 'Check-in berhasil. Terima kasih!');
+        }
 
         // Jika bukan FO, redirect ke halaman input kode
         return redirect()->route('inputkode.show')->with('success', 'Check-in berhasil. Terima kasih!');

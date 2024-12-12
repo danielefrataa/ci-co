@@ -17,15 +17,16 @@
 </head>
 
 <body>
+
+    <!-- Navbar -->
+    @include ('layouts.app')
+
     <!-- Success Alert -->
     @if (session('success'))
         <div class="alert alert-success text-center mx-3 mt-3">
             {{ session('success') }}
         </div>
     @endif
-
-    <!-- Navbar -->
-    @include ('layouts.app')
 
     <!-- Main Content -->
     <div class="container my-4">
