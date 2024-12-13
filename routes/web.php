@@ -11,7 +11,7 @@ use App\Http\Middleware\RoleRedirect;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProductionController;
-
+use App\Http\Controllers\dinasApprovalController;
 use App\Models\Absen;
 use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\DutyOfficerController;use App\Exports\BookingsExport;
@@ -44,10 +44,10 @@ Route::post('/update-duty-officer', [BookingsController::class, 'updateDutyOffic
     ->name('update-duty-officer');
     // Yang ini buat impor ya ngab
 // Route::get('/export-bookings', [BookingsController::class, 'exportBookings'])->name('bookings.export');
-    
 
-
-
+// diskopindag
+Route::get('/dinas/approve', [dinasApprovalController::class, 'index'])->name('dinas.approve');
+Route::post('/approval/store', [dinasApprovalController::class, 'store'])->name('approval.store');
 
 Route::get('/bookings', [BookingsController::class, 'getBookingData']);
 

@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
-use App\Models\PeminjamanBarang;
-use App\Models\list_barang;
+use App\Models\dinas_approval;
 use Carbon\Carbon;
 
-class MarketingController extends Controller
+class dinasApprovalController extends Controller
 {
     //Bisa nggak
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
@@ -17,9 +16,6 @@ class MarketingController extends Controller
     {
         // Get the date from the request or default to today
         $filterDate = Carbon::parse($request->get('date', Carbon::now()->toDateString()));
-
-        // get data from list_barang
-        $listBarang = list_barang::all();
 
         $allBookings = collect();
         $searchTerm = strtolower($request->get('search', ''));
@@ -76,7 +72,7 @@ class MarketingController extends Controller
             $item['booking_items'] = $matchingBookingItems->toArray();
 
             // Fetch related database items based on booking code
-            $item['database_items'] = PeminjamanBarang::where('kode_booking', $item['booking_code'])->get();
+            $item['database_items'] = dinas_approval::where('id_booking', $item['booking_id'])->get();
 
             return $item;
         })->filter(function ($item) use ($searchTerm) {
@@ -105,9 +101,8 @@ class MarketingController extends Controller
         $perPage = (int) $request->get('per_page', 6);
         $paginatedBookings = $filteredBookings->forPage($currentPage, $perPage);
 
-        return view('marketing.peminjaman', [
+        return view('dinas.approve', [
             'bookings' => $paginatedBookings,
-            'listBarang' => $listBarang,
             'totalPages' => ceil($filteredBookings->count() / $perPage),
             'currentPage' => $currentPage,
             'perPage' => $perPage,
@@ -115,44 +110,30 @@ class MarketingController extends Controller
         ]);
     }
 
-
     public function store(Request $request)
-    {
-        // Validasi input
-        $validated = $request->validate([
-            'kode_booking' => 'nullable|string', // kode_booking boleh null
-            'items' => 'nullable|array',        // items boleh null, tapi jika ada harus berupa array
-            'items.*.nama_item' => 'required_with:items|string', // Validasi untuk setiap item
-            'items.*.jumlah' => 'required_with:items|integer|min:1',
+{
+    // Find the booking record to ensure it exists (without validation)
+    //$booking = Booking::find($request->id_booking);
+
+    // Check if there's an existing entry in the dinas_approval table for this booking
+    $dinasApproval = dinas_approval::where('id_booking', $request->id_booking)->first();
+
+    if ($dinasApproval) {
+        // If there's an existing record, update the approval fields
+        $dinasApproval->update([
+            'kabin_approval' => $request->kabin_approval,
+            'kadin_approval' => $request->kadin_approval,
         ]);
-
-        // Ambil kode booking dari form (jika ada, gunakan; jika tidak, simpan sebagai null)
-        $kode_booking = $validated['kode_booking'] ?? null;
-
-        // Pastikan items selalu array
-        $items = $validated['items'] ?? [];
-
-        // Menyimpan beberapa item barang
-        foreach ($items as $item) {
-            PeminjamanBarang::create([
-                'nama_item' => $item['nama_item'],
-                'jumlah' => $item['jumlah'],
-                'kode_booking' => $kode_booking, // Set kode_booking (null jika tidak ada)
-            ]);
-        }
-
-        return redirect()->route('marketing.peminjaman')->with('success', 'Booking berhasil ditambahkan.');
+    } else {
+        // If no record exists, create a new record in the dinas_approval table
+        dinas_approval::create([
+            'id_booking' => $request->id_booking,
+            'kabin_approval' => $request->kabin_approval,
+            'kadin_approval' => $request->kadin_approval,
+        ]);
     }
 
-    public function destroy($id)
-    {
-        try {
-            $item = PeminjamanBarang::findOrFail($id);
-            $item->delete();
-
-            return response()->json(['success' => true, 'message' => 'Item berhasil dihapus']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal menghapus item'], 500);
-        }
-    }
+    // Redirect or return response with success message
+    return redirect()->route('dinas.approve')->with('success', 'Booking approval status updated successfully.');
+}
 }
