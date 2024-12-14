@@ -117,13 +117,26 @@ class BookingsController extends Controller
         'dutyOfficers' => $dutyOfficers,
     ]);
 }
+public function showBookingList()
+{
+    $bookings = Booking::with('dutyOfficer')->get();
+    
+    $bookings->transform(function($booking) {
+        $booking->dutyOfficerIsFilled = !is_null($booking->duty_officer);
+        return $booking;
+    });
+
+    return view('dashboard', ['bookings' => $bookings]);
+}
+
 public function exportBookings(Request $request)
 {
     $filters = $request->all(); // Ambil semua parameter filter
+    $filename = 'bookings.csv'; // Hanya CSV
 
-    // Menyiapkan ekspor dengan filter
-  return Excel::download(new BookingsExport($filters), 'bookings.xlsx');
+    return Excel::download(new BookingsExport($filters), $filename);
 }
+
 public function updateDutyOfficer(Request $request)
 {
     $validated = $request->validate([

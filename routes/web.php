@@ -14,11 +14,15 @@ use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\dinasApprovalController;
 use App\Models\Absen;
 use App\Http\Controllers\QRCodeController;
-use App\Http\Controllers\DutyOfficerController;use App\Exports\BookingsExport;
+use App\Http\Controllers\DutyOfficerController;
+use App\Exports\BookingsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade as PDF;
 
+
+//Export Data
 Route::get('export-bookings', function () {
-    return Excel::download(new BookingsExport(request()->all()), 'bookings.xlsx');
+    return Excel::download(new BookingsExport(request()->all()), 'bookings.csv');
 })->name('bookings.export');
 
 
@@ -42,8 +46,9 @@ Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateS
 Route::post('/update-duty-officer', [BookingsController::class, 'updateDutyOfficer'])
     ->middleware('auth') // Tambahkan middleware di sini
     ->name('update-duty-officer');
-    // Yang ini buat impor ya ngab
-// Route::get('/export-bookings', [BookingsController::class, 'exportBookings'])->name('bookings.export');
+
+Route::get('/duty-officer/{id}', [Bookings::class, 'dutyOfficer'])->name('duty_officer');
+
 
 // diskopindag
 Route::get('/dinas/approve', [dinasApprovalController::class, 'index'])->name('dinas.approve');
