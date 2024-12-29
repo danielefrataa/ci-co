@@ -177,21 +177,44 @@
         <h1 class="display-4 mb-4 text-center">Approval List</h1>
 
         <!-- Combined Filters -->
-        <div class="row mb-4">
-            <form method="GET" action="{{ route('dinas.approve') }}"
-                class="d-flex align-items-center justify-content-between">
-                <!-- Date Filter -->
-                <div class="me-3">
-                    <input type="date" name="date" class="form-control"
-                        value="{{ old('date', request('date', $filterDate)) }}" onchange="this.form.submit()">
-                </div>
-                <!-- Search Filter -->
-                <div>
-                    <input type="text" name="search" class="form-control" placeholder="Search"
-                        value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
-                </div>
-            </form>
+      <div class="row mb-4">
+    <form method="GET" action="{{ route('dinas.approve') }}" 
+        class="d-flex align-items-center justify-content-between">
+        
+        <!-- Left Section: Approval Status and Date Filter -->
+        <div class="d-flex align-items-center p-4">
+            <!-- Approval Status Filter -->
+            <div class="me-3">
+                <select name="approval_status" class="form-control "
+                    style="padding: 0.5rem 1rem; background-color: #f8f9fa; border: 1px solid #ced4da;" 
+                    onchange="this.form.submit()">
+                    <option value="">Semua Status</option>
+                    <option value="0" {{ request('approval_status') === '0' ? 'selected' : '' }}>Belum Disetujui</option>
+                    <option value="1" {{ request('approval_status') === '1' ? 'selected' : '' }}>Sudah Disetujui</option>
+                </select>
+            </div>
+
+            <!-- Date Filter -->
+            <div class="me-3">
+                <input type="date" name="date" 
+                    class="form-control"
+                    style="padding: 0.5rem 1rem; background-color: #f8f9fa; border: 1px solid #ced4da;" 
+                    value="{{ old('date', request('date', $filterDate)) }}" 
+                    onchange="this.form.submit()">
+            </div>
         </div>
+        
+        <!-- Right Section: Search Filter -->
+        <div class="p-4">
+            <input type="text" name="search" 
+                class="form-control "
+                style="padding: 0.5rem 1rem; background-color: #f8f9fa; border: 1px solid #ced4da;" 
+                placeholder="Search"
+                value="{{ old('search', request('search')) }}" 
+                onkeyup="this.form.submit()">
+        </div>
+    </form>
+</div>
 
 
         <!-- Table -->
@@ -209,136 +232,83 @@
             </div>
 
             @foreach ($bookings as $booking)
-                <div class="card-header text-dark my-2 shadow-sm" style="background-color:white; border-radius: 5px;">
-                    <div class="row align-items-center">
-                        <div class="d-none">
-                            {{ $booking['booking_code'] }}
+                        <div class="card-header text-dark my-2 shadow-sm" style="background-color:white; border-radius: 5px;">
+                            <div class="row align-items-center">
+                                <div class="d-none">
+                                    {{ $booking['booking_code'] }}
+                                </div>
+                                <div class="col-md-3 text-left">
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
+                                        class="fw-bold" style="color: #091F5B;">
+                                        {{ $booking['name'] }}
+                                    </a>
+                                </div>
+                                <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
+                                    {{ $booking['user_name'] }}
+                                </div>
+                                <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
+                                    {{ $filterDate ?? 'No booking date available' }}
+                                </div>
+                                <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
+                                    @foreach ($booking['ruangans'] as $ruangan)
+                                        <p>{{ $ruangan['name'] }}<br>
+                                            <span>{{ $ruangan['floor'] }}</span><br>
+                                            <span>{{ $booking['start_time'] ?? 'N/A' }} -
+                                                {{ $booking['end_time'] ?? 'N/A' }}</span>
+                                        </p>
+                                    @endforeach
+                                </div>
+                                <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
+                                    {{ $booking['pic_name'] }} <br>
+                                </div>
+                                <div class="col-md-1 text-left">
+                                    @php
+                                        // Mendapatkan status persetujuan Kabid dan Kadin
+                                        $kabinApproval = $booking['dinas_approval']->kabin_approval ?? 0;
+                                        $kadinApproval = $booking['dinas_approval']->kadin_approval ?? 0;
+
+                                        // Mengecek role pengguna yang sedang login
+                                        $isKabid = auth()->user()->role === 'kabid';
+                                        $isKadin = auth()->user()->role === 'kadin';
+
+                                        // Menentukan kondisi centang untuk checkbox
+                                        $checked = false;
+
+                                        if ($isKabid && $kabinApproval != 0) {
+                                            // Kabid akan centang jika Kabid sudah menyetujui
+                                            $checked = true;
+                                        } elseif ($isKadin && $kadinApproval != 0) {
+                                            // Kadin akan centang jika Kadin sudah menyetujui
+                                            $checked = true;
+                                        }
+                                    @endphp
+
+                                    <!-- Checkbox (Triggers Modal) -->
+                                    <input type="checkbox" class="form-check-input trigger-modal"
+                                        id="checkBooking{{ $booking['id'] }}" data-bs-toggle="modal"
+                                        data-bs-target="#editModal{{ $booking['id'] }}" @checked($checked) onclick="return false;">
+                                </div>
+
+
+                            </div>
                         </div>
-                        <div class="col-md-3 text-left">
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
-                                class="fw-bold" style="color: #091F5B;">
-                                {{ $booking['name'] }}
-                            </a>
-                        </div>
-                        <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
-                            {{ $booking['user_name'] }}
-                        </div>
-                        <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
-                            {{ $filterDate ?? 'No booking date available' }}
-                        </div>
-                        <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
-                            @foreach ($booking['ruangans'] as $ruangan)
-                                <p>{{ $ruangan['name'] }}<br>
-                                    <span>{{ $ruangan['floor'] }}</span><br>
-                                    <span>{{ $booking['start_time'] ?? 'N/A' }} -
-                                        {{ $booking['end_time'] ?? 'N/A' }}</span>
-                                </p>
-                            @endforeach
-                        </div>
-                        <div class="col-md-2 text-left" style="color:#091F5B; font-weight: 600;">
-                            {{ $booking['pic_name'] }} <br>
-                        </div>
-                        <div class="col-md-1 text-left">
-                            <!-- Checkbox (Triggers Modal) -->
-                            <input type="checkbox" class="form-check-input trigger-modal"
-                                id="checkBooking{{ $booking['id'] }}" data-bs-toggle="modal"
-                                data-bs-target="#editModal{{ $booking['id'] }}" onclick="return false;">
-                        </div>
-                    </div>
-                </div>
             @endforeach
         </div>
-        <div class="d-flex justify-content-between align-items-center mb-3 mx-3">
-            <!-- Dropdown untuk memilih jumlah data per halaman -->
-            <div class="mb-3">
-                <label for="per-page" class="form-label">Jumlah Data Per Halaman:</label>
-                <select id="per-page" class="form-select" onchange="updatePerPage()">
-                    <option value="6" {{ request('per_page') == 6 ? 'selected' : '' }}>6</option>
-                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
-                    <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
-                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                </select>
+        @if(session('status'))
+            <div class="alert alert-success">
+                {{ session('status') }}
             </div>
-            <!-- Pagination Section -->
-            <div>
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-end">
-                        @for ($page = 1; $page <= $totalPages; $page++)
-                            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
-                                <a class="page-link"
-                                    href="{{ url()->current() }}?page={{ $page }}&per_page={{ $perPage }}&date={{ request('date') }}&search={{ request('search') }}">
-                                    {{ $page }}
-                                </a>
-                            </li>
-                        @endfor
-                    </ul>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Modal for Event Details -->
-        @foreach ($bookings as $booking)
-            <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
-                aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
-                <!-- Mengatur ukuran modal agar lebih kecil -->
-                <div class="modal-dialog" style="max-width: 600px;"> <!-- Menyesuaikan ukuran -->
-                    <div class="modal-content p-0 rounded-3">
-                        <div class="modal-header"
-                            style="border: none; padding-bottom: 0px; display: flex; justify-content: space-between; align-items: center;">
-                            <h3 class="modal-title w-100 text-center" id="eventModalLabel{{ $booking['id'] }}"
-                                style="color: #091F5B; font-weight: 400;">
-                                Detail Acara
-                            </h3>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-
-                        <div class="modal-body" style="padding-top: 0px;">
-                            <!-- Nama Acara dengan garis bawah biru tebal -->
-                            <div class="text-center mb-2"
-                                style="border-bottom: 3px solid #091F5B; padding-bottom: 5px; justify-content: center;">
-                                <div style="font-size: 1.5rem;">
-                                    {{ $booking['name'] }}
-                                </div>
-                            </div>
-                            <!-- Isi Detail Acara -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Nama PIC:</strong></p>
-                                    <p>{{ $booking['pic_name'] }}</p>
-
-                                    <p><strong>Kategori Ekraf:</strong></p>
-                                    <p>{{ $booking['kategori_ekraf'] }}</p>
-
-                                    <p><strong>Jumlah Peserta:</strong></p>
-                                    <p>{{ $booking['participant'] }} Orang</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>No Telp:</strong></p>
-                                    <p>{{ $booking['pic_phone_number'] }}</p>
-                                    <p><strong>Kategori Event:</strong></p>
-                                    <p>{{ $booking['kategori_event'] }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-
+        @endif
 
         <!-- Modal Edit-->
         @foreach ($bookings as $booking)
-            <form method="POST" action="{{ route('approval.store') }}">
-                @csrf
                 <div class="modal fade" id="editModal{{ $booking['id'] }}" tabindex="-1"
                     aria-labelledby="editModalLabel{{ $booking['id'] }}" aria-hidden="true">
                     <div class="modal-dialog" style="max-width: 900px;">
                         <div class="modal-content">
                             <div class="main-card border">
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                                <h4 class="text-center mb-4 fw-bold" id="editModalLabel">Formulir Peminjaman Barang
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h4 class="text-center mb-4 fw-bold" id="editModalLabel">Formulir Approve Booking
                                 </h4>
                                 <div class="info-card border mb-2 p-3">
                                     <div class="d-flex align-items-center">
@@ -351,8 +321,7 @@
                                 <div class="info-card border p-3 mb-3">
                                     <div class="row">
                                         <!-- Hidden booking code -->
-                                        <input type="hidden" name="kode_booking"
-                                            value="{{ $booking['booking_code'] }}">
+                                        <input type="hidden" name="kode_booking" value="{{ $booking['booking_code'] }}">
 
                                         <!-- Ruangan Section -->
                                         <div class="col-md-6 d-flex align-items-center">
@@ -395,17 +364,13 @@
                                                 {{ $booking['end_time'] ?? 'N/A' }}
                                             </p>
                                         </div>
-                                        <input type="hidden" name="id_booking" value="{{ $booking['id'] }}">
+                                        <input type="hidden" name="id_booking" value="{{ $booking['booking_code'] }}">
                                         <input type="hidden" name="kadin_approval"
                                             value="1"><!-- Add this for kadin approval -->
                                         <input type="hidden" name="kabin_approval"
                                             value="1"><!-- Add this for kabin approval -->
                                     </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary simpanButton">
-                                    Approve
-                                </button>
-
                                 <div class="modal-footer border-0">
                                     <div class="d-flex justify-content-between w-100">
                                         <!-- Marketing Approval -->
@@ -417,7 +382,11 @@
                                             </p>
                                             <p>{{ $booking['history'][0]['pic_marketing'] }}</p>
                                         </div>
+                                        @php
+                                            $kabinApproval = $booking['dinas_approval']->kabin_approval ?? 0;
+                                            $kadinApproval = $booking['dinas_approval']->kadin_approval ?? 0;
 
+                                        @endphp
                                         <!-- Kepala Dinas Approval -->
                                         <div class="signature-group mt-4 text-center">
                                             <p class="signature-title">Mengetahui,<br> Kepala Dinas</p>
@@ -425,21 +394,25 @@
                                                 <img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
                                                     style="width: 80px; height: 80px;">
                                             </p>
-                                            @foreach ($booking['database_items'] as $dbItem)
-                                                <!-- Check if booking_id matches id_booking -->
-                                                @if ($dbItem->id_booking == $booking['booking_id'])
-                                                    <!-- Then check kadin_approval -->
-                                                    <p>
-                                                        @if ($dbItem->kadin_approval == 1)
-                                                            ok
-                                                        @else
-                                                            bad
-                                                        @endif
-                                                    </p>
+                                            @if ($kadinApproval == 0)
+                                                @if(auth()->user()->role === 'kadin')
+                                                    <p><em class="text-danger">Belum Disetujui</em></p>
+                                                    <form action="{{ route('approve.kadin') }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="id_booking" value="{{ $booking['booking_code'] }}">
+                                                        <input type="hidden" name="kadin_approval" value="1"> <!-- Approve -->
+                                                        <button type="submit" class="btn btn-primary simpanButton">Approve</button>
+                                                    </form>
+                                                @else
+                                                    <p><em class="text-muted">Menunggu persetujuan Kepala Dinas</em></p>
                                                 @endif
-                                            @endforeach
+                                            @elseif ($kadinApproval == 1)
+                                                <p><em class="text-success">Disetujui oleh Kadin</em></p>
+                                                <p>Kepala Dinas</p>
+                                            @else
+                                                <p><em class="text-muted">Belum Disetujui oleh Kadin</em></p>
+                                            @endif
 
-                                            <p>blabla</p>
                                         </div>
 
                                         <!-- Kepala Bidang Keuangan Approval -->
@@ -449,18 +422,26 @@
                                                 <img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
                                                     style="width: 80px; height: 80px;">
                                             </p>
-                                            <!-- Check if kabin_approval is 1 or 0 -->
-                                            @php
-                                                $approvalStatus = $booking['dinas_approval']->kabin_approval ?? 0;
-                                            @endphp
-                                            <p>
-                                                @if ($approvalStatus == 0)
-                                                    <em class="text-danger">Belum Disetujui</em>
+                                            @if ($kabinApproval == 0)
+                                                @if(auth()->user()->role === 'kabid')
+                                                    <p><em class="text-danger">Belum Disetujui</em></p>
+                                                    <form action="{{ route('approve.kabid') }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="id_booking" value="{{ $booking['booking_code'] }}">
+                                                        <input type="hidden" name="kabin_approval" value="1"> <!-- Approve -->
+                                                        <button type="submit" class="btn btn-primary simpanButton">Approve</button>
+                                                    </form>
                                                 @else
-                                                    <em class="text-success">Sudah Disetujui</em>
+                                                    <p><em class="text-muted">Menunggu persetujuan Kepala Bidang Keuangan</em></p>
                                                 @endif
-                                            </p>
-                                            <p>blabla</p>
+                                            @elseif ($kabinApproval == 1)
+                                                <p><em class="text-success">Disetujui oleh Kabid</em></p>
+                                                <p>Kepala Bidang</p>
+                                            @else
+                                                <p><em class="text-muted">Belum Disetujui oleh Kabid</em></p>
+                                            @endif
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -468,11 +449,84 @@
                         </div>
                     </div>
                 </div>
-            </form>
+
         @endforeach
+        <div class="d-flex justify-content-between align-items-center mb-3 mx-3">
+            <!-- Dropdown untuk memilih jumlah data per halaman -->
+            <div class="mb-3">
+                <label for="per-page" class="form-label">Jumlah Data Per Halaman:</label>
+                <select id="per-page" class="form-select" onchange="updatePerPage()">
+                    <option value="6" {{ request('per_page') == 6 ? 'selected' : '' }}>6</option>
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10</option>
+                    <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                </select>
+            </div>
+            <!-- Pagination Section -->
+            <div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-end">
+                        @for ($page = 1; $page <= $totalPages; $page++)
+                            <li class="page-item {{ $currentPage == $page ? 'active' : '' }}">
+                                <a class="page-link"
+                                    href="{{ url()->current() }}?page={{ $page }}&per_page={{ $perPage }}&date={{ request('date') }}&search={{ request('search') }}">
+                                    {{ $page }}
+                                </a>
+                            </li>
+                        @endfor
+                    </ul>
+                </nav>
+            </div>
+        </div>
 
+        <!-- Modal for Event Details -->
+        @foreach ($bookings as $booking)
+            <div class="modal fade" id="eventModal{{ $booking['id'] }}" tabindex="-1"
+                aria-labelledby="eventModalLabel{{ $booking['id'] }}" aria-hidden="true">
+                <!-- Mengatur ukuran modal agar lebih kecil -->
+                <div class="modal-dialog" style="max-width: 600px;"> <!-- Menyesuaikan ukuran -->
+                    <div class="modal-content p-0 rounded-3">
+                        <div class="modal-header"
+                            style="border: none; padding-bottom: 0px; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="modal-title w-100 text-center" id="eventModalLabel{{ $booking['id'] }}"
+                                style="color: #091F5B; font-weight: 400;">
+                                Detail Acara
+                            </h3>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
 
+                        <div class="modal-body" style="padding-top: 0px;">
+                            <!-- Nama Acara dengan garis bawah biru tebal -->
+                            <div class="text-center mb-2"
+                                style="border-bottom: 3px solid #091F5B; padding-bottom: 5px; justify-content: center;">
+                                <div style="font-size: 1.5rem;">
+                                    {{ $booking['name'] }}
+                                </div>
+                            </div>
+                            <!-- Isi Detail Acara -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Nama PIC:</strong></p>
+                                    <p>{{ $booking['pic_name'] }}</p>
 
+                                    <p><strong>Kategori Ekraf:</strong></p>
+                                    <p>{{ $booking['kategori_ekraf'] }}</p>
+
+                                    <p><strong>Jumlah Peserta:</strong></p>
+                                    <p>{{ $booking['participant'] }} Orang</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>No Telp:</strong></p>
+                                    <p>{{ $booking['pic_phone_number'] }}</p>
+                                    <p><strong>Kategori Event:</strong></p>
+                                    <p>{{ $booking['kategori_event'] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
     </div>
 
@@ -494,10 +548,10 @@
 
             // Fetch data from API
             fetch(url, {
-                    headers: {
-                        'X-API-KEY': 'your-api-key-here'
-                    },
-                })
+                headers: {
+                    'X-API-KEY': 'your-api-key-here'
+                },
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -512,12 +566,12 @@
                 });
         }
         // Toggle checkbox
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const buttons = document.querySelectorAll('.simpanButton');
 
             if (buttons.length > 0) {
-                buttons.forEach(function(button) {
-                    button.addEventListener('click', function(event) {
+                buttons.forEach(function (button) {
+                    button.addEventListener('click', function (event) {
                         // Prevent the form submission
                         event.preventDefault();
 

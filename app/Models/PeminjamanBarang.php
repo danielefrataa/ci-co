@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 use Carbon\Carbon;
 
 class PeminjamanBarang extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'peminjaman_barang';
 
@@ -17,7 +19,9 @@ class PeminjamanBarang extends Model
         'nama_item',
         'jumlah',
         'marketing',
-        'FO'
+        'FO',
+        'created_by',  // Add created_by
+        'deleted_by',  // Add deleted_by
     ];
 
     public function booking()
@@ -28,4 +32,15 @@ class PeminjamanBarang extends Model
     {
         return $this->hasOne(Absen::class, 'id_booking', 'kode_booking'); // Sesuaikan dengan kolom yang sesuai
     }
+    // Di model PeminjamanBarang
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
+    }
+
 }

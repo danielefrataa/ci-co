@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;  // Pastikan untuk menambahkan use statement ini
 
 class LoginController extends Controller
 {
@@ -32,6 +33,7 @@ class LoginController extends Controller
         if ($user && Hash::check($credentials['password'], $user->password)) {
             // Log the user in with the default guard
             Auth::login($user);
+            Log::info('User logged in: ' . $user->name . ' (' . $user->email . ') - Role: ' . $user->role);  // Log username, email, and role
 
             // Redirect to the specific dashboard based on role
             switch ($user->role) {
@@ -42,7 +44,11 @@ class LoginController extends Controller
                 case 'it':
                     return redirect()->intended('/it/home');
                 case 'produksi':
-                    return redirect()->intended('/produksi/home');
+                    return redirect()->intended('/production/peminjaman');
+                case 'kadin': // Redirect for Kepala Dinas
+                        return redirect()->intended('/dinas/approve');
+                case 'kabid': // Redirect for Kepala Bidang
+                        return redirect()->intended('/dinas/approve');
                 default:
                     return redirect()->intended('/home'); // Default home for other roles
             }

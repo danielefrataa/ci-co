@@ -21,24 +21,25 @@
     <!-- Navbar -->
     @include ('layouts.app')
 
-    <!-- Success Alert -->
-    @if (session('success'))
-        <div class="alert alert-success text-center mx-3 mt-3">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <!-- Main Content -->
     <div class="container my-4">
         @if (session('sukses'))
-            <div class="alert alert-success">
+            <div class="alert alert-success alert-dismissible fade show">
                 {{ session('sukses') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-
         @if (session('gagal'))
-            <div class="alert alert-danger">
+            <div class="alert alert-danger alert-dismissible fade show">
                 {{ session('gagal') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show text-center mx-3 mt-3">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
 
@@ -50,171 +51,228 @@
             <!-- Filter -->
             <div class="col-md-3">
                 <form method="GET" action="{{ route('front_office.dashboard') }}">
-                    <select name="status" class="form-select" style="width: 100%;" aria-label="Status Filter" onchange="this.form.submit()">
+                    <select name="status" class="form-select" style="width: 100%;" aria-label="Status Filter"
+                        onchange="this.form.submit()">
                         <option value="">Semua Status</option>
                         <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Check-in</option>
                         <option value="Booked" {{ request('status') == 'Booked' ? 'selected' : '' }}>Booked</option>
-                        <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Check-out</option>
+                        <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Check-out
+                        </option>
                     </select>
                 </form>
             </div>
 
             <!-- Search (Tengah) -->
             <div class="col-md-6 text-center">
-                <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline-block" style="width: 100%;">
-                    <input type="text" name="search" class="form-control" placeholder="Search by Event Name or Kode Booking"
+                <form method="GET" action="{{ route('front_office.dashboard') }}" class="d-inline-block"
+                    style="width: 100%;">
+                    <input type="text" name="search" class="form-control"
+                        placeholder="Cari berdasarkan Nama Event atau Kode Booking" style="font-style: italic;"
                         value="{{ old('search', request('search')) }}" onkeyup="this.form.submit()">
                 </form>
             </div>
-        
+
             <!-- Export -->
-<div class="col-md-3 text-end">
+            <div class="col-md-3 text-end">
     <div class="dropdown">
         <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-download"></i> Export
         </button>
         <ul class="dropdown-menu" aria-labelledby="exportDropdown">
-            <li><a class="dropdown-item" href="{{ route('bookings.export', ['format' => 'pdf']) }}"><i class="fas fa-file-pdf"></i> Export as PDF</a></li>
-            <li><a class="dropdown-item" href="{{ route('bookings.export', ['format' => 'csv']) }}"><i class="fas fa-file-csv"></i> Export as CSV</a>
-            </li>
+            <li><a class="dropdown-item" href="{{ route('bookings.export', ['format' => 'pdf']) }}">
+                <i class="fas fa-file-pdf"></i> Export as PDF
+            </a></li>
+            <li><a class="dropdown-item" href="{{ route('bookings.export', ['format' => 'csv']) }}">
+                <i class="fas fa-file-csv"></i> Export as CSV
+            </a></li>
         </ul>
     </div>
 </div>
+
 
         <!-- Booking Table -->
         <div class="responsive-container">
             <table class="table custom-table">
                 <thead class="table-header">
                     <tr>
-                        <th class="d-none">Kode Booking</th>
-                        <th style="width: 15%;">Kode Booking</th>
-                        <th style="width: 20%;">Nama Event</th>
-                        <th style="width: 20%;">Nama Organisasi</th>
-                        <th style="width: 20%;">Ruangan dan Waktu</th>
-                        <th style="width: 15%;">Duty Officer</th>
+                        <th style="width: 10%;">Kode Booking</th>
+                        <th style="width: 15%;">Nama Event</th>
+                        <th style="width: 15%;">Nama Organisasi</th>
+                        <th style="width: 18%;">Ruangan dan Waktu</th>
+                        <th style="width: 15%;">Nama PIC</th>
+                        <th style="width: 12%;">Duty Officer</th>
                         <th style="width: 15%;">User Check-in</th>
-                        <th style="width: 12%;">Status</th>
+                        <th style="width: 13%;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($bookings as $booking)
-                        <tr class="table-row">
-                            <td class="d-none">{{ $booking['booking_id'] }}</td>
-                            <td>
-                                <p style="color:#091F5B;">
-                                {{ $booking['booking_code'] }}<br>
-                            </p>
-                            </td>
-                            <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
-                                    class="fw-bold" style="color: #091F5B;">
-                                    {{ $booking['name'] }}
-                                </a>
-                            </td>
-                            <td class="fw-semibold">{{ $booking['user_name'] }}</td>
-                            <td>
-                                @foreach ($booking['ruangans'] as $ruangan)
-                                    <p>{{ $ruangan['name'] }}<br>
-                                        <span>{{ $ruangan['floor'] }}</span><br>
-                                        <span>{{ $booking['start_time'] ?? 'N/A' }} -
-                                            {{ $booking['end_time'] ?? 'N/A' }} </span>
-                                    </p>
-                                @endforeach
-                            </td>
-                            <td>
-                                @if (!empty($booking['absen']['duty_officer']))
-                                    <!-- Tampilkan nama Duty Officer -->
-                                    {{ $booking['absen']['duty_officer'] }}
-                                @else
-                                        <!-- Tombol untuk memilih Duty Officer -->
-                                        <button type="button" 
-                                        class="btn btn-sm" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#dutyOfficerModal" 
-                                        data-booking-id="{{ $booking['booking_code'] }}"
-                                        @if (isset($booking['absen']['status']) && strtolower(trim($booking['absen']['status'])) === 'check-out') 
-                                            onclick="showCheckoutAlert(event)"
-                                        @endif
-                                        style="background-color: #091F5B; color: white;">
-                                        Pilih Duty Officer
-                                    </button>    
-                                @endif
-                            </td>
-                            
-                            @if (empty($booking['absen']['duty_officer']))
-                                <div class="modal fade" id="dutyOfficerModal" tabindex="-1"
-                                    aria-labelledby="dutyOfficerModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form id="dutyOfficerForm" method="POST" action="{{ route('dutyofficer.store') }}">
-                                                @csrf
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="dutyOfficerModalLabel">Pilih Duty Officer</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <input type="hidden" id="bookingId" name="id_booking"
-                                                        value="{{ $booking['booking_code'] }}">
-                                                    <div class="mb-3">
-                                                        <label for="dutyOfficerSelect" class="form-label">Duty Officer</label>
-                                                        <select class="form-select" id="dutyOfficerSelect"
-                                                            name="duty_officer_id" required>
-                                                            @foreach ($dutyOfficers as $officer)
-                                                                <option value="{{ $officer->id }}">{{ $officer->nama_do }}</option>
-                                                            @endforeach
-                                                        </select>
+                                    <tr class="table-row">
+                                        <td>{{ $booking['booking_code'] }}</td>
+                                        <td>
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#eventModal{{ $booking['id'] }}"
+                                                class="fw-bold" style="color: #091F5B;">
+                                                {{ Str::limit($booking['name'], 20) }} <!-- Membatasi panjang nama event -->
+                                            </a>
+                                        </td>
+                                        <td class="fw-semibold">{{ $booking['user_name'] }}</td>
+
+                                        <td>
+                                            @foreach ($booking['ruangans'] as $ruangan)
+                                                <p>{{ $ruangan['name'] }}<br>
+                                                    <span>{{ $ruangan['floor'] }}</span><br>
+                                                    <span>{{ $booking['start_time'] ?? 'N/A' }} - {{ $booking['end_time'] ?? 'N/A' }}</span>
+                                                </p>
+                                            @endforeach
+                                        </td>
+                                        <td>{{ $booking['pic_name'] }}</td>
+
+                                        <td>
+                                            @if (!empty($booking['absen']['name'])) <!-- Cek apakah absen['name'] ada (tidak kosong) -->
+                                                @if (!empty($booking['absen']['duty_officer'])) <!-- Jika duty officer sudah ada -->
+                                                    {{ $booking['absen']['duty_officer'] }}
+                                                @else
+                                                    <button type="button" class="btn btn-sm"
+                                                        style="background-color: rgba(91, 76, 225, 0.5); color:#3207CF; font-weight: 600;"
+                                                        data-bs-toggle="modal" data-bs-target="#dutyOfficerModal"
+                                                        data-booking-id="{{ $booking['booking_code'] }}">
+                                                        Pilih Duty Officer
+                                                    </button>
+                                                @endif
+                                            @else
+                                                <!-- Jika absen['name'] kosong, tampilkan modal untuk peringatan -->
+                                                <button type="button" class="btn btn-sm"
+                                                    style="background-color: rgba(91, 76, 225, 0.5); color:#3207CF; font-weight: 600;"
+                                                    data-bs-toggle="modal" data-bs-target="#checkinWarningModal">
+                                                    Pilih Duty Officer
+                                                </button>
+                                            @endif
+                                        </td>
+                                        <!-- Modal Peringatan Check-in -->
+                                        <div class="modal fade" id="checkinWarningModal" tabindex="-1"
+                                            aria-labelledby="checkinWarningModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="checkinWarningModalLabel">Peringatan</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Silahkan check-in dulu sebelum memilih Duty Officer.
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary"
+                                                            data-bs-dismiss="modal">OK</button>
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" class="btn btn-primary">Simpan</button>
-                                                </div>
-                                            </form>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            @endif
 
-                            <td>
-                                @if (!empty($booking['absen']))
-                                    {{ $booking['absen']['name'] }}<br>
-                            @php
-                                $phone = preg_replace('/\D/', '', $booking['absen']['phone']);  // Remove any non-numeric characters
-                            @endphp
-                        
-                            {{-- Display the phone number --}}
-                            <a href="https://wa.me/{{ $phone }}" target="_blank" style="color: #25D366;">
-                                {{ $phone }}
-                            </a>
-                            @else
-                                <span class="text-warning">Belum Check-in</span>
-                            @endif
-                            </td>                        
-                            <td>
-                                @if (!empty($booking['absen']))
-                                    @if ($booking['absen']['status'] === 'Check-in')
-                                        <button class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center custom-shadow fw-bold rounded shadow"
-                                                data-bs-toggle="modal" data-bs-target="#checkoutModal{{ $booking['id'] }}" style="font-weight: bold;">
-                                            Check-In
-                                        </button>
-                                    @elseif ($booking['absen']['status'] === 'Check-out')
-                                        <span class="btn btn-danger btn-sm d-inline-block custom-shadow fw-bold rounded shadow"
-                                              style="pointer-events: none; border: 2px solid white; padding: 5px 10px;">
-                                            Check-Out
-                                        </span>
-                                    @endif
-                                @else
-                                    <a href="{{ route('inputkode.match', ['id_booking' => $booking['booking_code']]) }}"
-                                       class="btn btn-sm w-100 d-flex align-items-center justify-content-center custom-shadow fw-bold rounded shadow"
-                                       style="background-color: #969696; color: #fff;">
-                                        Booked
-                                    </a>
-                                @endif
-                            @endforeach
-                        </td>
-                    </tr>
+
+                                        @if (empty($booking['absen']['duty_officer']))
+                                            <div class="modal fade" id="dutyOfficerModal" tabindex="-1"
+                                                aria-labelledby="dutyOfficerModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content rounded-4 shadow-lg">
+                                                        <form id="dutyOfficerForm" method="POST" action="{{ route('dutyofficer.store') }}">
+                                                            @csrf
+                                                            <div class="modal-header"
+                                                                style="background-color: rgba(91, 76, 225, 0.5); color: #fff;">
+                                                                <h5 class="modal-title" id="dutyOfficerModalLabel">Pilih Duty Officer</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                    aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <input type="hidden" id="bookingId" name="id_booking"
+                                                                    value="{{ $booking['booking_code'] }}">
+                                                                <div class="mb-3">
+                                                                    <label for="dutyOfficerSelect" class="form-label"
+                                                                        style="font-weight: 600; color: #4C74E1;">Duty Officer</label>
+                                                                    <select class="form-select" id="dutyOfficerSelect"
+                                                                        name="duty_officer_id" required
+                                                                        style="border-radius: 10px; border: 1px solid #4C74E1;">
+                                                                        @foreach ($dutyOfficers as $officer)
+                                                                            <option value="{{ $officer->id }}">{{ $officer->nama_do }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                                                                    style="background-color: #D1D1D1; border: none;">Close</button>
+                                                                <button type="submit" class="btn"
+                                                                    style="background-color: #4C74E1; color: white;">Simpan</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <td>
+                                            @if (!empty($booking['absen']))
+                                                                    {{ $booking['absen']['name'] }}<br>
+                                                                    @php
+                                                                        $phone = preg_replace('/\D/', '', $booking['absen']['phone']);
+                                                                    @endphp
+                                                                    <a href="https://wa.me/{{ $phone }}" target="_blank" style="color: #25D366;">
+                                                                        {{ $phone }}
+                                                                    </a>
+                                            @else
+                                                <em class="text-secondary ">Belum Check-in</em>
+                                            @endif
+                                        </td>
+
+                                        <td>
+    @if (!empty($booking['absen']))
+        @if ($booking['absen']['status'] === 'Check-in')
+            <button
+                class="btn btn-sm w-100 d-flex align-items-center justify-content-center custom-shadow fw-bold"
+                style="background-color: rgba(76, 116, 225, 0.5); color:#3207CF;"
+                data-bs-toggle="modal"
+                @if (empty($booking['absen']['duty_officer']))
+                    data-bs-target="#dutyOfficerWarningModal"
+                @else
+                    data-bs-target="#checkoutModal{{ $booking['id'] }}"
+                @endif>
+                Check-In
+            </button>
+        @elseif ($booking['absen']['status'] === 'Check-out')
+            <span class="btn btn-sm w-100 custom-shadow fw-bold"
+                style="background-color: rgba(243, 85, 88, 0.5); color:#F40928; pointer-events: none; border: 2px solid white;">
+                Check-Out
+            </span>
+        @endif
+    @else
+        <a href="{{ route('inputkode.match', ['id_booking' => $booking['booking_code']]) }}"
+            class="btn w-100 custom-shadow"
+            style="background-color: rgba(150, 150, 150, 0.5); font-weight: 600; color: #696969;">
+            Booked
+        </a>
+    @endif
+</td>
+<!-- Modal Peringatan Pilih Duty Officer -->
+<div class="modal fade" id="dutyOfficerWarningModal" tabindex="-1" aria-labelledby="dutyOfficerWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="dutyOfficerWarningModalLabel">Peringatan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Silahkan pilih Duty Officer terlebih dahulu sebelum melakukan Check-Out.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+                                    </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>

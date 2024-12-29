@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 use App\Models\Absen;
- // Pastikan model Absen telah diimpor
+
 class PeminjamanController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
@@ -17,6 +17,7 @@ class PeminjamanController extends Controller
     {
         $today = Carbon::now()->toDateString(); // Format: 2024-11-19
 
+        
         // Ambil data booking dari API
         $url = "https://event.mcc.or.id/api/event?status=booked&booking_code={$kode_booking}";
         $response = Http::withHeaders([
@@ -49,19 +50,6 @@ class PeminjamanController extends Controller
                     ->values()
                     ->toArray();
 
-                // Ambil data peminjaman barang dari API
-                $urlPeminjaman = "https://event.mcc.or.id/api/peminjaman?booking_code={$kode_booking}";
-                $responsePeminjaman = Http::withHeaders([
-                    'X-API-KEY' => $this->apiKey,
-                ])->withoutVerifying()->get($urlPeminjaman);
-
-                $databaseItems = [];
-                if ($responsePeminjaman->successful()) {
-                    $databaseItems = collect($responsePeminjaman->json()['data'] ?? []);
-                } else {
-                    report('Error accessing API for peminjaman: ' . $responsePeminjaman->status());
-                }
-
                 // Ambil data peminjaman dari database lokal
                 $booking['database_items'] = PeminjamanBarang::where('kode_booking', $booking['booking_code'])->get();
 
@@ -71,8 +59,22 @@ class PeminjamanController extends Controller
                     ->pluck('tools')
                     ->unique();
 
+                // Ambil data absen terkait
                 $absen = Absen::where('id_booking', $kode_booking)->first();
 
+                // Jika tanda tangan tidak ditemukan, jangan lakukan apa-apa
+                if (!$absen || !$absen->signature) {
+                    return view('peminjaman.showPinjam', [
+                        'booking' => $booking,
+                        'booking_items' => $bookingItems,
+                        'ruangan' => $booking['ruangans'][0] ?? null, // Menampilkan data ruangan pertama
+                        'database_items' => $booking['database_items'],
+                        'tools' => $tools, // Menambahkan informasi tools
+                        'absen' => $absen, // Data absen (name dan signature)
+                    ]);
+                }
+
+                // Jika signature ada, lanjutkan proses normal
                 return view('peminjaman.showPinjam', [
                     'booking' => $booking,
                     'booking_items' => $bookingItems,
@@ -80,7 +82,6 @@ class PeminjamanController extends Controller
                     'database_items' => $booking['database_items'],
                     'tools' => $tools, // Menambahkan informasi tools
                     'absen' => $absen, // Data absen (name dan signature)
-
                 ]);
             } else {
                 // Jika booking tidak ditemukan

@@ -64,3 +64,9 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+<!-- Silahkan Lakukan ini ketika mengclone -->
+1. lakukan : composer dump-autoload
+2. import database : https://drive.google.com/drive/folders/1ozIKGSUTJMYf69WrHgsAi6Ij9q-C2U9U?usp=sharing

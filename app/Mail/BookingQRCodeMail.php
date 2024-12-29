@@ -10,28 +10,27 @@ class BookingQRCodeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $bookingCode;
     public $qrCode;
 
     /**
      * Create a new message instance.
+     *
+     * @param string $qrCode
      */
-    public function __construct($bookingCode, $qrCode)
+    public function __construct($qrCode)
     {
-        $this->bookingCode = $bookingCode;
         $this->qrCode = $qrCode;
     }
 
     /**
      * Build the message.
+     *
+     * @return $this
      */
     public function build()
     {
-        return $this->subject('Your Booking QR Code')
-            ->view('emails.qrcode')
-            ->with([
-                'bookingCode' => $this->bookingCode,
-                'qrCode' => $this->qrCode, // Kirim sebagai variabel untuk ditampilkan di email
-            ]);
+        return $this->view('emails.booking_qrcode')
+                    ->subject('QR Code for Your Booking')
+                    ->with(['qrCode' => $this->qrCode]);
     }
 }

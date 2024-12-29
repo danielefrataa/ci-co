@@ -17,10 +17,11 @@
         body {
             font-family: 'Montserrat', sans-serif;
         }
+
         .btn[disabled] {
-    pointer-events: none;
-    opacity: 0.6;
-}
+            pointer-events: none;
+            opacity: 0.6;
+        }
 
         .main-card {
             border-radius: 10px;
@@ -110,94 +111,99 @@
         .modal-footer {
             border: none;
         }
-        
     </style>
 </head>
 
 <body>
     @include('layouts.app') <!-- Include navbar -->
-<div class="main-card border">
-    <h4 class="text-center mb-4" style="color: #091F5B;">Formulir Peminjaman Barang</h4>
+    <div class="main-card border">
+        <h4 class="text-center mb-4" style="color: #091F5B;">Formulir Peminjaman Barang</h4>
 
-    <!-- Info Card untuk Nama Event -->
-    <div class="info-card border mb-2 p-3">
-        <div class="d-flex align-items-center">
-            <p class="mb-0">Nama Event</p>
-            <p class="mb-0" style="color: #091F5B; margin-left: 20px;"><strong>{{ $booking['name'] }}</strong></p>
-        </div>
-    </div>
-
-    <!-- Card untuk Ruangan, PIC, Tanggal, dan Jam -->
-    <div class="info-card border p-3 mb-3">
-        <div class="row">
-            <div class="col-md-6 d-flex align-items-center">
-                <p class="mb-0">Ruangan</p>
-                <p class="mb-0" style="color: #091F5B; margin-left: 40px;">{{ $ruangan['name'] ?? 'Tidak Tersedia' }}</p>
-            </div>
-            <div class="col-md-6 d-flex align-items-center">
-                <p class="mb-0">PIC</p>
-                <p class="mb-0" style="color: #091F5B; margin-left: 25px;">{{ $booking['pic_name'] }}</p>
-            </div>
-            <div class="col-md-6 d-flex align-items-center mt-2">
-                <p class="mb-0">Tanggal</p>
-                <p class="mb-0 text-end" style="color: #091F5B; margin-left: 50px;">  {{ $booking['booking_items'][0]['booking_date'] }}</p>
-            </div>
-            <div class="col-md-6 d-flex align-items-center mt-2">
-                <p class="mb-0">Jam</p>
-                <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">{{ $booking['start_time'] }} - {{ $booking['end_time'] }}</p>
+        <!-- Info Card untuk Nama Event -->
+        <div class="info-card border mb-2 p-3">
+            <div class="d-flex align-items-center">
+                <p class="mb-0">Nama Event</p>
+                <p class="mb-0" style="color: #091F5B; margin-left: 20px;"><strong>{{ $booking['name'] }}</strong></p>
             </div>
         </div>
-    </div>
-    <!-- List Barang yang Dipinjam -->
-    <h5 class="section-title mt-4" style="color: #091F5B">List Barang yang Dipinjam</h5>
-    <table class="table table-striped">
-    <thead>
-        <tr>
-            <th>No</th>
-            <th>Nama Item</th>
-            <th>Jumlah</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{-- Data dari database --}}
-        @forelse ($database_items as $item)
-            <tr>
-                <td>{{ $loop->iteration }}</td>
-                <td>{{ $item->nama_item }}</td>
-                <td>{{ $item->jumlah }}</td>
-            </tr>
-        @empty
-            <tr>
-            </tr>
-        @endforelse
 
-        {{-- Data dari API --}}
-        @if (!$tools->isEmpty())
-            @php
-                $counter = $database_items->count() + 1; // Lanjutkan nomor dari data database
-            @endphp
-            @foreach ($tools as $tool)
+        <!-- Card untuk Ruangan, PIC, Tanggal, dan Jam -->
+        <div class="info-card border p-3 mb-3">
+            <div class="row">
+                <div class="col-md-6 d-flex align-items-center">
+                    <p class="mb-0">Ruangan</p>
+                    <p class="mb-0" style="color: #091F5B; margin-left: 40px;">
+                        {{ $ruangan['name'] ?? 'Tidak Tersedia' }}
+                    </p>
+                </div>
+                <div class="col-md-6 d-flex align-items-center">
+                    <p class="mb-0">PIC</p>
+                    <p class="mb-0" style="color: #091F5B; margin-left: 25px;">{{ $booking['pic_name'] }}</p>
+                </div>
+                <div class="col-md-6 d-flex align-items-center mt-2">
+                    <p class="mb-0">Tanggal</p>
+                    <p class="mb-0 text-end" style="color: #091F5B; margin-left: 50px;">
+                        {{ $booking['booking_items'][0]['booking_date'] }}
+                    </p>
+                </div>
+                <div class="col-md-6 d-flex align-items-center mt-2">
+                    <p class="mb-0">Jam</p>
+                    <p class="mb-0 text-end" style="color: #091F5B; margin-left: 20px;">{{ $booking['start_time'] }} -
+                        {{ $booking['end_time'] }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- List Barang yang Dipinjam -->
+        <h5 class="section-title mt-4" style="color: #091F5B">List Barang yang Dipinjam</h5>
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>{{ $counter++ }}</td>
-                    <td>{{ $tool }}</td>
-                    <td>Tidak ada jumlah spesifik</td>
+                    <th>No</th>
+                    <th>Nama Item</th>
+                    <th>Jumlah</th>
                 </tr>
-            @endforeach
-        @else
-            @if ($database_items->isEmpty())
-                {{-- Tampilkan baris kosong hanya jika database juga kosong --}}
-                <tr>
-                    <td colspan="3">Tidak ada data tools di API.</td>
-                </tr>
-            @endif
-        @endif
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                {{-- Data dari database --}}
+                @forelse ($database_items as $item)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $item->nama_item }}</td>
+                        <td>{{ $item->jumlah }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                    </tr>
+                @endforelse
+
+                {{-- Data dari API --}}
+                @if (!$tools->isEmpty())
+                                @php
+                                    $counter = $database_items->count() + 1; // Lanjutkan nomor dari data database
+                                @endphp
+                                @foreach ($tools as $tool)
+                                    <tr>
+                                        <td>{{ $counter++ }}</td>
+                                        <td>{{ $tool }}</td>
+                                        <td>Tidak ada jumlah spesifik</td>
+                                    </tr>
+                                @endforeach
+                @else
+                    @if ($database_items->isEmpty())
+                        {{-- Tampilkan baris kosong hanya jika database juga kosong --}}
+                        <tr>
+                            <td colspan="3">Tidak ada data tools di API.</td>
+                        </tr>
+                    @endif
+                @endif
+            </tbody>
+        </table>
 
 
 
-         <!-- Checkbox Syarat dan Ketentuan -->
-         <div class="form-check mb-3">
+        <!-- Checkbox Syarat dan Ketentuan -->
+        <div class="form-check mb-3">
             <input type="checkbox" class="form-check-input" id="agree" name="agree" required>
             <label class="form-check-label" for="agree" style="color: #091F5B; font-weight:500;">
                 Syarat dan Ketentuan
@@ -210,28 +216,47 @@
                 <p class="signature-title">Mengetahui,<br> Marketing</p>
                 <p><img src="{{ asset('images/marketing_ttd.png') }}" alt="Tanda Tangan"
                         style="width: 80px; height: 80px;"></p>
+                <p>{{ $booking['history'][0]['pic_marketing'] }}</p>
             </div>
             <div class="d-flex" style="flex-basis: 35%; justify-content: space-between;">
                 <div class="signature-group mt-4 text-center">
                     <p class="signature-title">Mengetahui,<br> Peminjam</p>
                     <p>
-                        <img src="{{ $absen->signature }}" alt="Tanda Tangan" style="width: 180px; height: 80px; padding-left: 45px;">
+                        @if ($absen && $absen->signature)
+                            <img src="{{ $absen->signature }}" alt="Tanda Tangan"
+                                style="width: 180px; height: 80px; padding-left: 45px;">
+                        @else
+                            <p>Tanda tangan belum tersedia.</p>
+                        @endif
                     </p>
-                    <p>{{ $absen->name }}</p>
+                    @if ($absen && $absen->name)
+                        <p>{{ $absen->name }}</p>
+                    @else
+                        <p>Nama belum tersedia.</p>
+                    @endif
                 </div>
                 <div class="signature-group mt-4 text-center">
-                    <p class="signature-title">Mengetahui,<br> FO</p>
-                    <p><img src="{{ asset('images/fo_ttd.png') }}" alt="Tanda Tangan"
-                            style=" width: 80px; height: 80px;"></p>
+                    @if(auth()->user() && auth()->user()->role === 'fo')
+                        <p class="signature-title">Mengetahui,<br> FO</p>
+                        <p><img src="{{ asset('images/fo_ttd.png') }}" alt="Tanda Tangan"
+                                style="width: 80px; height: 80px;"></p>
+                        <p>{{ $absen->name }}</p>
+                    @endif
                 </div>
+
             </div>
         </div>
     </div>
 
-   <!-- Tombol Setuju -->
-   <div class="text-center mt-4 mb-4">
-   <a href="{{ route('dashboard') }}" class="btn btn-primary" id="agreeButton" disabled>Setuju</a>
-   </div>
+    <!-- Tombol Setuju -->
+    <div class="text-center mt-4 mb-4">
+        @if(auth()->user()->role === 'produksi')
+            <a href="{{ route('production.peminjaman') }}" class="btn btn-primary" id="agreeButton">Setuju</a>
+        @else
+            <a href="{{ route('inputkode.validate.role') }}" class="btn btn-primary" id="agreeButton" disabled>Setuju</a>
+        @endif
+    </div>
+
 
     <!-- Modal Syarat dan Ketentuan -->
     <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
@@ -265,39 +290,39 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
 
     <script>
-    // Ambil elemen checkbox, tombol, dan modal
-    const agreeCheckbox = document.getElementById('agree');
-    const agreeButton = document.getElementById('agreeButton');
-    const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+        // Ambil elemen checkbox, tombol, dan modal
+        const agreeCheckbox = document.getElementById('agree');
+        const agreeButton = document.getElementById('agreeButton');
+        const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
 
-    // Tambahkan event listener untuk perubahan pada checkbox
-    agreeCheckbox.addEventListener('change', function () {
-        if (this.checked) {
-            // Tampilkan modal syarat dan ketentuan
-            termsModal.show();
-        } else {
-            // Nonaktifkan tombol jika checkbox tidak dicentang
-            agreeButton.setAttribute('disabled', 'true');
-        }
-    });
+        // Tambahkan event listener untuk perubahan pada checkbox
+        agreeCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                // Tampilkan modal syarat dan ketentuan
+                termsModal.show();
+            } else {
+                // Nonaktifkan tombol jika checkbox tidak dicentang
+                agreeButton.setAttribute('disabled', 'true');
+            }
+        });
 
-    // Tambahkan event listener pada tombol "Setuju" di modal
-    document.querySelector('#termsModal .btn-primary').addEventListener('click', function () {
-        termsModal.hide(); // Sembunyikan modal
+        // Tambahkan event listener pada tombol "Setuju" di modal
+        document.querySelector('#termsModal .btn-primary').addEventListener('click', function () {
+            termsModal.hide(); // Sembunyikan modal
 
-        // Aktifkan tombol jika checkbox tetap dicentang
-        if (agreeCheckbox.checked) {
-            agreeButton.removeAttribute('disabled');
-        }
-    });
+            // Aktifkan tombol jika checkbox tetap dicentang
+            if (agreeCheckbox.checked) {
+                agreeButton.removeAttribute('disabled');
+            }
+        });
 
-    // Reset tombol jika modal ditutup tanpa menyetujui
-    document.getElementById('termsModal').addEventListener('hidden.bs.modal', function () {
-        if (!agreeCheckbox.checked) {
-            agreeButton.setAttribute('disabled', 'true');
-        }
-    });
-</script>
+        // Reset tombol jika modal ditutup tanpa menyetujui
+        document.getElementById('termsModal').addEventListener('hidden.bs.modal', function () {
+            if (!agreeCheckbox.checked) {
+                agreeButton.setAttribute('disabled', 'true');
+            }
+        });
+    </script>
 
 </body>
 

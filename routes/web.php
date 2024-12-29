@@ -20,10 +20,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade as PDF;
 
 
-//Export Data
-Route::get('export-bookings', function () {
-    return Excel::download(new BookingsExport(request()->all()), 'bookings.csv');
-})->name('bookings.export');
+
 
 
 // udah fix jangan kerubah 
@@ -41,60 +38,68 @@ Route::post('/login', [LoginController::class, 'login'])->middleware(RoleRedirec
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // front_office
-Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
-Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
-Route::post('/update-duty-officer', [BookingsController::class, 'updateDutyOfficer'])
-    ->middleware('auth') // Tambahkan middleware di sini
-    ->name('update-duty-officer');
+Route::middleware(['auth', 'role:frontoffice'])->group(function () {
 
-Route::get('/duty-officer/{id}', [Bookings::class, 'dutyOfficer'])->name('duty_officer');
-
+    Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
+    Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
+    Route::post('/update-duty-officer', [BookingsController::class, 'updateDutyOfficer'])
+        ->middleware('auth') // Tambahkan middleware di sini
+        ->name('update-duty-officer');
+    Route::get('export-bookings', [BookingsController::class, 'exportBookings'])->name('bookings.export');
+    Route::get('/bookings', [BookingsController::class, 'getBookingData']);
+    Route::get('/front-office/roomlist', [RoomListController::class, 'index'])->name('front_office.index');
+    Route::get('/front-office/roomlist', [RoomListController::class, 'filter'])->name('front_office.roomList');
+    Route::get('/inputkode/validate-role', [InputKodeController::class, 'validateRole'])->name('inputkode.validate.role');
+    Route::post('/duty-officer/store', [DutyOfficerController::class, 'storeDutyOfficer'])->name('dutyofficer.store');
+});
 
 // diskopindag
-Route::get('/dinas/approve', [dinasApprovalController::class, 'index'])->name('dinas.approve');
-Route::post('/approval/store', [dinasApprovalController::class, 'store'])->name('approval.store');
+Route::middleware(['auth', 'role:kabid,kadin'])->group(function () {
+    Route::get('/dinas/approve', [dinasApprovalController::class, 'index'])->name('dinas.approve');
+    Route::post('/approval/store', [dinasApprovalController::class, 'store'])->name('approval.store');
+    Route::post('/approve-kabid', [dinasApprovalController::class, 'approveKabid'])->name('approve.kabid');
+    Route::post('/approve-kadin', [dinasApprovalController::class, 'approveKadin'])->name('approve.kadin');
 
-Route::get('/bookings', [BookingsController::class, 'getBookingData']);
+});
 
 // register
 Route::get('/front-office/register', [RegistrationController::class, 'showRegistrationForm'])->name('front_office.register');
 Route::post('/front-office/register', [RegistrationController::class, 'register'])->name('front_office.register.post');
 
-// dewint tambahin, untuk akses detail booking, checkin, dan peminjaman. 
+// user biasa dan fo
 Route::post('/store', [AbsenController::class, 'store'])->name('store');
-
 Route::get('/booking/details/{kode_booking}', [BookingsController::class, 'showDetails'])->name('booking.details');
 Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('checkin.store');
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
-Route::get('/front-office/roomlist', [RoomListController::class, 'index'])->name('front_office.index');
-Route::get('/front-office/roomlist', [RoomListController::class, 'filter'])->name('front_office.roomList');
-// In routes/web.php
-
-//marketing
-Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name('marketing.peminjaman');
-Route::post('/marketing/store', [MarketingController::class, 'store'])->name('marketing.store');
-Route::delete('/items/{id}', [MarketingController::class, 'destroy'])->name('items.destroy');
-//Route::get('/marketing/peminjaman', [BookingsController::class, 'index'])->name('front_office.dashboard');
-
-//peminjaman
-// Route untuk update dan tambah barang
-Route::post('/peminjaman/update', [PeminjamanController::class, 'update'])->name('peminjaman.update');
-Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
-Route::get('/peminjaman/create/{nama_event}', [PeminjamanController::class, 'showEdit'])->name('peminjaman.create');
-Route::get('/bookings', [BookingsController::class, 'index'])->name('bookings.index');
-
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('inputkode.show');
 Route::match(['get', 'post'], '/front-office/match', [InputKodeController::class, 'match'])->name('inputkode.match');
 Route::post('/booking/complete-check-in/{kode_booking}', [InputKodeController::class, 'completeCheckIn'])->name('booking.completeCheckIn');
 Route::post('/checkout', [InputKodeController::class, 'checkout'])->name('inputkode.checkout');
 
+
+//marketing
+
+Route::middleware(['auth', 'role:marketing'])->group(function () {
+    Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name('marketing.peminjaman');
+    Route::post('/marketing/store', [MarketingController::class, 'store'])->name('marketing.store');
+    Route::delete('/items/{id}', [MarketingController::class, 'destroy'])->name('items.destroy');
+    // Route untuk update dan tambah barang
+    Route::post('/peminjaman/update', [PeminjamanController::class, 'update'])->name('peminjaman.update');
+    Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
+    Route::get('/peminjaman/create/{nama_event}', [PeminjamanController::class, 'showEdit'])->name('peminjaman.create');
+    Route::get('/marketing/history', [MarketingController::class, 'history'])->name('marketing.history');
+
+});
+
+
 // production 
-Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');
+Route::middleware(['auth', 'role:produksi'])->group(function () {
 
-// Batas Terakhir dewinta yang ngerapihinnn
-
-
+    Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');
+});
 Route::get('/generate-qrcode/{bookingCode}', [QRCodeController::class, 'generateQRCode']);
 // Route::get('/generate-qrcode/{bookingCode}', [QRCodeController::class, 'sendQRCode']);
-Route::post('/duty-officer/store', [DutyOfficerController::class, 'storeDutyOfficer'])->name('dutyofficer.store');
+
+Route::post('/send-qrcode-email', [QRCodeController::class, 'sendQRCodeEmail'])->name('send.qrcode.email');
+Route::get('/qrcode/{bookingCode}', [QRCodeController::class, 'showQRCodePage'])->name('qrcode.page');

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Front Office Login</title>
+    <title>CICO Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- Fonts -->
@@ -26,11 +26,17 @@
     </style>
 </head>
 
+
 <body>
     @include('layouts.app')
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
-    </script>
+        </script>
     <div class="d-flex flex-column justify-content-center align-items-center pt-5">
         @if (session('success'))
             <div class="alert alert-success">
@@ -38,13 +44,12 @@
             </div>
         @endif
         <h1 style="color: #091F5B;">Login</h1>
-        <form action="{{ route('login') }}" method="POST" style="border-radius: 10px"
-            class="card p-5 w-75 shadow-lg ">
+        <form action="{{ route('login') }}" method="POST" style="border-radius: 10px" class="card p-5 w-75 shadow-lg ">
             @csrf
             <div class="form-group justify-content-between my-1">
                 <label class="py-1 fw-bold fs-5" for="email">Email</label>
-                <input type="email" style="background-color: white; border-radius: 10px;" name="email"
-                    id="email" class="form-control py-3" required>
+                <input type="email" style="background-color: white; border-radius: 10px;" name="email" id="email"
+                    class="form-control py-3" required>
             </div>
             <div class="form-group justify-content-between my-1">
                 <label class="py-1 fw-bold fs-5" for="password">Password</label>

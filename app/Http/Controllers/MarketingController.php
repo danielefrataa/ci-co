@@ -10,7 +10,6 @@ use Carbon\Carbon;
 
 class MarketingController extends Controller
 {
-    //Bisa nggak
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
 
     public function index(Request $request)
@@ -138,6 +137,8 @@ class MarketingController extends Controller
                 'nama_item' => $item['nama_item'],
                 'jumlah' => $item['jumlah'],
                 'kode_booking' => $kode_booking, // Set kode_booking (null jika tidak ada)
+                'created_by' => auth()->id(), // Menyimpan ID user yang menambahkan barang
+
             ]);
         }
 
@@ -145,14 +146,34 @@ class MarketingController extends Controller
     }
 
     public function destroy($id)
-    {
-        try {
-            $item = PeminjamanBarang::findOrFail($id);
-            $item->delete();
+{
+    try {
+        $item = PeminjamanBarang::findOrFail($id);
+        $item->deleted_by = auth()->id(); // Menyimpan ID user yang menghapus
+        $item->save(); // Simpan perubahan sebelum soft delete
+        $item->delete(); // Soft delete
 
-            return response()->json(['success' => true, 'message' => 'Item berhasil dihapus']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal menghapus item'], 500);
-        }
+        return response()->json(['success' => true, 'message' => 'Item berhasil dihapus']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => 'Gagal menghapus item'], 500);
     }
+}
+public function history(Request $request)
+{
+    // Ambil data peminjaman barang beserta informasi siapa yang menambahkan dan menghapus
+    $data = PeminjamanBarang::withTrashed()
+        ->with(['createdBy', 'deletedBy'])
+        ->paginate(10);
+
+    // Mengirim data ke view beserta informasi pagination
+    return view('marketing.history', [
+        'data' => $data,
+        'currentPage' => $data->currentPage(),
+        'totalPages' => $data->lastPage(),
+        'perPage' => $data->perPage(),
+    ]);
+}
+
+
+
 }

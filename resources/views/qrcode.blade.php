@@ -10,5 +10,18 @@
     <div>
         {!! $qrCode !!}
     </div>
+
+    <!-- Form Input Email -->
+    <form id="emailForm" action="{{ route('send.qrcode.email') }}" method="POST">
+        @csrf
+        <label for="email">Masukkan Email Tujuan:</label>
+        <input type="email" id="email" name="email" required>
+        <button type="submit">Kirim</button>
+    </form>
+
+    <!-- Pesan Berhasil -->
+    @if (session('success'))
+        <p>{{ session('success') }}</p>
+    @endif
 </body>
 </html>

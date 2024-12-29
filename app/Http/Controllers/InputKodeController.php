@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\PeminjamanBarang;
+use Illuminate\Support\Facades\Auth;
+
 class InputKodeController extends Controller
 {
     private $apiKey = 'JUrrUHAAdBepnJjpfVL2nY6mx9x4Cful4AhYxgs3Qj6HEgryn77KOoDr6BQZgHU1';
@@ -17,7 +19,19 @@ class InputKodeController extends Controller
     {
         return view('front_office.inputkode');
     }
-
+    public function validateRole()
+    {
+        $user = Auth::user();
+    
+        if ($user && $user->role === 'frontoffice') {
+            // Redirect ke dashboard Front Office jika role adalah frontoffice
+            return redirect()->route('front_office.dashboard');
+        }
+    
+        // Redirect ke dashboard utama jika role bukan frontoffice
+        return redirect()->route('dashboard');
+    }
+    
     // Proses input kode booking
     public function match(Request $request)
 {
@@ -32,11 +46,21 @@ class InputKodeController extends Controller
 
     // Pengecekan apakah kode booking sudah check-in
     $checkIn = \App\Models\Absen::where('id_booking', $id_booking)->first(); // Sesuaikan dengan model dan kolom yang digunakan untuk check-in
-
     if ($checkIn) {
-        Log::info('Booking dengan kode ' . $id_booking . ' sudah check-in.');
-        return redirect()->route('inputkode.show')->with('gagal', 'Anda sudah melakukan check-in dengan kode booking ini.');
+        $today = Carbon::today()->format('Y-m-d'); // Mendapatkan tanggal hari ini dalam format Y-m-d
+    
+        // Periksa apakah sudah ada check-in untuk tanggal hari ini berdasarkan tabel absen
+        $existingCheckIn = $checkIn->where('tanggal', $today)->first();
+    
+        if ($existingCheckIn) {
+            Log::info('Booking dengan kode ' . $id_booking . ' sudah check-in pada tanggal ' . $today);
+            return redirect()->route('inputkode.show')->with('gagal', 'Anda sudah melakukan check-in dengan kode booking ini untuk hari ini.');
+        }
     }
+    
+    
+    // Jika tidak ada check-in untuk hari ini, lanjutkan proses check-in
+    
 
     // Inisialisasi variabel untuk API
     $today = Carbon::now()->toDateString(); // Format: 2024-11-19
@@ -238,15 +262,14 @@ class InputKodeController extends Controller
         Log::info("Tidak ada peminjaman barang untuk kode: {$kode_booking}");
 
         // Redirect berdasarkan role pengguna
-        if (auth()->user()->role === 'frontoffice') {
-            return redirect()->route('front_office.dashboard')
-                ->with('success', 'Check-in berhasil. Terima kasih!');
-        }
+        // if (auth()->user()->role === 'frontoffice') {
+        //     return redirect()->route('front_office.dashboard')
+        //         ->with('success', 'Check-in berhasil. Terima kasih!');
+        // }
 
         // Jika bukan FO, redirect ke halaman input kode
         return redirect()->route('inputkode.show')->with('success', 'Check-in berhasil. Terima kasih!');
     }
-
 
     public function checkout(Request $request)
     {
@@ -265,7 +288,6 @@ class InputKodeController extends Controller
         if (!$absenTerbaru) {
             return redirect()->back()->with('gagal', 'Data booking tidak ditemukan.');
         }
-
         // Update status menjadi Check-out jika absen ditemukan
         try {
             $absenTerbaru->update(['status' => 'Check-out']);
@@ -275,7 +297,4 @@ class InputKodeController extends Controller
             return redirect()->back()->with('gagal', 'Terjadi kesalahan saat mengubah status.');
         }
     }
-
-
-
 }

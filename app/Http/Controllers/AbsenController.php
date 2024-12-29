@@ -29,28 +29,46 @@ class AbsenController extends Controller
         Carbon::setLocale('id');
         $allBookings = collect();
         $page = 1;
-        $maxPages = 2; // Batasi maksimal 2 halaman untuk mencegah infinite loop
+        $maxPages = rand(3, 5); // Atur secara acak antara 3 hingga 5 halaman
     
         // Iterasi API untuk mengambil semua data
         do {
             Log::info("Mengakses halaman: {$page}");
-    
+        
             $url = "https://event.mcc.or.id/api/event?status=booked&date={$today}&page={$page}";
             $response = Http::withHeaders([
                 'X-API-KEY' => $this->apiKey,
             ])->withoutVerifying()->get($url);
-    
+        
             if ($response->successful()) {
                 $data = collect($response->json()['data'] ?? []);
                 $allBookings = $allBookings->merge($data);
+        
+                // Periksa apakah kode booking ditemukan
+                $bookingData = $data->first(function ($item) use ($id_booking) {
+                    return strtolower($item['booking_code']) === $id_booking;
+                });
+        
+                if ($bookingData) {
+                    Log::info('Data Booking ditemukan pada halaman: ' . $page);
+                    break; // Hentikan iterasi jika data ditemukan
+                }
+        
                 $page++;
             } else {
                 Log::error("Gagal mengambil data dari halaman: {$page} dengan status: {$response->status()}");
-                Log::error('Error accessing API: ' . $response->body());  // Log respons lengkap untuk debugging
+                Log::error('Error accessing API: ' . $response->body());
+        
+                // Jika respons 400 dengan pesan "data not found", anggap data habis
+                if ($response->status() === 400 && str_contains($response->body(), '"data not found"')) {
+                    break; // Hentikan iterasi jika data tidak ditemukan
+                }
+        
+                // Jika error lainnya, kembalikan error
                 return redirect()->route('inputkode.show')->with('gagal', 'Gagal mengambil data dari API.');
             }
-    
-        } while ($data->isNotEmpty() && $page <= $maxPages);
+        } while ($page <= $maxPages);
+        
     
         // Cari booking berdasarkan kode_booking
         $bookingData = $allBookings->first(function ($item) use ($id_booking) {
@@ -140,7 +158,7 @@ class AbsenController extends Controller
         $today = Carbon::now()->toDateString();
         $allBookings = collect();
         $page = 1;
-        $maxPages = 2; // Batasi maksimal 2 halaman untuk mencegah infinite loop
+        $maxPages = 5; // Batasi maksimal 2 halaman untuk mencegah infinite loop
 
         // Iterasi API untuk mengambil semua data
         do {
@@ -170,6 +188,13 @@ class AbsenController extends Controller
         if (!$bookingData) {
             return redirect('/')->with('gagal', 'Booking tidak ditemukan.');
         }
+        $bookingData = $response->json();
+        $booking = collect($bookingData['data'] ?? [])->firstWhere('booking_code', $kode_booking);
+
+        if (!$booking) {
+            Log::error("Booking tidak ditemukan untuk kode: {$kode_booking}");
+            return back()->with('error', 'Booking tidak ditemukan.');
+        }
 
         // Simpan atau update data check-in
         $absen = Absen::where('id_booking', $kode_booking)->first();
@@ -183,6 +208,9 @@ class AbsenController extends Controller
                 'tanggal' => $request->tanggal,
                 'duty_officer_id' => $request->duty_officer_id, // Ensure this is being passed
                 'status' => $request->status,
+                'ruangan' => $booking['ruangans'][0]['name'], // Jika ada ruangan terkait
+                'lantai' => $booking['ruangans'][0]['floor'], // Jika ada ruangan terkait
+
             ]);
         } else {
             $absen->update([

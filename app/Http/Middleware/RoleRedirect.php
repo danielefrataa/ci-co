@@ -20,7 +20,11 @@ class RoleRedirect
                 case 'it':
                     return redirect()->intended('/it/home');
                 case 'produksi':
-                    return redirect()->intended('/produksi/home');
+                    return redirect()->intended('/production/peminjaman');
+                case 'kadin': // Redirect for Kepala Dinas
+                    return redirect()->intended('/dinas/approve');
+                case 'kabid': // Redirect for Kepala Bidang
+                    return redirect()->intended('/dinas/approve');
                 default:
                     return redirect()->intended('/home'); // Default home for other roles
             }

@@ -16,10 +16,9 @@
             <div class="d-flex align-items-center">
                 <!-- Date and Day Display in Indonesian -->
                 <div class="me-3">
-                    <span>{{ \Carbon\Carbon::now()->locale('id')->translatedFormat(format: 'l, d F Y') }}</span>
+                    <span>{{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }}</span>
                 </div>
 
-                <!-- User Info Display with Dropdown -->
                 <!-- User Info Display with Dropdown -->
                 @auth
                     <div class="d-flex align-items-center rounded-pill border px-3 py-1"
@@ -33,7 +32,7 @@
                             <div style="font-size: 14px; color: #091F5B;">{{ auth()->user()->name }}</div>
                         </div>
 
-                        <!-- Dropdown Arrow for Logout -->
+                        <!-- Dropdown Arrow for Logout and Marketing Menu -->
                         <div class="dropdown">
                             <a href="#" class="d-flex align-items-center text-decoration-none" id="dropdownUser"
                                 data-bs-toggle="dropdown" aria-expanded="false">
@@ -54,6 +53,21 @@
                                     </li>
                                     <hr class="dropdown-divider my-1">
                                 @endif
+
+                                @if (auth()->user()->role === 'marketing')
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ route('marketing.peminjaman') }}">
+                                            <i class="fas fa-boxes me-2"></i> Peminjaman Barang
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ route('marketing.history') }}">
+                                            <i class="fas fa-history me-2"></i> History
+                                        </a>
+                                    </li>
+                                    <hr class="dropdown-divider my-1">
+                                @endif
+
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
@@ -64,7 +78,6 @@
                                 </li>
                             </ul>
                         </div>
-
                     </div>
                 @endauth
             </div>

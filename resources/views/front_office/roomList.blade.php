@@ -112,8 +112,13 @@ use Carbon\Carbon;
 
     <div class="container">
         <div class="d-flex justify-content-start">
-            <form method="GET" action="{{ route('front_office.roomList') }}" class="d-inline">
-                <select name="lantai" class="form-select my-5 shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
+        <div class="container mb-5">
+    <div class="row align-items-center">
+        <!-- Filter Lantai dan Status -->
+        <div class="col-md-8 d-flex">
+            <!-- Filter Lantai -->
+            <form method="GET" action="{{ route('front_office.roomList') }}" class="me-3">
+                <select name="lantai" class="form-select shadow-sm" aria-label="Filter Lantai" style="border-radius: 15px;" onchange="this.form.submit()">
                     <option value="">Semua Lantai</option>
                     <option value="lantai 1" {{ request('lantai') == 'lantai 1' ? 'selected' : '' }}>Lantai 1</option>
                     <option value="lantai 2" {{ request('lantai') == 'lantai 2' ? 'selected' : '' }}>Lantai 2</option>
@@ -125,25 +130,30 @@ use Carbon\Carbon;
                     <option value="lantai 8" {{ request('lantai') == 'lantai 8' ? 'selected' : '' }}>Lantai 8</option>
                 </select>
             </form>
-            <form method="GET" action="{{ route('front_office.roomList') }}" class="d-inline" style="padding-left: 16px;">
-                <select name="status" class="form-select my-5 shadow-sm" aria-label="Status Filter" style="border-radius: 15px;" onchange="this.form.submit()">
+
+            <!-- Filter Status -->
+            <form method="GET" action="{{ route('front_office.roomList') }}">
+                <select name="status" class="form-select shadow-sm" aria-label="Filter Status" style="border-radius: 15px;" onchange="this.form.submit()">
                     <option value="">Semua Status</option>
                     <option value="Check-out" {{ request('status') == 'Check-out' ? 'selected' : '' }}>Kosong</option>
                     <option value="unknown" {{ request('status') == 'unknown' ? 'selected' : '' }}>Dipesan</option>
                     <option value="Check-in" {{ request('status') == 'Check-in' ? 'selected' : '' }}>Sedang Digunakan</option>
-
                 </select>
-
             </form>
-            <div class="mb-5">
-                <div class="mt-5" style="position: relative; display: inline-block; width: 100%; padding-left: 716px;">
-                    <input type="text" class="py-2 pl-3 pr-5 text-center" placeholder="Telusuri" name="search" value="{{ request('search') }}" style="width: 100%; border-radius: 21px; border: 1px solid #ccc;">
+        </div>
 
-                    <button type="button" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
-                        <span class="fa fa-search" style="font-size: 18px;"></span>
-                    </button>
-                </div>
-            </div>
+        <!-- Pencarian -->
+        <div class="col-md-4">
+            <form method="GET" action="{{ route('front_office.roomList') }}" class="position-relative">
+                <input type="text" class="form-control py-2 shadow-sm" placeholder="Telusuri" name="search" value="{{ request('search') }}" style="border-radius: 15px;">
+                <button type="submit" class="btn position-absolute end-0 top-50 translate-middle-y pe-3">
+                    <span class="fa fa-search" style="font-size: 18px;"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
         </div>
 
         <div id="pagination-container">
