@@ -95,11 +95,11 @@
             <table class="table custom-table">
                 <thead class="table-header">
                     <tr>
-                        <th style="width: 10%;">Kode Booking</th>
+                        <th style="width: 15%;">Kode Booking</th>
                         <th style="width: 15%;">Nama Event</th>
                         <th style="width: 15%;">Nama Organisasi</th>
                         <th style="width: 18%;">Ruangan dan Waktu</th>
-                        <th style="width: 15%;">Nama PIC</th>
+                        <th style="width: 12%;">Nama PIC</th>
                         <th style="width: 12%;">Duty Officer</th>
                         <th style="width: 15%;">User Check-in</th>
                         <th style="width: 13%;">Status</th>
