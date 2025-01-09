@@ -41,8 +41,8 @@ class LoginController extends Controller
                     return redirect()->intended('/front-office/dashboard');
                 case 'marketing':
                     return redirect()->intended('/marketing/peminjaman');
-                case 'it':
-                    return redirect()->intended('/it/home');
+                case 'IT':
+                    return redirect()->intended('/it/users');
                 case 'produksi':
                     return redirect()->intended('/production/peminjaman');
                 case 'kadin': // Redirect for Kepala Dinas

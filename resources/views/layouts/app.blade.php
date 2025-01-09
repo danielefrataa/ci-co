@@ -40,7 +40,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownUser"
                                 style="font-family: 'Montserrat', sans-serif; font-size: 14px; min-width: 200px;">
-                                @if (auth()->user()->role === 'frontoffice')
+                                @if (auth()->user()->role === 'IT' || auth()->user()->role === 'frontoffice')
                                     <li>
                                         <a class="dropdown-item py-2" href="{{ route('front_office.roomList') }}">
                                             <i class="fas fa-door-open me-2"></i> Room List
@@ -54,7 +54,7 @@
                                     <hr class="dropdown-divider my-1">
                                 @endif
 
-                                @if (auth()->user()->role === 'marketing')
+                                @if (auth()->user()->role === 'IT' || auth()->user()->role === 'marketing')
                                     <li>
                                         <a class="dropdown-item py-2" href="{{ route('marketing.peminjaman') }}">
                                             <i class="fas fa-boxes me-2"></i> Peminjaman Barang
@@ -67,7 +67,14 @@
                                     </li>
                                     <hr class="dropdown-divider my-1">
                                 @endif
-
+                                @if (auth()->user()->role === 'IT')
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ route('it.index') }}">
+                                            <i class="fas fa-users me-2"></i> Daftar Pengguna
+                                        </a>
+                                    </li>
+                                    <hr class="dropdown-divider my-1">
+                                @endif
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
