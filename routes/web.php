@@ -33,6 +33,7 @@ Route::get('/', function () {
 // Login
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->middleware(RoleRedirect::class);
+Route::get('/front-office/match', [InputKodeController::class, 'match'])->name('inputkode.match');
 
 // Logout
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -46,7 +47,6 @@ Route::middleware(['auth', 'role:frontoffice'])->group(function () {
         ->middleware('auth') // Tambahkan middleware di sini
         ->name('update-duty-officer');
     Route::get('export-bookings', [BookingsController::class, 'exportBookings'])->name('bookings.export');
-    Route::get('/bookings', [BookingsController::class, 'getBookingData']);
     Route::get('/front-office/roomlist', [RoomListController::class, 'index'])->name('front_office.index');
     Route::get('/front-office/roomlist', [RoomListController::class, 'filter'])->name('front_office.roomList');
     Route::get('/inputkode/validate-role', [InputKodeController::class, 'validateRole'])->name('inputkode.validate.role');
@@ -73,7 +73,7 @@ Route::post('/checkin/store', [AbsenController::class, 'checkinstore'])->name('c
 Route::get('/peminjaman/{kode_booking}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('front_office.inputkode');
 Route::get('/front-office/inputkode', [InputKodeController::class, 'show'])->name('inputkode.show');
-Route::match(['get', 'post'], '/front-office/match', [InputKodeController::class, 'match'])->name('inputkode.match');
+Route::post('/front-office/match', [InputKodeController::class, 'match'])->name('inputkode.match');
 Route::post('/booking/complete-check-in/{kode_booking}', [InputKodeController::class, 'completeCheckIn'])->name('booking.completeCheckIn');
 Route::post('/checkout', [InputKodeController::class, 'checkout'])->name('inputkode.checkout');
 

@@ -250,12 +250,13 @@
 
     <!-- Tombol Setuju -->
     <div class="text-center mt-4 mb-4">
-        @if(auth()->user()->role === 'produksi')
+        @if(auth()->check() && auth()->user()->role === 'produksi')
             <a href="{{ route('production.peminjaman') }}" class="btn btn-primary" id="agreeButton">Setuju</a>
         @else
             <a href="{{ route('inputkode.validate.role') }}" class="btn btn-primary" id="agreeButton" disabled>Setuju</a>
         @endif
     </div>
+
 
 
     <!-- Modal Syarat dan Ketentuan -->
