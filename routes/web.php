@@ -18,7 +18,7 @@ use App\Http\Controllers\DutyOfficerController;
 use App\Exports\BookingsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade as PDF;
-
+use App\Http\Controllers\UserController;
 
 
 
@@ -39,7 +39,7 @@ Route::get('/front-office/match', [InputKodeController::class, 'match'])->name('
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // front_office
-Route::middleware(['auth', 'role:frontoffice'])->group(function () {
+Route::middleware(['auth', 'role:frontoffice,IT'])->group(function () {
 
     Route::get('/front-office/dashboard', [BookingsController::class, 'index'])->name('front_office.dashboard');
     Route::post('/bookings/{id}/update-status', [BookingsController::class, 'updateStatus']);
@@ -54,7 +54,7 @@ Route::middleware(['auth', 'role:frontoffice'])->group(function () {
 });
 
 // diskopindag
-Route::middleware(['auth', 'role:kabid,kadin'])->group(function () {
+Route::middleware(['auth', 'role:kabid,kadin,IT'])->group(function () {
     Route::get('/dinas/approve', [dinasApprovalController::class, 'index'])->name('dinas.approve');
     Route::post('/approval/store', [dinasApprovalController::class, 'store'])->name('approval.store');
     Route::post('/approve-kabid', [dinasApprovalController::class, 'approveKabid'])->name('approve.kabid');
@@ -80,7 +80,7 @@ Route::post('/checkout', [InputKodeController::class, 'checkout'])->name('inputk
 
 //marketing
 
-Route::middleware(['auth', 'role:marketing'])->group(function () {
+Route::middleware(['auth', 'role:marketing,IT'])->group(function () {
     Route::get('/marketing/peminjaman', [MarketingController::class, 'index'])->name('marketing.peminjaman');
     Route::post('/marketing/store', [MarketingController::class, 'store'])->name('marketing.store');
     Route::delete('/items/{id}', [MarketingController::class, 'destroy'])->name('items.destroy');
@@ -94,7 +94,7 @@ Route::middleware(['auth', 'role:marketing'])->group(function () {
 
 
 // production 
-Route::middleware(['auth', 'role:produksi'])->group(function () {
+Route::middleware(['auth', 'role:produksi,IT'])->group(function () {
 
     Route::get('/production/peminjaman', [ProductionController::class, 'index'])->name('production.peminjaman');
 });
@@ -103,3 +103,11 @@ Route::get('/generate-qrcode/{bookingCode}', [QRCodeController::class, 'generate
 
 Route::post('/send-qrcode-email', [QRCodeController::class, 'sendQRCodeEmail'])->name('send.qrcode.email');
 Route::get('/qrcode/{bookingCode}', [QRCodeController::class, 'showQRCodePage'])->name('qrcode.page');
+Route::middleware(['auth', 'role:IT'])->group(function () {
+    Route::get('/it/users', [UserController::class, 'index'])->name('it.index');
+    Route::get('/it/users/create', [UserController::class, 'create'])->name('it.users.create');
+    Route::post('/it/users', [UserController::class, 'store'])->name('it.users.store');
+    Route::get('/it/users/{id}/edit', [UserController::class, 'edit'])->name('it.users.edit');
+    Route::put('/it/users/{id}', [UserController::class, 'update'])->name('it.users.update');
+    Route::delete('/it/users/{id}', [UserController::class, 'destroy'])->name('it.users.destroy');
+});

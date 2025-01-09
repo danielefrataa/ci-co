@@ -68,5 +68,11 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 
 <!-- Silahkan Lakukan ini ketika mengclone -->
-1. lakukan : composer dump-autoload
-2. import database : https://drive.google.com/drive/folders/1ozIKGSUTJMYf69WrHgsAi6Ij9q-C2U9U?usp=sharing
+Langkah Clone :
+1. git clone https://github.com/danielefrataa/ci-co.git 
+2. cd ci-co 
+3. composer install 
+4. cp .env.example .env   
+5. ⁠php artisan key:generate
+6. ⁠untuk impor database, silahkan buat database dengan nama : db_cico di phpmyadmin
+7. ⁠lalu import file qr.sql pada link  : https://drive.google.com/drive/folders/1ozIKGSUTJMYf69WrHgsAi6Ij9q-C2U9U?usp=sharing
